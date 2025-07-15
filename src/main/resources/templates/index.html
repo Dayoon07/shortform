@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <p th:text="${ p }"></p>
+
+    <input th:type="text" th:value="${ p }" />
+
+    <table>
+        <tr th:each="i : ${ list }">
+            <td th:text="${i.id}">아이디</td>
+            <td th:text="${i.username}">이름</td>
+        </tr>
+    </table>
+
+    <table>
+        <tr th:each="item, stat : ${list}">
+            <td>
+                <input type="checkbox"
+                       th:id="'chk-' + ${stat.index}"
+                       th:value="${item.id}" />
+                <label th:for="'chk-' + ${stat.index}" th:text="${item.username}">이름</label>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
