@@ -1,5 +1,6 @@
 package com.e.shortform.model.service;
 
+import com.e.shortform.model.dto.UserProfileDto;
 import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.mapper.UserMapper;
 import com.e.shortform.model.repository.UserRepo;
@@ -47,6 +48,8 @@ public class UserService {
             String fileName = n + UUID.randomUUID().toString().replaceAll("[^a-zA-Z0-9]", "") + exten;
             String uploadDir = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-user-profile-img/";
 
+            String mentionUuid = UUID.randomUUID().toString();
+
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -62,6 +65,7 @@ public class UserService {
                     .mail(mail)
                     .profileImg(fileName)
                     .profileImgSrc("/resources/shortform-user-profile-img/" + fileName)
+                    .mention(mentionUuid)
                     .build();
 
             userRepo.save(userEntity);
@@ -94,5 +98,12 @@ public class UserService {
         return user;
     }
 
+    public UserEntity findByMention(String mention) {
+        return userRepo.findByMention(mention);
+    }
+
+    public UserProfileDto getUserProfilePageInfo(Long id) {
+        return userMapper.getUserProfilePageInfo(id);
+    }
 
 }

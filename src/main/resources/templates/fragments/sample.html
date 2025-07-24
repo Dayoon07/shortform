@@ -10,7 +10,7 @@
 <body style="background-color: black; color: white; overflow: hidden;">
 
     <div class="flex h-screen">
-        <div th:replace="~{/fragments/sidebar.html :: sidebar}"></div>
+        <div th:replace="fragments/sidebar :: sidebar"></div>
 
         <main class="flex-1">
             <section>
@@ -19,9 +19,9 @@
         </main>
     </div>
 
-    <div th:replace="~{/fragments/bottom-navbar.html :: bottom-navbar}"></div>
-    <div th:replace="~{/fragments/sidebar.html :: loginModal}"></div>
-    <div th:replace="~{/fragments/sidebar.html :: signupModal}"></div>
+    <div th:replace="fragments/bottom-navbar.html :: bottom-navbar"></div>
+    <div th:replace="fragments/sidebar.html :: loginModal"></div>
+    <div th:replace="fragments/sidebar.html :: signupModal"></div>
 
     <script src="/js/user-session.js"></script>
 

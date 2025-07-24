@@ -17,6 +17,7 @@ public class UserVo {
     private String profileImg;
     private String profileImgSrc;
     private String bio;
+    private String mention;
     private LocalDateTime createAt;
 
 }

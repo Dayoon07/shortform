@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <title th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body style="background-color: black; color: white; overflow: hidden;">
+
+    <div class="flex h-screen">
+        <div th:replace="fragments/sidebar :: sidebar"></div>
+
+        <main class="flex-1">
+            <section class="p-6">
+
+                <div class="flex space-x-6">
+                    <div>
+                        <img th:src="${profileInfo.getProfileImgSrc()}" alt="..." class="w-44 h-44 rounded-full object-cover" />
+                    </div>
+                    <div class="space-y-2">
+                        <div>
+                            <h1 th:text="${profileInfo.getUsername()}" class="text-[30px] font-semibold"></h1>
+                            <small th:text="'@' + ${profileInfo.getMention()}" class="font-semibold"></small>
+                        </div>
+                        <form th:action="@{/${profileInfo.getUsername()} + '/follow'}" method="post">
+                            <button type="submit" class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">팔로우</button>
+                        </form>
+                        <div class="flex space-x-4">
+                            <div>
+                                <span th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로잉</span>
+                            </div>
+                            <div>
+                                <span th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로워</span>
+                            </div>
+                            <div>
+                                동영상&nbsp;<span></span><span>개</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p th:text="${profileInfo}"></p>
+            </section>
+        </main>
+    </div>
+
+    <div th:replace="fragments/bottom-navbar.html :: bottom-navbar"></div>
+    <div th:replace="fragments/sidebar.html :: loginModal"></div>
+    <div th:replace="fragments/sidebar.html :: signupModal"></div>
+
+    <script src="/js/user-session.js"></script>
+
+</body>
+</html>

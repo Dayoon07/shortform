@@ -58,16 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // 드래그앤드롭 처리
     dropArea.addEventListener("dragover", (e) => {
         e.preventDefault();
-        dropArea.classList.add("border-purple-500", "bg-purple-500/10");
+        dropArea.classList.add("border-gray-400", "bg-gray-400/10");
     });
 
     dropArea.addEventListener("dragleave", () => {
-        dropArea.classList.remove("border-purple-500", "bg-purple-500/10");
+        dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
     });
 
     dropArea.addEventListener("drop", (e) => {
         e.preventDefault();
-        dropArea.classList.remove("border-purple-500", "bg-purple-500/10");
+        dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
 
         const file = e.dataTransfer.files[0];
         if (file) {

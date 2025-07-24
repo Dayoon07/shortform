@@ -42,6 +42,9 @@ public class UserEntity {
     @Column(name = "bio")
     private String bio;
 
+    @Column(name = "mention", nullable = false, unique = true)
+    private String mention;
+
     @Column(name = "create_at", updatable = false, nullable = false)
     @CreationTimestamp
     private LocalDateTime createAt;

@@ -1,6 +1,7 @@
 package com.e.shortform.controller;
 
 import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.mapper.UserMapper;
 import com.e.shortform.model.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -12,8 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -111,6 +117,11 @@ public class RestMainController {
             response.put("message", "로그인 처리 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @PostMapping("/upload/video")
+    public ResponseEntity<Map<String, Object>> uploadVideo(@RequestParam("video") MultipartFile file) {
+        return (ResponseEntity<Map<String, Object>>) new HashMap<>().put("response", 1);
     }
 
 }

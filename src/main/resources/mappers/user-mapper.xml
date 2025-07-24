@@ -10,7 +10,24 @@
         <result property="profileImg" column="PROFILE_IMG"/>
         <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
         <result property="bio" column="BIO"/>
+        <result property="mention" column="MENTION"/>
         <result property="createAt" column="CREATE_AT"/>
+    </resultMap>
+
+    <resultMap id="getUserProfilePageInfoResultMap" type="com.e.shortform.model.dto.UserProfileDto">
+        <id property="id" column="ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="mail" column="MAIL"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="profileImg" column="PROFILE_IMG"/>
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
+        <result property="bio" column="BIO"/>
+        <result property="mention" column="MENTION"/>
+        <result property="createAt" column="CREATE_AT"/>
+        <result property="followerCount" column="FOLLOWER_COUNT"/>
+        <result property="followingCount" column="FOLLOWING_COUNT"/>
+        <result property="totalViews" column="TOTAL_VIEWS"/>
+        <result property="totalLikes" column="TOTAL_LIKES"/>
     </resultMap>
 
     <select id="selectAll" resultMap="userResultMap">
@@ -25,6 +42,31 @@
         SELECT MAIL FROM SHORTFORM_USERS WHERE MAIL = #{mail}
     </select>
 
-
+    <select id="getUserProfilePageInfo" resultMap="getUserProfilePageInfoResultMap" parameterType="Long">
+        SELECT
+            u.ID,
+            u.USERNAME,
+            u.MAIL,
+            u.PROFILE_IMG,
+            u.PROFILE_IMG_SRC,
+            u.BIO,
+            u.MENTION,
+            u.CREATE_AT,
+            (SELECT COUNT(*)
+             FROM SHORTFORM_USERS_FOLLOWS
+             WHERE FOLLOWED_USER_ID = u.ID) AS FOLLOWER_COUNT,
+            (SELECT COUNT(*)
+             FROM SHORTFORM_USERS_FOLLOWS
+             WHERE FOLLOW_USER_ID = u.ID) AS FOLLOWING_COUNT,
+            (SELECT COALESCE(SUM(VIDEO_VIEWS), 0)
+             FROM SHORTFORM_VIDEOS
+             WHERE UPLOADER_USER_ID = u.ID) AS TOTAL_VIEWS,
+            (SELECT COUNT(*)
+             FROM SHORTFORM_VIDEO_LIKES vl
+                      JOIN SHORTFORM_VIDEOS v ON v.ID = vl.LIKE_VIDEO_ID
+             WHERE v.UPLOADER_USER_ID = u.ID) AS TOTAL_LIKES
+        FROM SHORTFORM_USERS u
+        WHERE u.ID = #{id}
+    </select>
 
 </mapper>
