@@ -1,11 +1,29 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="https://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <title>FlipFlop</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
-<body>
+<body style="background-color: black; color: white; overflow: hidden;">
+
+    <div class="flex h-screen">
+        <div th:replace="~{/fragments/sidebar.html :: sidebar}"></div>
+
+        <main class="flex-1">
+            <section>
+
+            </section>
+        </main>
+    </div>
+
+    <div th:replace="~{/fragments/bottom-navbar.html :: bottom-navbar}"></div>
+    <div th:replace="~{/fragments/sidebar.html :: loginModal}"></div>
+    <div th:replace="~{/fragments/sidebar.html :: signupModal}"></div>
+
+    <script src="/js/user-session.js"></script>
 
 </body>
 </html>

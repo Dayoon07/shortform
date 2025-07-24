@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <body>
-    <aside th:fragment="sidebar" class="w-64 bg-black/50 backdrop-blur-sm border-r border-gray-800 flex flex-col px-3 py-6 space-y-4">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent pl-2">FlipFlop</h1>
+    <aside th:fragment="sidebar" class="max-md:hidden w-64 bg-black/50 backdrop-blur-sm border-r border-gray-800 flex flex-col px-3 py-6 space-y-4">
+        <h1 class="text-3xl font-bold bg-gradient-to-t from-pink-500 to-sky-500 bg-clip-text text-transparent pl-2">
+            <a th:href="@{/}">FlipFlop</a>
+        </h1>
 
         <div style="margin-top: 25px;">
             <form th:action="@{/search}" method="get" autocomplete="off">
-                <input type="text" name="q" placeholder="검색" class="w-full px-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none">
+                <input type="text" name="q" placeholder="검색" class="w-full px-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2">
             </form>
         </div>
 
@@ -33,31 +35,112 @@
             </button>
 
             <button id="followingBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
-                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M18.99 3a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 4a6 6 0 1 0 0 12.00A6 6 0 0 0 19 7ZM18.99 26c2.96 0 5.6.58 7.87 1.65l-3.07 3.06a15.38 15.38 0 0 0-4.8-.71C10.9 30 6.3 35.16 6 43c-.02.55-.46 1-1.02 1h-2c-.55 0-1-.45-.98-1C2.33 32.99 8.7 26 19 26ZM35.7 41.88 31.82 38H45a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H31.82l3.88-3.88a1 1 0 0 0 0-1.41l-1.41-1.42a1 1 0 0 0-1.42 0l-7.3 7.3a2 2 0 0 0 0 2.82l7.3 7.3a1 1 0 0 0 1.42 0l1.41-1.42a1 1 0 0 0 0-1.41Z"></path></svg>
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.99 3a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 4a6 6 0 1 0 0 12.00A6 6 0 0 0 19 7ZM18.99 26c2.96 0 5.6.58 7.87 1.65l-3.07
+                        3.06a15.38 15.38 0 0 0-4.8-.71C10.9 30 6.3 35.16 6 43c-.02.55-.46 1-1.02 1h-2c-.55 0-1-.45-.98-1C2.33 32.99 8.7 26 19 26ZM35.7 41.88
+                        31.82 38H45a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H31.82l3.88-3.88a1 1 0 0 0 0-1.41l-1.41-1.42a1 1 0 0 0-1.42 0l-7.3 7.3a2 2 0 0 0 0 2.82l7.3
+                        7.3a1 1 0 0 0 1.42 0l1.41-1.42a1 1 0 0 0 0-1.41Z">
+                    </path>
+                </svg>
                 <span class="font-medium">팔로잉</span>
             </button>
 
             <button id="uploadBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
-                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"><path d="M25 15a1 1 0 0 1 1 1v6h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-6v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-6h-6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h6v-6a1 1 0 0 1 1-1h2Z"></path><path d="M33.58 4.5H14.42c-1.33 0-2.45 0-3.37.07-.95.08-1.86.25-2.73.7a7 7 0 0 0-3.06 3.05 7.14 7.14 0 0 0-.69 2.73 44.6 44.6 0 0 0-.07 3.37v19.16c0 1.33 0 2.45.07 3.37.08.95.25 1.86.7 2.73a7 7 0 0 0 3.05 3.06c.87.44 1.78.6 2.73.69.92.07 2.04.07 3.37.07h19.16c1.33 0 2.45 0 3.37-.07a7.14 7.14 0 0 0 2.73-.7 7 7 0 0 0 3.06-3.05c.44-.87.6-1.78.69-2.73.07-.92.07-2.04.07-3.37V14.42c0-1.33 0-2.45-.07-3.37a7.14 7.14 0 0 0-.7-2.73 7 7 0 0 0-3.05-3.06 7.14 7.14 0 0 0-2.73-.69 44.6 44.6 0 0 0-3.37-.07ZM10.14 8.83c.2-.1.53-.21 1.24-.27.73-.06 1.69-.06 3.12-.06h19c1.43 0 2.39 0 3.12.06a3.3 3.3 0 0 1 1.24.27 3 3 0 0 1 1.31 1.3c.1.21.21.54.27 1.25.06.73.06 1.69.06 3.12v19c0 1.43 0 2.39-.06 3.12a3.3 3.3 0 0 1-.27 1.24 3 3 0 0 1-1.3 1.31c-.21.1-.54.21-1.25.27-.73.06-1.69.06-3.12.06h-19c-1.43 0-2.39 0-3.12-.06a3.3 3.3 0 0 1-1.24-.27 3 3 0 0 1-1.31-1.3c-.1-.21-.21-.54-.27-1.25-.06-.73-.06-1.69-.06-3.12v-19c0-1.43 0-2.39.06-3.12a3.3 3.3 0 0 1 .27-1.24 3 3 0 0 1 1.3-1.31Z"></path></svg>
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                    <path d="M25 15a1 1 0 0 1 1 1v6h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-6v6a1 1 0 0 1-1
+                        1h-2a1 1 0 0 1-1-1v-6h-6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h6v-6a1 1 0 0 1 1-1h2Z">
+                    </path>
+                    <path d="M33.58 4.5H14.42c-1.33 0-2.45 0-3.37.07-.95.08-1.86.25-2.73.7a7 7 0 0 0-3.06 3.05 7.14 7.14 0 0 0-.69 2.73 44.6 44.6 0 0 0-.07 3.37v19.16c0 1.33 0 2.45.07 3.37.08.95.25 1.86.7 2.73a7 7 0 0 0 3.05 3.06c.87.44 1.78.6 2.73.69.92.07 2.04.07 3.37.07h19.16c1.33 0 2.45 0 3.37-.07a7.14 7.14 0 0 0 2.73-.7 7 7 0 0 0
+                        3.06-3.05c.44-.87.6-1.78.69-2.73.07-.92.07-2.04.07-3.37V14.42c0-1.33 0-2.45-.07-3.37a7.14 7.14 0 0 0-.7-2.73 7 7 0 0 0-3.05-3.06 7.14 7.14 0 0 0-2.73-.69 44.6 44.6 0 0 0-3.37-.07ZM10.14 8.83c.2-.1.53-.21 1.24-.27.73-.06 1.69-.06 3.12-.06h19c1.43 0 2.39 0 3.12.06a3.3 3.3 0 0 1 1.24.27 3 3 0 0 1 1.31 1.3c.1.21.21.54.27
+                        1.25.06.73.06 1.69.06 3.12v19c0 1.43 0 2.39-.06 3.12a3.3 3.3 0 0 1-.27 1.24 3 3 0 0 1-1.3 1.31c-.21.1-.54.21-1.25.27-.73.06-1.69.06-3.12.06h-19c-1.43 0-2.39 0-3.12-.06a3.3 3.3 0 0 1-1.24-.27 3 3 0 0 1-1.31-1.3c-.1-.21-.21-.54-.27-1.25-.06-.73-.06-1.69-.06-3.12v-19c0-1.43 0-2.39.06-3.12a3.3 3.3 0 0 1 .27-1.24 3 3 0 0 1 1.3-1.31Z">
+                    </path>
+                </svg>
                 <span class="font-medium">업로드</span>
             </button>
 
             <button id="profileBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
-                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
+                <div th:if="${session.user == null}">
+                    <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <div th:if="${session.user != null}">
+                    <img th:src="${session.user.getProfileImgSrc()}" alt="..." style="width: 24px; height: 24px; border-radius: 100%;" />
+                </div>
                 <span class="font-medium">프로필</span>
             </button>
         </nav>
 
-        <div class="space-y-3">
-            <a th:href="@{/login}" class="block text-center w-full p-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all">
-                로그인
-            </a>
-            <a th:href="@{signup}" class="block text-center w-full p-3 border border-gray-600 rounded-xl font-semibold hover:border-purple-500 hover:bg-purple-500/10 transition-all">
-                회원가입
-            </a>
+        <div>
+            <div th:if="${session.user != null}">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="block text-center w-full p-3 border border-gray-600 rounded-xl font-semibold hover:border-purple-500 hover:bg-purple-500/10 transition-all">로그아웃</button>
+                </form>
+            </div>
+            <div class="space-y-3" th:if="${session.user == null}">
+                <button type="button" id="loginBtn" class="block text-center w-full p-3 bg-gradient-to-t from-pink-500 to-sky-500 rounded-xl font-semibold hover:from-pink-600 hover:to-sky-600 transition-all">
+                    로그인
+                </button>
+                <button type="button" id="signupBtn" class="block text-center w-full p-3 border border-gray-600 rounded-xl font-semibold hover:border-pink-500 hover:bg-pink-500/10 transition-all">
+                    회원가입
+                </button>
+            </div>
         </div>
     </aside>
+
+    <!-- Login Modal -->
+    <div th:fragment="loginModal" id="loginModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-gray-900 p-8 rounded-2xl max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6 text-center">로그인</h3>
+            <div class="space-y-4">
+                <input type="text" id="loginUsername" placeholder="사용자 이름" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-pink-600 focus:outline-none">
+                <input type="password" id="loginPassword" placeholder="비밀번호" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-gray-600 focus:outline-none">
+                <button id="loginSubmitBtn" class="w-full py-3 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-all">
+                    로그인
+                </button>
+            </div>
+            <div class="mt-6 text-center">
+                <button id="closeLoginModal" class="text-gray-400 hover:text-white">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div th:fragment="signupModal" id="signupModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-gray-900 p-8 rounded-2xl max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6 text-center">회원가입</h3>
+            <div class="space-y-4">
+                <!-- 1단계: 프로필 이미지 업로드 -->
+                <div id="signupStep1" class="space-y-4">
+                    <label for="profileImgPath" class="block text-sm mb-2">프로필 이미지</label>
+                    <div id="dropArea" class="relative bg-gray-800 rounded px-3 py-6 flex flex-col items-center justify-center hover:border-black transition-all">
+                        <input type="file" id="profileImgPath" name="profileImgPath" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" accept="image/*">
+                        <img id="profilePreview" src="#" alt="미리보기" class="hidden w-28 h-28 object-cover rounded-full" title="미리보기">
+                        <p id="uploadText" class="text-sm text-gray-400 text-center">이미지를 업로드하려면 <br> 클릭하거나 <span class="text-white font-semibold">드래그</span> 하세요</p>
+                    </div>
+                    <button id="nextToStep2Btn" class="w-full py-3 mt-4 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-all">
+                        다음
+                    </button>
+                </div>
+
+                <!-- 2단계: 사용자 정보 입력 -->
+                <div id="signupStep2" class="space-y-4 hidden">
+                    <input type="text" id="usernameInput" placeholder="사용자명" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-purple-500 focus:outline-none">
+                    <div id="username-feedback" class="mt-1"></div>
+                    <input type="text" id="emailInput" placeholder="이메일" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-purple-500 focus:outline-none">
+                    <div id="mail-feedback" class="mt-1"></div>
+                    <input type="password" id="passwordInput" placeholder="비밀번호" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-purple-500 focus:outline-none">
+                    <input type="password" id="confirmPasswordInput" placeholder="비밀번호 확인" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-purple-500 focus:outline-none">
+                    <button id="submitSignupBtn" class="w-full py-3 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-all">
+                        가입하기
+                    </button>
+                </div>
+            </div>
+            <div class="mt-6 text-center">
+                <button id="closeSignupModal" class="text-gray-400 hover:text-white">닫기</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.CommentReplyLikeMapper">
+
+    <resultMap id="commentReplyLikeResultMap" type="com.e.shortform.model.vo.CommentReplyLikeVo">
+        <id property="id" column="id"/>
+        <result property="replyId" column="reply_id"/>
+        <result property="likerUserId" column="liker_user_id"/>
+        <result property="likeAt" column="like_at"/>
+    </resultMap>
+
+    <resultMap id="commentReplyLikeWithUserReplyResultMap" type="com.e.shortform.model.dto.CommentReplyLikeWithUserReplyDto">
+        <id property="id" column="id"/>
+        <result property="replyId" column="reply_id"/>
+        <result property="likerUserId" column="liker_user_id"/>
+        <result property="likeAt" column="like_at"/>
+
+        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="commentReplyVo" javaType="com.e.shortform.model.vo.CommentReplyVo" />
+    </resultMap>
+
+</mapper>

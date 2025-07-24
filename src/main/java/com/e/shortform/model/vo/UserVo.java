@@ -1,6 +1,5 @@
 package com.e.shortform.model.vo;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;

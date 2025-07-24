@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.CommentReplyMapper">
+
+    <resultMap id="commentReplyResultMap" type="com.e.shortform.model.vo.CommentReplyVo">
+        <id property="id" column="ID"/>
+        <result property="commentReplyText" column="COMMENT_REPLY_TEXT"/>
+        <result property="commentReplyUserId" column="COMMENT_REPLY_USER_ID"/>
+        <result property="commentReplyId" column="COMMENT_REPLY_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+    </resultMap>
+
+    <resultMap id="commentReplyWithUserCommentResultMap" type="com.e.shortform.model.dto.CommentReplyWithUserCommentDto">
+        <id property="id" column="ID"/>
+        <result property="commentReplyText" column="COMMENT_REPLY_TEXT"/>
+        <result property="commentReplyUserId" column="COMMENT_REPLY_USER_ID"/>
+        <result property="commentReplyId" column="COMMENT_REPLY_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="commentVo" javaType="com.e.shortform.model.vo.CommentVo" />
+    </resultMap>
+
+</mapper>

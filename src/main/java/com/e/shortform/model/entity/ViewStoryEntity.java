@@ -31,4 +31,5 @@ public class ViewStoryEntity {
     @CreationTimestamp
     @Column(name = "create_at", updatable = false)
     private LocalDateTime createAt;
+
 }

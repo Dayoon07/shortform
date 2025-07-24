@@ -1,6 +1,5 @@
 plugins {
     java
-    war
     id("org.springframework.boot") version "3.4.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -37,7 +36,6 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
     annotationProcessor("org.projectlombok:lombok")
-    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4")
     testImplementation("org.springframework.security:spring-security-test")
@@ -46,4 +44,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveFileName.set("shortform.jar")
 }

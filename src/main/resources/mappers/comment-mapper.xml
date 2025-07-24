@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.CommentMapper">
+
+    <resultMap id="commentResultMap" type="com.e.shortform.model.vo.CommentVo">
+        <id property="id" column="ID"/>
+        <result property="commentText" column="COMMENT_TEXT"/>
+        <result property="userId" column="COMMENT_USER_ID"/>
+        <result property="videoId" column="COMMENT_VIDEO_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+    </resultMap>
+
+    <resultMap id="commentWithUserVideoResultMap" type="com.e.shortform.model.dto.CommentWithUserVideoDto">
+        <id property="id" column="ID"/>
+        <result property="commentText" column="COMMENT_TEXT"/>
+        <result property="userId" column="COMMENT_USER_ID"/>
+        <result property="videoId" column="COMMENT_VIDEO_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+
+        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="videoVo" javaType="com.e.shortform.model.vo.VideoVo" />
+    </resultMap>
+
+</mapper>

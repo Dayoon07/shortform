@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.VideoMapper">
+
+    <resultMap id="videoResultMap" type="com.e.shortform.model.vo.VideoVo">
+        <id property="id" column="ID"/>
+        <result property="videoTitle" column="VIDEO_TITLE"/>
+        <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
+        <result property="videoName" column="VIDEO_NAME"/>
+        <result property="videoSrc" column="VIDEO_SRC"/>
+        <result property="videoTag" column="VIDEO_TAG"/>
+        <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="uploaderUserId" column="UPLOADER_USER_ID"/>
+        <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
+        <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
+        <result property="uploadAt" column="UPLOAD_AT"/>
+    </resultMap>
+
+    <resultMap id="videoWithUserResultMap" type="com.e.shortform.model.dto.VideoWithUserDto">
+        <id property="id" column="ID"/>
+        <result property="videoTitle" column="VIDEO_TITLE"/>
+        <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
+        <result property="videoName" column="VIDEO_NAME"/>
+        <result property="videoSrc" column="VIDEO_SRC"/>
+        <result property="videoTag" column="VIDEO_TAG"/>
+        <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="uploaderUserId" column="UPLOADER_USER_ID"/>
+        <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
+        <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
+        <result property="uploadAt" column="UPLOAD_AT"/>
+
+        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+    </resultMap>
+
+</mapper>

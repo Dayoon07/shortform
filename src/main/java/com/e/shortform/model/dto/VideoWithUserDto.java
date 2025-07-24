@@ -1,6 +1,10 @@
-package com.e.shortform.model.vo;
+package com.e.shortform.model.dto;
 
-import lombok.*;
+import com.e.shortform.model.vo.UserVo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VideoVo {
+public class VideoWithUserDto {
 
     private Long id;
     private String videoTitle;
@@ -21,5 +25,7 @@ public class VideoVo {
     private String videoWatchAvailability;
     private Integer commentAvailability;
     private LocalDateTime uploadAt;
+
+    private UserVo userVo;
 
 }

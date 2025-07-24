@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.SearchListMapper">
+
+    <resultMap id="searchListResultMap" type="com.e.shortform.model.vo.SearchListVo">
+        <id property="id" column="id"/>
+        <result property="searchedUserId" column="searched_user_id"/>
+        <result property="searchedWord" column="searched_word"/>
+        <result property="createAt" column="create_at"/>
+    </resultMap>
+
+    <resultMap id="searchListWithUserResultMap" type="com.e.shortform.model.dto.SearchListWithUserDto">
+        <id property="id" column="id"/>
+        <result property="searchedUserId" column="searched_user_id"/>
+        <result property="searchedWord" column="searched_word"/>
+        <result property="createAt" column="create_at"/>
+
+        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+    </resultMap>
+
+</mapper>
