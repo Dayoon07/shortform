@@ -1,8 +1,7 @@
 package com.e.shortform.controller;
 
-import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.e.shortform.model.service.VideoService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,19 +12,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Controller
 @Slf4j
 @RequiredArgsConstructor
 public class MainController {
 
     private final UserService userService;
+    private final VideoService videoService;
 
     @GetMapping("/")
-    public String index(HttpServletRequest req, Model m) {
-        m.addAttribute("currentPath", req.getRequestURI());
+    public String index(Model m) {
+        m.addAttribute("videos", videoService.selectIndexPageAllVideos());
         return "index";
     }
 
@@ -48,8 +45,17 @@ public class MainController {
     }
 
     @GetMapping("/studio/upload")
-    public String uploadPage() {
+    public String uploadPage(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "index";
+        }
         return "video/upload";
+    }
+
+    @GetMapping("/@{mention}/video/{videoLoc}")
+    public String videoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
+        m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
+        return "video/video";
     }
 
 }

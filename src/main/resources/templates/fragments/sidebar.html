@@ -18,12 +18,12 @@
         </div>
 
         <nav class="flex flex-col space-y-2">
-            <button id="homeBtn" class="nav-btn active flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
+            <a th:href="@{/}" id="homeBtn" class="nav-btn active flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
                 <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
                 <span class="font-medium">홈</span>
-            </button>
+            </a>
 
             <button id="recommendBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
                 <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -110,8 +110,8 @@
         <div class="bg-gray-900 p-8 rounded-2xl max-w-md w-full mx-4">
             <h3 class="text-2xl font-bold mb-6 text-center">로그인</h3>
             <div class="space-y-4">
-                <input type="text" id="loginUsername" placeholder="사용자 이름" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-gray-400 focus:outline-none">
-                <input type="password" id="loginPassword" placeholder="비밀번호" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-gray-400 focus:outline-none">
+                <input type="text" id="loginUsername" placeholder="사용자 이름" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-gray-400 focus:outline-none" required>
+                <input type="password" id="loginPassword" placeholder="비밀번호" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-xl focus:border-gray-400 focus:outline-none" required>
                 <button id="loginSubmitBtn" class="w-full py-3 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-all">
                     로그인
                 </button>

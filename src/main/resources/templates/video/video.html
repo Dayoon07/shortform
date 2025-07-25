@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${videoInfo.getVideoTitle() + ' | FlipFlop'}">FlipFlop</title>
+    <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body class="bg-black text-white overflow-hidden">
+
+    <div class="flex h-screen">
+        <!-- 사이드바 -->
+        <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+
+        <!-- 메인 영상 시청 화면 -->
+        <main class="flex-1 flex items-center justify-center overflow-hidden relative">
+            <div class="relative w-full h-full flex items-center justify-center">
+                <!-- 영상 -->
+                <video
+                        class="w-full h-full object-contain md:object-cover"
+                        th:src="@{${videoInfo.getVideoSrc()}}"
+                        autoplay
+                        loop
+                        muted
+                        playsinline>
+                </video>
+
+                <!-- 우측 버튼 영역 (좋아요, 댓글, 공유) -->
+                <div class="absolute right-4 bottom-24 flex flex-col items-center space-y-6">
+                    <div class="flex flex-col items-center">
+                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <span class="text-sm mt-1">좋아요</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2M12 15v.01M12 12v.01M12 9v.01" />
+                            </svg>
+                        </button>
+                        <span class="text-sm mt-1">댓글</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <span class="text-sm mt-1">공유</span>
+                    </div>
+                </div>
+
+                <!-- 좌측 정보 영역 -->
+                <div class="absolute left-4 bottom-24 space-y-3 w-2/3">
+                    <!-- 업로더 정보 -->
+                    <div class="flex items-center space-x-3">
+                        <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}" alt="프로필" class="w-10 h-10 rounded-full object-cover">
+                        <span class="text-lg font-semibold" th:text="${videoInfo.uploader.getUsername()}">사용자이름</span>
+                    </div>
+
+                    <!-- 해시태그 -->
+                    <!-- 태그 바인딩 영역 -->
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span th:each="tag : ${#arrays.toStringArray(videoInfo.getVideoTag().split(','))}"
+                              th:text="${tag}"
+                              class="text-sm bg-gray-800 text-white px-2 py-1 rounded-full cursor-pointer hover:bg-gray-700">
+                        </span>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div class="text-base text-white" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
+                </div>
+
+                <!-- 조회수 오른쪽 하단 -->
+                <div class="absolute bottom-6 right-4 text-sm text-gray-300">
+                    <span th:text="'조회수 ' + ${videoInfo.getVideoViews()} + '회'">조회수 0회</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 모달 및 하단 네비게이션 -->
+    <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
+    <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
+    <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
+
+    <script src="/js/user-session.js"></script>
+
+</body>
+</html>

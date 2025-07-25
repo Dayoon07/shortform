@@ -3,7 +3,10 @@ package com.e.shortform.controller;
 import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.mapper.UserMapper;
+import com.e.shortform.model.repository.UserRepo;
+import com.e.shortform.model.repository.VideoRepo;
 import com.e.shortform.model.service.UserService;
+import com.e.shortform.model.service.VideoService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +30,9 @@ import java.util.UUID;
 @RequestMapping(value = "/api")
 public class RestMainController {
 
-    private final UserMapper userMapper;
     private final UserService userService;
+    private final VideoService videoService;
+
     private final PasswordEncoder passwordEncoder;
 
     static class staticTestObj {
@@ -120,8 +124,19 @@ public class RestMainController {
     }
 
     @PostMapping("/upload/video")
-    public ResponseEntity<Map<String, Object>> uploadVideo(@RequestParam("video") MultipartFile file) {
-        return (ResponseEntity<Map<String, Object>>) new HashMap<>().put("response", 1);
+    public ResponseEntity<Map<String, Object>> uploadVideoComplete(
+            @RequestParam("video") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "hashtags", required = false) String hashtags,
+            @RequestParam("visibility") String visibility,
+            @RequestParam("commentsAllowed") Integer commentsAllowed,
+            HttpSession session) {
+
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, user);
+        HttpStatus status = (Boolean) response.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(response, status);
     }
 
 }

@@ -10,6 +10,7 @@
         <result property="videoSrc" column="VIDEO_SRC"/>
         <result property="videoTag" column="VIDEO_TAG"/>
         <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="videoLoc" column="VIDEO_LOC"/>
         <result property="uploaderUserId" column="UPLOADER_USER_ID"/>
         <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
         <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
@@ -24,6 +25,7 @@
         <result property="videoSrc" column="VIDEO_SRC"/>
         <result property="videoTag" column="VIDEO_TAG"/>
         <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="videoLoc" column="VIDEO_LOC"/>
         <result property="uploaderUserId" column="UPLOADER_USER_ID"/>
         <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
         <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
@@ -31,5 +33,83 @@
 
         <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
     </resultMap>
+
+    <resultMap id="IndexPageAllVideosResultMap" type="com.e.shortform.model.dto.IndexPageAllVideosDto">
+        <result property="videoId" column="VIDEO_ID"/>
+        <result property="videoTitle" column="VIDEO_TITLE"/>
+        <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
+        <result property="videoName" column="VIDEO_NAME"/>
+        <result property="videoSrc" column="VIDEO_SRC"/>
+        <result property="videoTag" column="VIDEO_TAG"/>
+        <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="videoLoc" column="VIDEO_LOC"/>
+        <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
+        <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
+        <result property="uploadAt" column="UPLOAD_AT"/>
+        <result property="uploaderId" column="UPLOADER_ID"/>
+        <result property="uploaderUsername" column="UPLOADER_USERNAME"/>
+        <result property="uploaderMail" column="UPLOADER_MAIL"/>
+        <result property="profileImg" column="PROFILE_IMG"/>
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
+        <result property="bio" column="BIO"/>
+        <result property="mention" column="MENTION"/>
+        <result property="uploaderCreateAt" column="UPLOADER_CREATE_AT"/>
+        <result property="likeCount" column="LIKE_COUNT"/>
+    </resultMap>
+    
+    <select id="selectByVideo" parameterType="String" resultMap="videoWithUserResultMap">
+        SELECT v.ID AS VIDEO_ID, v.VIDEO_TITLE,
+               v.VIDEO_DESCRIPTION, v.VIDEO_SRC,
+               v.VIDEO_TAG, v.VIDEO_VIEWS,
+               v.VIDEO_LOC, v.UPLOADER_USER_ID,
+               v.VIDEO_WATCH_AVAILABILITY, v.COMMENT_AVAILABILITY,
+               v.UPLOAD_AT, u.ID AS USER_ID,
+               u.USERNAME, u.MAIL, u.PROFILE_IMG,
+               u.PROFILE_IMG_SRC, u.BIO, u.MENTION,
+               u.PROFILE_IMG_SRC,
+               u.CREATE_AT
+        FROM SHORTFORM_VIDEOS v
+            JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
+        WHERE u.mention = #{mention}
+            AND v.VIDEO_WATCH_AVAILABILITY = 'public'
+    </select>
+
+    <select id="selectIndexPageAllVideos" resultMap="IndexPageAllVideosResultMap">
+        SELECT
+            v.ID AS VIDEO_ID,
+            v.VIDEO_TITLE,
+            v.VIDEO_DESCRIPTION,
+            v.VIDEO_NAME,
+            v.VIDEO_SRC,
+            v.VIDEO_TAG,
+            v.VIDEO_VIEWS,
+            v.VIDEO_LOC,
+            v.VIDEO_WATCH_AVAILABILITY,
+            v.COMMENT_AVAILABILITY,
+            v.UPLOAD_AT,
+            -- 업로더 정보
+            u.ID AS UPLOADER_ID,
+            u.USERNAME AS UPLOADER_USERNAME,
+            u.MAIL AS UPLOADER_MAIL,
+            u.PROFILE_IMG,
+            u.PROFILE_IMG_SRC,
+            u.BIO,
+            u.MENTION,
+            u.CREATE_AT AS UPLOADER_CREATE_AT,
+            -- 통계 정보
+            COALESCE(like_counts.LIKE_COUNT, 0) AS LIKE_COUNT
+        FROM SHORTFORM_VIDEOS v
+                 LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
+-- 좋아요 수 서브쿼리
+                 LEFT JOIN (
+            SELECT
+                LIKE_VIDEO_ID,
+                COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_VIDEO_LIKES
+            GROUP BY LIKE_VIDEO_ID
+        ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        ORDER BY v.UPLOAD_AT DESC
+    </select>
 
 </mapper>

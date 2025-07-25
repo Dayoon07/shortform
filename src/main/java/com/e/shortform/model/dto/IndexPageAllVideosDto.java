@@ -1,6 +1,5 @@
 package com.e.shortform.model.dto;
 
-import com.e.shortform.model.vo.UserVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VideoWithUserDto {
+public class IndexPageAllVideosDto {
 
-    private Long id;
+    private Long videoId;
     private String videoTitle;
     private String videoDescription;
     private String videoName;
@@ -22,11 +21,17 @@ public class VideoWithUserDto {
     private String videoTag;
     private Long videoViews;
     private String videoLoc;
-    private Long uploaderUserId;
     private String videoWatchAvailability;
-    private Integer commentAvailability;
+    private Long commentAvailability;
     private LocalDateTime uploadAt;
-
-    private UserVo userVo;
+    private Long uploaderId;
+    private String uploaderUsername;
+    private String uploaderMail;
+    private String profileImg;
+    private String profileImgSrc;
+    private String bio;
+    private String mention;
+    private LocalDateTime uploaderCreateAt;
+    private Long likeCount;
 
 }

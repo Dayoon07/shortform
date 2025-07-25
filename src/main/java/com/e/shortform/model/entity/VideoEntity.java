@@ -39,6 +39,9 @@ public class VideoEntity {
     @Column(name = "video_views")
     private Long videoViews;
 
+    @Column(name = "video_loc", nullable = false, unique = true)
+    private String videoLoc;
+
     @ManyToOne
     @JoinColumn(name = "uploader_user_id", nullable = false,
             foreignKey = @ForeignKey(name = "FK_UPLOADER"))

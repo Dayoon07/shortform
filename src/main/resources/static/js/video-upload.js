@@ -5,14 +5,25 @@ const uploadArea = document.getElementById("upload-area");
 const previewArea = document.getElementById("preview-area");
 const videoPreview = document.getElementById("video-preview");
 const fileInfo = document.getElementById("file-info");
+
+// 파일 로딩 진행률 요소
+const fileProgress = document.getElementById("file-progress");
+const fileProgressBar = document.getElementById("file-progress-bar");
+const fileProgressText = document.getElementById("file-progress-text");
+
+// 서버 업로드 진행률 요소
 const uploadProgress = document.getElementById("upload-progress");
-const progressBar = document.getElementById("progress-bar");
-const progressText = document.getElementById("progress-text");
+const uploadProgressBar = document.getElementById("upload-progress-bar");
+const uploadProgressText = document.getElementById("upload-progress-text");
+
 const uploadModal = document.getElementById("upload-modal");
 const modalVideoPreview = document.getElementById("modal-video-preview");
 const closeModal = document.getElementById("close-modal");
 const cancelUpload = document.getElementById("cancel-upload");
 const publishVideo = document.getElementById("publish-video");
+
+// 현재 선택된 파일을 저장
+let currentFile = null;
 
 // 클릭 시 파일 선택
 selectBtn.addEventListener("click", () => {
@@ -59,15 +70,49 @@ function handleFiles() {
         return;
     }
 
-    showPreview(file);
-    // 실제 서버 업로드를 원한다면 startUploadWithRealProgress() 사용
-    startUploadWithRealProgress();
+    currentFile = file;
+    processFileOnClient(file);
 }
 
-function showPreview(file) {
+// 클라이언트에서 파일 처리 (진행률 시뮬레이션)
+function processFileOnClient(file) {
     // 업로드 영역 숨기기
     uploadArea.classList.add("hidden");
 
+    // 파일 처리 진행률 표시
+    fileProgress.classList.remove("hidden");
+
+    // FileReader로 파일 읽기 시뮬레이션
+    const reader = new FileReader();
+    let progress = 0;
+
+    // 진행률 시뮬레이션
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(progressInterval);
+
+            // 파일 처리 완료
+            setTimeout(() => {
+                showPreview(file);
+                fileProgress.classList.add("hidden");
+                showUploadModal();
+            }, 300);
+        }
+
+        fileProgressBar.style.width = progress + '%';
+        fileProgressText.textContent = Math.round(progress) + '%';
+    }, 100);
+
+    // 실제 파일 읽기 (미리보기용)
+    reader.onload = function(e) {
+        // 파일 읽기 완료되면 미리보기 준비
+    };
+    reader.readAsDataURL(file);
+}
+
+function showPreview(file) {
     // 미리보기 표시
     previewArea.classList.remove("hidden");
 
@@ -81,55 +126,26 @@ function showPreview(file) {
     fileInfo.textContent = `${file.name} (${fileSize}MB)`;
 }
 
-async function startUpload() {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    // 진행률 표시
-    uploadProgress.classList.remove("hidden");
-
-    try {
-        const formData = new FormData();
-        formData.append('video', file);
-
-        const response = await fetch('/api/upload/video', {
-            method: 'POST',
-            body: formData,
-            // XMLHttpRequest를 사용하여 업로드 진행률 추적
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            console.log('업로드 성공:', result);
-
-            // 업로드 완료 시 모달 표시
-            setTimeout(() => {
-                showUploadModal();
-            }, 500);
-        } else {
-            throw new Error(`업로드 실패: ${response.status}`);
-        }
-
-    } catch (error) {
-        console.error('업로드 오류:', error);
-        alert('업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
-        resetUpload();
-    }
-}
-
-// XMLHttpRequest를 사용한 실제 진행률 추적 업로드 함수
-async function uploadWithProgress(file) {
+// 서버에 실제 업로드
+async function uploadToServer(file, videoData) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
+
+        // 파일과 메타데이터 함께 전송
         formData.append('video', file);
+        formData.append('title', videoData.title);
+        formData.append('description', videoData.description);
+        formData.append('hashtags', videoData.hashtags);
+        formData.append('visibility', videoData.visibility);
+        formData.append('commentsAllowed', videoData.commentsAllowed);
 
         // 업로드 진행률 추적
         xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
                 const percent = Math.round((e.loaded / e.total) * 100);
-                progressBar.style.width = percent + '%';
-                progressText.textContent = percent + '%';
+                uploadProgressBar.style.width = percent + '%';
+                uploadProgressText.textContent = percent + '%';
             }
         });
 
@@ -158,30 +174,6 @@ async function uploadWithProgress(file) {
     });
 }
 
-// 수정된 startUpload 함수 (실제 진행률 추적 사용)
-async function startUploadWithRealProgress() {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    // 진행률 표시
-    uploadProgress.classList.remove("hidden");
-
-    try {
-        const result = await uploadWithProgress(file);
-        console.log('업로드 성공:', result);
-
-        // 업로드 완료 시 모달 표시
-        setTimeout(() => {
-            showUploadModal();
-        }, 500);
-
-    } catch (error) {
-        console.error('업로드 오류:', error);
-        alert('업로드 중 오류가 발생했습니다: ' + error.message);
-        resetUpload();
-    }
-}
-
 function showUploadModal() {
     uploadModal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -194,12 +186,21 @@ function hideUploadModal() {
 
 function resetUpload() {
     // 상태 초기화
+    currentFile = null;
     fileInput.value = "";
     uploadArea.classList.remove("hidden");
     previewArea.classList.add("hidden");
+    fileProgress.classList.add("hidden");
     uploadProgress.classList.add("hidden");
-    progressBar.style.width = "0%";
-    progressText.textContent = "0%";
+
+    // 진행률 초기화
+    fileProgressBar.style.width = "0%";
+    fileProgressText.textContent = "0%";
+    uploadProgressBar.style.width = "0%";
+    uploadProgressText.textContent = "0%";
+
+    // 버튼 활성화
+    publishVideo.disabled = false;
 
     // 미리보기 URL 해제
     if (videoPreview.src) {
@@ -213,7 +214,10 @@ function resetUpload() {
     document.getElementById("video-description").value = "";
     document.getElementById("video-hashtags").value = "";
     document.getElementById("video-visibility").value = "public";
-    document.querySelector('input[name="comments-allowed"][value="all"]').checked = true;
+    const defaultCommentOption = document.querySelector('input[name="comments-allowed"][value="0"]');
+    if (defaultCommentOption) {
+        defaultCommentOption.checked = true;
+    }
 }
 
 // 모달 닫기 이벤트
@@ -241,8 +245,20 @@ publishVideo.addEventListener("click", async () => {
         return;
     }
 
+    if (!currentFile) {
+        alert("업로드할 파일이 없습니다.");
+        return;
+    }
+
+    // 버튼 비활성화
+    publishVideo.disabled = true;
+    publishVideo.textContent = "업로드 중...";
+
+    // 서버 업로드 진행률 표시
+    uploadProgress.classList.remove("hidden");
+
     try {
-        // 동영상 메타데이터 저장
+        // 동영상 파일과 메타데이터를 함께 서버로 전송
         const videoData = {
             title: title,
             description: document.getElementById("video-description").value.trim(),
@@ -251,28 +267,21 @@ publishVideo.addEventListener("click", async () => {
             commentsAllowed: document.querySelector('input[name="comments-allowed"]:checked').value
         };
 
-        const response = await fetch('/api/video/metadata', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(videoData)
-        });
+        const result = await uploadToServer(currentFile, videoData);
+        console.log("업로드 성공:", result);
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log("메타데이터 저장 성공:", result);
-            alert("동영상이 성공적으로 업로드되었습니다!");
-
-            hideUploadModal();
-            resetUpload();
-        } else {
-            throw new Error(`메타데이터 저장 실패: ${response.status}`);
-        }
+        alert("동영상이 성공적으로 업로드되었습니다!");
+        hideUploadModal();
+        resetUpload();
 
     } catch (error) {
-        console.error("메타데이터 저장 오류:", error);
-        alert("동영상 정보 저장 중 오류가 발생했습니다: " + error.message);
+        console.error("업로드 오류:", error);
+        alert("업로드 중 오류가 발생했습니다: " + error.message);
+
+        // 버튼 재활성화
+        publishVideo.disabled = false;
+        publishVideo.textContent = "업로드";
+        uploadProgress.classList.add("hidden");
     }
 });
 

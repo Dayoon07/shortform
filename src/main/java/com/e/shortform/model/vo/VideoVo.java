@@ -17,6 +17,7 @@ public class VideoVo {
     private String videoSrc;
     private String videoTag;
     private Long videoViews;
+    private String videoLoc;
     private Long uploaderUserId;
     private String videoWatchAvailability;
     private Integer commentAvailability;

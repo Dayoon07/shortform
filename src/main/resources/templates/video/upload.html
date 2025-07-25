@@ -10,7 +10,7 @@
 <body style="background-color: black; color: white; overflow: hidden;">
 
     <div class="flex h-screen">
-        <div th:replace="fragments/sidebar :: sidebar"></div>
+        <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1">
             <section class="w-full h-full flex flex-col items-center justify-center px-4 py-8">
@@ -23,7 +23,7 @@
                         <img src="/img/upload-icon.svg" alt="..." />
                         <p class="text-lg font-semibold text-gray-800">업로드할 동영상 선택</p>
                         <p class="text-sm text-gray-600 mt-1">또는 여기에 드래그하여 놓기</p>
-                        <button id="selectFileBtn" class="mt-4 px-6 py-2 bg-[#FE2C55] text-white rounded-md font-medium hover:bg-[#e71b45]">
+                        <button id="selectFileBtn" class="mt-4 px-6 py-2 bg-gradient-to-t from-pink-500 to-sky-500 text-white rounded-md font-medium hover:bg-[#e71b45]">
                             동영상 선택
                         </button>
                     </div>
@@ -34,14 +34,25 @@
                         <p id="file-info" class="text-sm text-gray-600 mb-4"></p>
                     </div>
 
-                    <!-- 업로드 진행률 -->
-                    <div id="upload-progress" class="hidden w-full mt-4">
+                    <!-- 파일 로딩 진행률 -->
+                    <div id="file-progress" class="hidden w-full mt-4">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm font-medium text-gray-700">업로드 중...</span>
-                            <span id="progress-text" class="text-sm text-gray-700">0%</span>
+                            <span class="text-sm font-medium text-gray-700">파일 처리 중...</span>
+                            <span id="file-progress-text" class="text-sm text-gray-700">0%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="progress-bar" class="bg-[#FE2C55] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            <div id="file-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 서버 업로드 진행률 -->
+                    <div id="upload-progress" class="hidden w-full mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">서버 업로드 중...</span>
+                            <span id="upload-progress-text" class="text-sm text-gray-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="upload-progress-bar" class="bg-[#FE2C55] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -74,7 +85,7 @@
     </div>
 
     <!-- 업로드 완료 모달 -->
-    <div id="upload-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="upload-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
         <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">동영상 정보 입력</h2>
@@ -145,17 +156,17 @@
                     </label>
                     <div class="space-y-2">
                         <label class="flex items-center">
-                            <input type="radio" name="comments-allowed" value="all" checked
+                            <input type="radio" name="comments-allowed" value="0" checked
                                    class="w-4 h-4 text-[#FE2C55] border-gray-300 focus:ring-[#FE2C55]">
                             <span class="ml-2 text-sm text-gray-700">모든 사용자</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" name="comments-allowed" value="followers"
+                            <input type="radio" name="comments-allowed" value="2"
                                    class="w-4 h-4 text-[#FE2C55] border-gray-300 focus:ring-[#FE2C55]">
                             <span class="ml-2 text-sm text-gray-700">팔로워만</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" name="comments-allowed" value="none"
+                            <input type="radio" name="comments-allowed" value="1"
                                    class="w-4 h-4 text-[#FE2C55] border-gray-300 focus:ring-[#FE2C55]">
                             <span class="ml-2 text-sm text-gray-700">댓글 허용 안함</span>
                         </label>
@@ -167,7 +178,7 @@
                     <button id="cancel-upload" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
                         취소
                     </button>
-                    <button id="publish-video" class="px-6 py-2 bg-[#FE2C55] text-white rounded-md hover:bg-[#e71b45]">
+                    <button id="publish-video" class="px-6 py-2 bg-[#FE2C55] text-white rounded-md hover:bg-[#e71b45] disabled:bg-gray-400 disabled:cursor-not-allowed">
                         업로드
                     </button>
                 </div>
@@ -175,9 +186,9 @@
         </div>
     </div>
 
-    <div th:replace="fragments/bottom-navbar.html :: bottom-navbar"></div>
-    <div th:replace="fragments/sidebar.html :: loginModal"></div>
-    <div th:replace="fragments/sidebar.html :: signupModal"></div>
+    <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
+    <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
+    <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
     <script src="/js/video-upload.js"></script>
