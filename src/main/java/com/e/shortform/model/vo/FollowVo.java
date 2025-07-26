@@ -12,7 +12,7 @@ public class FollowVo {
 
     private Long id;
     private Long followUserId;
-    private Long followingUserId;
+    private Long followedUserId;
     private LocalDateTime createAt;
 
 }

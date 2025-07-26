@@ -5,17 +5,17 @@
     <resultMap id="followResultMap" type="com.e.shortform.model.vo.FollowVo">
         <id property="id" column="id"/>
         <result property="followUserId" column="follow_user_id"/>
-        <result property="followingUserId" column="following_user_id"/>
+        <result property="followedUserId" column="followed_user_id"/>
         <result property="createAt" column="create_at"/>
     </resultMap>
 
     <resultMap id="followWithUsersResultMap" type="com.e.shortform.model.dto.FollowWithUserDto">
         <id property="id" column="id"/>
         <result property="followUserId" column="follow_user_id"/>
-        <result property="followingUserId" column="following_user_id"/>
+        <result property="followedUserId" column="followed_user_id"/>
         <result property="createAt" column="create_at"/>
         <association property="followUser" javaType="com.e.shortform.model.vo.UserVo" />
-        <association property="followingUser" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="followedUser" javaType="com.e.shortform.model.vo.UserVo" />
     </resultMap>
 
 </mapper>

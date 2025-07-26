@@ -57,6 +57,28 @@
         <result property="likeCount" column="LIKE_COUNT"/>
     </resultMap>
     
+    <resultMap id="videoWithUserFuckingResultMap" type="com.e.shortform.model.dto.VideoWithUserFuckingDto">
+        <result property="videoId" column="VIDEO_ID"/>
+        <result property="videoTitle" column="VIDEO_TITLE"/>
+        <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
+        <result property="videoName" column="VIDEO_NAME"/>
+        <result property="videoSrc" column="VIDEO_SRC"/>
+        <result property="videoTag" column="VIDEO_TAG"/>
+        <result property="videoViews" column="VIDEO_VIEWS"/>
+        <result property="videoLoc" column="VIDEO_LOC"/>
+        <result property="videoWatchAvailability" column="VIDEO_WATCH_AVAILABILITY"/>
+        <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
+        <result property="uploadAt" column="UPLOAD_AT"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="mail" column="MAIL"/>
+        <result property="profileImg" column="PROFILE_IMG"/>
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
+        <result property="bio" column="BIO"/>
+        <result property="mention" column="MENTION"/>
+        <result property="createAt" column="CREATE_AT"/>
+    </resultMap>
+    
     <select id="selectByVideo" parameterType="String" resultMap="videoWithUserResultMap">
         SELECT v.ID AS VIDEO_ID, v.VIDEO_TITLE,
                v.VIDEO_DESCRIPTION, v.VIDEO_SRC,
@@ -110,6 +132,32 @@
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
         ORDER BY v.UPLOAD_AT DESC
+    </select>
+
+    <select id="selectUserProfilePageAllVideos" parameterType="String" resultMap="videoWithUserFuckingResultMap">
+        SELECT A.ID AS VIDEO_ID,
+               A.VIDEO_TITLE,
+               A.VIDEO_DESCRIPTION,
+               A.VIDEO_NAME,
+               A.VIDEO_SRC,
+               A.VIDEO_TAG,
+               A.VIDEO_VIEWS,
+               A.VIDEO_LOC,
+               A.UPLOADER_USER_ID,
+               A.VIDEO_WATCH_AVAILABILITY,
+               A.COMMENT_AVAILABILITY,
+               A.UPLOAD_AT,
+               B.ID AS USER_ID,
+               B.USERNAME,
+               B.MAIL,
+               B.PROFILE_IMG,
+               B.PROFILE_IMG_SRC,
+               B.BIO,
+               B.MENTION,
+               B.CREATE_AT
+        FROM SHORTFORM_VIDEOS A
+                 JOIN SHORTFORM_USERS B ON A.UPLOADER_USER_ID = B.ID
+        WHERE B.MENTION = #{mention}
     </select>
 
 </mapper>

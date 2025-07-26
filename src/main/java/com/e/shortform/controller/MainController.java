@@ -41,6 +41,7 @@ public class MainController {
     @GetMapping("/@{mention}")
     public String profilePage(@PathVariable String mention, Model m, HttpSession session) {
         m.addAttribute("profileInfo", userService.getUserProfilePageInfo(userService.findByMention(mention).getId()));
+        m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
         return "profile/profile";
     }
 
@@ -56,6 +57,21 @@ public class MainController {
     public String videoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
         m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
         return "video/video";
+    }
+
+    @GetMapping("/@{mention}/post")
+    public String profilePostPage(@PathVariable String mention, Model m, HttpSession session) {
+        m.addAttribute("profileInfo", userService.getUserProfilePageInfo(userService.findByMention(mention).getId()));
+        m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
+        return "profile/profile-post";
+    }
+
+    @GetMapping("/following")
+    public String followingPage(HttpSession session) {
+        if (session.getAttribute("user") == null) return "index";
+
+
+        return "follow/following";
     }
 
 }

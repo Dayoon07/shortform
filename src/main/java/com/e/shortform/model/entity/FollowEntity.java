@@ -26,9 +26,9 @@ public class FollowEntity {
 
     // 팔로우 한 유저
     @ManyToOne
-    @JoinColumn(name = "following_user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_FOLLOWING_USER"))
-    private UserEntity followingUser;
+    @JoinColumn(name = "followed_user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "FK_FOLLOWED_USER"))
+    private UserEntity followedUser;
 
     @CreationTimestamp
     @Column(name = "create_at", updatable = false)

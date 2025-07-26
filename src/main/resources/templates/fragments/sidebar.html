@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <body>
-    <aside th:fragment="sidebar" class="max-md:hidden w-64 bg-black/50 backdrop-blur-sm border-r border-gray-800 flex flex-col px-3 py-6 space-y-4">
+    <aside th:fragment="sidebar" class="max-md:hidden w-64 bg-black/50 backdrop-blur-sm flex flex-col px-3 py-6 space-y-4">
         <h1 class="text-3xl font-bold bg-gradient-to-t from-pink-500 to-sky-500 bg-clip-text text-transparent pl-2">
             <a th:href="@{/}">FlipFlop</a>
         </h1>
@@ -39,7 +39,7 @@
                 <span class="font-medium">탐색</span>
             </button>
 
-            <button id="followingBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
+            <button th:if="${session.user == null}" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
                 <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.99 3a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 4a6 6 0 1 0 0 12.00A6 6 0 0 0 19 7ZM18.99 26c2.96 0 5.6.58 7.87 1.65l-3.07
                         3.06a15.38 15.38 0 0 0-4.8-.71C10.9 30 6.3 35.16 6 43c-.02.55-.46 1-1.02 1h-2c-.55 0-1-.45-.98-1C2.33 32.99 8.7 26 19 26ZM35.7 41.88
@@ -49,6 +49,17 @@
                 </svg>
                 <span class="font-medium">팔로잉</span>
             </button>
+
+            <a th:href="@{/following}" th:if="${session.user != null}" id="followingBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.99 3a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 4a6 6 0 1 0 0 12.00A6 6 0 0 0 19 7ZM18.99 26c2.96 0 5.6.58 7.87 1.65l-3.07
+                        3.06a15.38 15.38 0 0 0-4.8-.71C10.9 30 6.3 35.16 6 43c-.02.55-.46 1-1.02 1h-2c-.55 0-1-.45-.98-1C2.33 32.99 8.7 26 19 26ZM35.7 41.88
+                        31.82 38H45a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H31.82l3.88-3.88a1 1 0 0 0 0-1.41l-1.41-1.42a1 1 0 0 0-1.42 0l-7.3 7.3a2 2 0 0 0 0 2.82l7.3
+                        7.3a1 1 0 0 0 1.42 0l1.41-1.42a1 1 0 0 0 0-1.41Z">
+                    </path>
+                </svg>
+                <span class="font-medium">팔로잉</span>
+            </a>
 
             <button th:if="${session.user == null}" id="uploadBtn" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
                 <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
@@ -82,6 +93,7 @@
                 </svg>
                 <span class="font-medium">프로필</span>
             </button>
+
             <a th:href="@{'/@' + ${session.user.mention}}" th:if="${session.user != null}" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group">
                 <img th:src="${session.user.getProfileImgSrc()}" alt="..." style="width: 24px; height: 24px; border-radius: 100%;" />
                 <span class="font-medium">프로필</span>

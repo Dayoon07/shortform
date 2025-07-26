@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/custom.css">
     <title th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
@@ -13,9 +14,11 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto">
-            <section class="p-6">
+            <section>
 
-                <div class="flex space-x-6">
+                <p th:text="${profileInfo}"></p>
+
+                <div class="flex space-x-6 mb-4 p-6">
                     <div>
                         <img th:src="${profileInfo.getProfileImgSrc()}" alt="..." class="w-44 h-44 rounded-full object-cover" />
                     </div>
@@ -24,24 +27,83 @@
                             <h1 th:text="${profileInfo.getUsername()}" class="text-[30px] font-semibold"></h1>
                             <small th:text="'@' + ${profileInfo.getMention()}" class="font-semibold"></small>
                         </div>
-                        <form th:action="@{/${profileInfo.getUsername()} + '/follow'}" method="post">
-                            <button type="submit" class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">팔로우</button>
-                        </form>
+
+                        <button type="button"
+                                id="user-follow-btn"
+                                th:if="${session.user != null and session.user.id != profileInfo.id}"
+                                th:data-mention="${profileInfo.mention}"
+                                class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">
+                            팔로우
+                        </button>
+                        <button type="button" id="user-profile-edit-btn" th:if="${session.user != null && session.user.getId() == profileInfo.getId()}"
+                                class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">
+                            프로필 편집
+                        </button>
+
                         <div class="flex space-x-4">
                             <div>
-                                <span th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로잉</span>
+                                <span th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;<span>팔로잉</span>
                             </div>
                             <div>
                                 <span th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로워</span>
                             </div>
                             <div>
-                                동영상&nbsp;<span></span><span>개</span>
+                                동영상&nbsp;<span th:text="${profileUserVideoInfo.size()}"></span><span>개</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <p th:text="${profileInfo}"></p>
+                <div class="flex border-b border-gray-300 space-x-6">
+                    <a th:href="@{'/@' + ${profileInfo.getMention()}}"
+                       class="px-4 py-2 text-white font-semibold border-b-2 border-white hover:text-blue-800 transition">
+                        동영상
+                    </a>
+                    <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
+                       class="px-4 py-2 text-gray-500 hover:text-white border-b-2 border-transparent hover:border-white transition">
+                        게시글
+                    </a>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
+                        <div th:each="item : ${profileUserVideoInfo}">
+                            <a th:href="@{/{username}/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
+                                <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
+                                    <video th:src="${item.getVideoSrc()}" muted playsinline class="w-full h-full object-cover"></video>
+                                    <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+
+                                    <div class="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/60 rounded-full px-2 py-1 backdrop-blur-sm">
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        </svg>
+                                        <span class="text-white text-xs font-medium" th:text="${item.getVideoViews()}">28.1K</span>
+                                    </div>
+
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="mt-2 px-1">
+                                <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
+                                   th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
+                                    영상 제목이나 설명이 여기에 들어갑니다 #해시태그
+                                </p>
+                                <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
+                                   th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                                    영상 제목이나 설명이 여기에 들어갑니다 #해시태그
+                                </p>
+
+                                <span class="text-gray-400 text-sm" th:text="${'조회수 ' + item.getVideoViews() + '회'}">조회수 1.2만회</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
@@ -51,6 +113,42 @@
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
+    <script src="/js/user-follow.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoCards = document.querySelectorAll('.relative.group.cursor-pointer');
+
+            videoCards.forEach(card => {
+                const video = card.querySelector('video');
+
+                if (video) {
+                    // 마우스 진입시 재생
+                    card.addEventListener("mouseover", function() {
+                        video.currentTime = 0; // 처음부터 재생
+                        video.play().catch(e => {
+                            console.log('Video play failed:', e);
+                        });
+                    });
+
+                    // 마우스 나갈때 정지
+                    card.addEventListener('mouseout', function() {
+                        video.pause();
+                        video.currentTime = 0; // 처음으로 돌아가기
+                    });
+
+                    // 영상 클릭시 전체화면 재생 (선택사항)
+                    video.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

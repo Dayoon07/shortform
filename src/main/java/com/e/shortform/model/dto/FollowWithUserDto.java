@@ -16,10 +16,10 @@ public class FollowWithUserDto {
 
     private Long id;
     private Long followUserId;
-    private Long followingUserId;
+    private Long followedUserId;
     private LocalDateTime createAt;
 
     private UserVo followUser;
-    private UserVo followingUser;
+    private UserVo followedUser;
 
 }
