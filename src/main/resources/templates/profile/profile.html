@@ -28,24 +28,46 @@
                             <small th:text="'@' + ${profileInfo.getMention()}" class="font-semibold"></small>
                         </div>
 
-                        <button type="button"
-                                id="user-follow-btn"
-                                th:if="${session.user != null and session.user.id != profileInfo.id}"
-                                th:data-mention="${profileInfo.mention}"
-                                class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">
-                            팔로우
-                        </button>
-                        <button type="button" id="user-profile-edit-btn" th:if="${session.user != null && session.user.getId() == profileInfo.getId()}"
+                        <!-- 팔로우 버튼 (다른 사용자의 프로필을 볼 때) -->
+                        <div th:if="${session.user != null and session.user.id != profileInfo.id}">
+                            <!-- 팔로우 중일 때 -->
+                            <button type="button"
+                                    id="user-follow-btn"
+                                    th:if="${isFollowing}"
+                                    th:data-mention="${profileInfo.mention}"
+                                    class="bg-gray-600 hover:bg-red-600 px-8 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                                <span>팔로잉</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- 팔로우 안 했을 때 -->
+                            <button type="button"
+                                    id="user-follow-btn"
+                                    th:unless="${isFollowing}"
+                                    th:data-mention="${profileInfo.mention}"
+                                    class="bg-gradient-to-t from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2">
+                                <span>팔로우</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 프로필 편집 버튼 (본인 프로필일 때) -->
+                        <button type="button" id="user-profile-edit-btn"
+                                th:if="${session.user != null && session.user.getId() == profileInfo.getId()}"
                                 class="bg-gradient-to-t from-pink-500 to-sky-500 px-8 py-2 rounded-md">
                             프로필 편집
                         </button>
 
                         <div class="flex space-x-4">
                             <div>
-                                <span th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;<span>팔로잉</span>
+                                <span id="following-count" th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;<span>팔로잉</span>
                             </div>
                             <div>
-                                <span th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로워</span>
+                                <span id="follower-count" th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span>팔로워</span>
                             </div>
                             <div>
                                 동영상&nbsp;<span th:text="${profileUserVideoInfo.size()}"></span><span>개</span>
@@ -105,6 +127,8 @@
                     </div>
                 </div>
             </section>
+
+            <div class="h-20"></div>
         </main>
     </div>
 
@@ -114,41 +138,6 @@
 
     <script src="/js/user-session.js"></script>
     <script src="/js/user-follow.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const videoCards = document.querySelectorAll('.relative.group.cursor-pointer');
-
-            videoCards.forEach(card => {
-                const video = card.querySelector('video');
-
-                if (video) {
-                    // 마우스 진입시 재생
-                    card.addEventListener("mouseover", function() {
-                        video.currentTime = 0; // 처음부터 재생
-                        video.play().catch(e => {
-                            console.log('Video play failed:', e);
-                        });
-                    });
-
-                    // 마우스 나갈때 정지
-                    card.addEventListener('mouseout', function() {
-                        video.pause();
-                        video.currentTime = 0; // 처음으로 돌아가기
-                    });
-
-                    // 영상 클릭시 전체화면 재생 (선택사항)
-                    video.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        if (video.paused) {
-                            video.play();
-                        } else {
-                            video.pause();
-                        }
-                    });
-                }
-            });
-        });
-    </script>
 
 </body>
 </html>

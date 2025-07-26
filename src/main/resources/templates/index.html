@@ -18,7 +18,7 @@
                 <div th:each="item : ${videos}">
                     <a th:href="@{/{username}/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
-                            <video th:src="${item.getVideoSrc()}" muted playsinline class="w-full h-full object-cover"></video>
+                            <video th:src="${item.getVideoSrc()}" playsinline class="w-full h-full object-cover"></video>
                             <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
 
                             <div class="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/60 rounded-full px-2 py-1 backdrop-blur-sm">

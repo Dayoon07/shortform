@@ -1,5 +1,7 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.model.service.FollowService;
 import com.e.shortform.model.service.UserService;
 import com.e.shortform.model.service.VideoService;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +21,7 @@ public class MainController {
 
     private final UserService userService;
     private final VideoService videoService;
+    private final FollowService followService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -40,8 +43,21 @@ public class MainController {
 
     @GetMapping("/@{mention}")
     public String profilePage(@PathVariable String mention, Model m, HttpSession session) {
-        m.addAttribute("profileInfo", userService.getUserProfilePageInfo(userService.findByMention(mention).getId()));
+        UserEntity profileUser = userService.findByMention(mention);
+        UserEntity currentUser = (UserEntity) session.getAttribute("user");
+
+        // 기본 프로필 정보
+        m.addAttribute("profileInfo", userService.getUserProfilePageInfo(profileUser.getId()));
         m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
+
+        // 팔로우 상태 확인 (로그인한 사용자가 있을 때만)
+        if (currentUser != null && !currentUser.getId().equals(profileUser.getId())) {
+            boolean isFollowing = followService.isFollowing(currentUser.getId(), profileUser.getId());
+            m.addAttribute("isFollowing", isFollowing);
+        } else {
+            m.addAttribute("isFollowing", false);
+        }
+
         return "profile/profile";
     }
 

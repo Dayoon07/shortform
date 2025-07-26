@@ -4,7 +4,7 @@ let isUsernameAvailable = true;
 let isUsernameAvailable2 = true;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 모달 열고 닫기
+
     document.getElementById("loginBtn").onclick = () => {
         document.getElementById("loginModal").classList.remove("hidden");
     };

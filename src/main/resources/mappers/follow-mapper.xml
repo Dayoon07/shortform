@@ -18,4 +18,11 @@
         <association property="followedUser" javaType="com.e.shortform.model.vo.UserVo" />
     </resultMap>
 
+    <select id="followExsits" parameterType="Long" resultType="Long">
+        SELECT COUNT(*) AS IS_FOLLOWING
+        FROM SHORTFORM_USERS_FOLLOWS
+        WHERE FOLLOW_USER_ID = #{followUserId}
+            AND FOLLOWED_USER_ID = #{followedUserId}
+    </select>
+
 </mapper>

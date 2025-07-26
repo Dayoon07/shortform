@@ -10,86 +10,319 @@
 </head>
 <body class="bg-black text-white overflow-hidden">
 
-    <div class="flex h-screen">
-        <!-- 사이드바 -->
-        <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+<div class="flex h-screen">
+    <!-- 사이드바 -->
+    <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
-        <!-- 메인 영상 시청 화면 -->
-        <main class="flex-1 flex items-center justify-center overflow-hidden relative">
-            <div class="relative w-full h-full flex items-center justify-center">
+    <!-- 메인 영상 시청 화면 -->
+    <main class="flex-1 flex items-center justify-center overflow-hidden relative">
+        <div class="relative w-full h-full flex items-center justify-center">
+            <!-- 9:16 비율 고정 비디오 컨테이너 -->
+            <div class="relative" style="aspect-ratio: 9/16; height: 90vh; width: auto; max-width: 90vw;">
                 <!-- 영상 -->
-                <video
-                        class="w-full h-full object-contain md:object-cover"
-                        th:src="@{${videoInfo.getVideoSrc()}}"
-                        autoplay
-                        loop
-                        muted
-                        playsinline>
+                <video  id="main-video" th:src="@{${videoInfo.getVideoSrc()}}"
+                        class="w-full h-full object-cover rounded-lg shadow-2xl"
+                        autoplay loop playsinline>
                 </video>
 
-                <!-- 우측 버튼 영역 (좋아요, 댓글, 공유) -->
-                <div class="absolute right-4 bottom-24 flex flex-col items-center space-y-6">
-                    <div class="flex flex-col items-center">
-                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
-                        </button>
-                        <span class="text-sm mt-1">좋아요</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2M12 15v.01M12 12v.01M12 9v.01" />
-                            </svg>
-                        </button>
-                        <span class="text-sm mt-1">댓글</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </button>
-                        <span class="text-sm mt-1">공유</span>
-                    </div>
+                <!-- 오버레이 클릭 재생/정지 -->
+                <div id="video-overlay" class="absolute top-0 left-0 right-0 bottom-16 cursor-pointer z-10"></div>
+
+                <!-- 커스텀 재생/일시정지 버튼 -->
+                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+                    <button id="play-pause-btn" class="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition">
+                        ▶️
+                    </button>
                 </div>
 
-                <!-- 좌측 정보 영역 -->
-                <div class="absolute left-4 bottom-24 space-y-3 w-2/3">
-                    <!-- 업로더 정보 -->
-                    <div class="flex items-center space-x-3">
-                        <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}" alt="프로필" class="w-10 h-10 rounded-full object-cover">
-                        <span class="text-lg font-semibold" th:text="${videoInfo.uploader.getUsername()}">사용자이름</span>
-                    </div>
-
-                    <!-- 해시태그 -->
-                    <!-- 태그 바인딩 영역 -->
-                    <div class="flex flex-wrap gap-2 mt-3">
-                        <span th:each="tag : ${#arrays.toStringArray(videoInfo.getVideoTag().split(','))}"
-                              th:text="${tag}"
-                              class="text-sm bg-gray-800 text-white px-2 py-1 rounded-full cursor-pointer hover:bg-gray-700">
-                        </span>
-                    </div>
-
-                    <!-- 설명 -->
-                    <div class="text-base text-white" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
-                </div>
-
-                <!-- 조회수 오른쪽 하단 -->
-                <div class="absolute bottom-6 right-4 text-sm text-gray-300">
-                    <span th:text="'조회수 ' + ${videoInfo.getVideoViews()} + '회'">조회수 0회</span>
+                <!-- 커스텀 프로그래스 바 -->
+                <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gray-600 z-20 hover:h-1">
+                    <div id="progress-bar" class="h-full bg-pink-500 transition-all duration-100 w-0"></div>
                 </div>
             </div>
-        </main>
+
+            <!-- 우측 버튼 영역 (반응형) -->
+            <div class="absolute right-2 md:right-6 bottom-20 md:bottom-32 flex flex-col items-center space-y-4 md:space-y-6">
+                <!-- 좋아요 버튼 -->
+                <div class="flex flex-col items-center group">
+                    <button id="like-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <svg class="h-5 w-5 md:h-7 md:w-7 text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                    <span id="like-count" class="text-xs md:text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">좋아요</span>
+                </div>
+
+                <!-- 댓글 버튼 -->
+                <div class="flex flex-col items-center group">
+                    <button id="comment-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <svg class="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </button>
+                    <span class="text-xs md:text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">댓글</span>
+                </div>
+
+                <!-- 공유 버튼 -->
+                <div class="flex flex-col items-center group">
+                    <button id="share-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <svg class="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                    </button>
+                    <span class="text-xs md:text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">공유</span>
+                </div>
+            </div>
+
+            <!-- 좌측 정보 영역 (반응형) -->
+            <div class="absolute left-2 md:left-6 bottom-20 md:bottom-32 space-y-2 md:space-y-3 w-2/3 md:w-1/2">
+                <!-- 업로더 정보 -->
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}" alt="프로필" class="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white border-opacity-30">
+                    <div class="flex flex-col">
+                        <span class="text-sm md:text-lg font-semibold" th:text="${videoInfo.uploader.getUsername()}">사용자이름</span>
+                        <span class="text-xs text-gray-300" th:text="'@' + ${videoInfo.uploader.getMention()}">@mention</span>
+                    </div>
+                    <!-- 팔로우 버튼 (작은 크기) -->
+                    <button class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium transition-all duration-200 transform hover:scale-105">
+                        팔로우
+                    </button>
+                </div>
+
+                <!-- 영상 제목 -->
+                <div class="text-sm md:text-base font-medium text-white" th:text="${videoInfo.getVideoTitle()}">영상 제목</div>
+
+                <!-- 해시태그 -->
+                <div class="flex flex-wrap gap-1 md:gap-2">
+                        <span th:each="tag : ${#arrays.toStringArray(videoInfo.getVideoTag().split(','))}"
+                              th:text="${tag}"
+                              class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
+                        </span>
+                </div>
+
+                <!-- 설명 (축약형) -->
+                <div class="text-xs md:text-sm text-gray-300 line-clamp-2" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
+            </div>
+
+            <!-- 조회수 (반응형) -->
+            <div class="absolute bottom-4 md:bottom-6 right-2 md:right-6 text-xs md:text-sm text-gray-300 bg-black bg-opacity-50 px-2 py-1 rounded-full">
+                <span th:text="'조회수 ' + ${videoInfo.getVideoViews()} + '회'">조회수 0회</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 댓글 모달 -->
+<div id="comment-modal" class="fixed inset-0 z-50 hidden">
+    <!-- 모달 배경 -->
+    <div class="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-sm" id="modal-backdrop"></div>
+
+    <!-- 모달 컨텐츠 -->
+    <div class="relative w-full h-full flex items-center justify-center p-4">
+        <div class="bg-gray-900 rounded-2xl w-full max-w-2xl h-3/4 flex flex-col shadow-2xl">
+            <!-- 모달 헤더 -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <h2 class="text-xl font-bold text-white">댓글</h2>
+                <button id="close-modal" class="text-gray-400 hover:text-white transition-colors duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 정렬 버튼 -->
+            <div class="flex space-x-4 p-4 border-b border-gray-700">
+                <button id="popular-sort" class="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
+                    인기순
+                </button>
+                <button id="recent-sort" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
+                    최신순
+                </button>
+            </div>
+
+            <!-- 댓글 목록 -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- 샘플 댓글들 -->
+                <div class="flex space-x-3">
+                    <img src="https://picsum.photos/32/32?random=1" alt="프로필" class="w-8 h-8 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-sm text-white">사용자1</span>
+                            <span class="text-xs text-gray-400">2시간 전</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-1">정말 재미있는 영상이네요! 👍</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <button class="text-xs text-gray-400 hover:text-white flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span>12</span>
+                            </button>
+                            <button class="text-xs text-gray-400 hover:text-white">답글</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <img src="https://picsum.photos/32/32?random=2" alt="프로필" class="w-8 h-8 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-sm text-white">사용자2</span>
+                            <span class="text-xs text-gray-400">5시간 전</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-1">이런 컨텐츠가 더 많았으면 좋겠어요 ✨</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <button class="text-xs text-gray-400 hover:text-white flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span>8</span>
+                            </button>
+                            <button class="text-xs text-gray-400 hover:text-white">답글</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 댓글 입력 -->
+            <div class="p-4 border-t border-gray-700">
+                <div class="flex space-x-3">
+                    <img src="https://picsum.photos/32/32?random=me" alt="내 프로필" class="w-8 h-8 rounded-full">
+                    <div class="flex-1 flex space-x-2">
+                        <input type="text" placeholder="댓글을 입력하세요..." class="flex-1 bg-gray-800 text-white px-3 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105">
+                            전송
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- 모달 및 하단 네비게이션 -->
-    <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
-    <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
-    <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
+<!-- 모달 및 하단 네비게이션 -->
+<div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
+<div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
+<div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
-    <script src="/js/user-session.js"></script>
+<script src="/js/user-session.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('main-video');
+        const videoOverlay = document.getElementById('video-overlay');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = progressBar.parentElement;
+
+        // 댓글 모달 관련
+        const commentBtn = document.getElementById('comment-btn');
+        const commentModal = document.getElementById('comment-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const closeModal = document.getElementById('close-modal');
+        const popularSort = document.getElementById('popular-sort');
+        const recentSort = document.getElementById('recent-sort');
+
+        // 재생/일시정지 버튼
+        function updatePlayPauseIcon() {
+            playPauseBtn.textContent = video.paused ? '▶️' : '⏸️';
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+            updatePlayPauseIcon();
+        });
+
+        video.addEventListener('play', updatePlayPauseIcon);
+        video.addEventListener('pause', updatePlayPauseIcon);
+
+        // 오버레이 클릭도 재생/정지
+        videoOverlay.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+            updatePlayPauseIcon();
+        });
+
+        // 프로그래스바 업데이트
+        video.addEventListener('timeupdate', () => {
+            const percent = (video.currentTime / video.duration) * 100;
+            progressBar.style.width = percent + '%';
+        });
+
+        // 클릭으로 이동
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const newTime = (clickX / rect.width) * video.duration;
+            video.currentTime = newTime;
+        });
+
+        // 초기화
+        updatePlayPauseIcon();
+        console.log('커스텀 영상 컨트롤 UI 적용 완료');
+
+        // 댓글 모달 열기
+        commentBtn.addEventListener('click', () => {
+            commentModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // 댓글 모달 닫기
+        function closeCommentModal() {
+            commentModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        closeModal.addEventListener('click', closeCommentModal);
+        modalBackdrop.addEventListener('click', closeCommentModal);
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !commentModal.classList.contains('hidden')) {
+                closeCommentModal();
+            }
+        });
+
+        // 댓글 정렬 버튼
+        popularSort.addEventListener('click', () => {
+            popularSort.className = 'bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
+            recentSort.className = 'bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
+        });
+
+        recentSort.addEventListener('click', () => {
+            recentSort.className = 'bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
+            popularSort.className = 'bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
+        });
+
+        // 좋아요 버튼 애니메이션
+        const likeBtn = document.getElementById('like-btn');
+        let isLiked = false;
+
+        likeBtn.addEventListener('click', () => {
+            if (!isLiked) {
+                likeBtn.querySelector('svg').style.fill = '#ef4444';
+                likeBtn.querySelector('svg').style.stroke = '#ef4444';
+                likeBtn.classList.add('animate-pulse');
+                setTimeout(() => likeBtn.classList.remove('animate-pulse'), 600);
+                isLiked = true;
+            } else {
+                likeBtn.querySelector('svg').style.fill = 'none';
+                likeBtn.querySelector('svg').style.stroke = 'currentColor';
+                isLiked = false;
+            }
+        });
+
+        // 초기화 완료
+        console.log('Video UI initialized with native controls');
+    });
+</script>
 
 </body>
 </html>
