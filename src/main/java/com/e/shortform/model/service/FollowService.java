@@ -159,7 +159,7 @@ public class FollowService {
         }
     }
 
-    // 팔로우 상태 토글 (한 번의 트랜잭션으로 처리)
+    /** <h1>팔로우 상태 토글 (한 번의 트랜잭션으로 처리)</h1> */
     @Transactional
     public FollowToggleResult toggleFollow(UserEntity currentUser, UserEntity targetUser) {
         try {
@@ -186,7 +186,7 @@ public class FollowService {
         }
     }
 
-    // 팔로우 토글 결과를 담는 클래스
+    /** 팔로우 토글 결과를 담는 클래스 */
     public static class FollowToggleResult {
         private boolean isFollowing;
         private boolean success;

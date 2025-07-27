@@ -10,6 +10,8 @@
 </head>
 <body class="bg-black text-white overflow-hidden">
 
+    <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
+
 <div class="flex h-screen">
     <!-- 사이드바 -->
     <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
@@ -18,18 +20,20 @@
     <main class="flex-1 flex items-center justify-center overflow-hidden relative">
         <div class="relative w-full h-full flex items-center justify-center">
             <!-- 9:16 비율 고정 비디오 컨테이너 -->
+            <!-- 비디오 컨테이너 (기존 그대로 유지) -->
             <div class="relative" style="aspect-ratio: 9/16; height: 90vh; width: auto; max-width: 90vw;">
-                <!-- 영상 -->
-                <video  id="main-video" th:src="@{${videoInfo.getVideoSrc()}}"
-                        class="w-full h-full object-cover rounded-lg shadow-2xl"
-                        autoplay loop playsinline>
+                <!-- 비디오: object-contain으로 비율 맞추고, max 크기로 제한 -->
+                <video id="main-video"
+                       th:src="@{${videoInfo.getVideoSrc()}}"
+                       class="max-w-full max-h-full object-contain mx-auto my-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                       autoplay loop playsinline>
                 </video>
 
                 <!-- 오버레이 클릭 재생/정지 -->
                 <div id="video-overlay" class="absolute top-0 left-0 right-0 bottom-16 cursor-pointer z-10"></div>
 
                 <!-- 커스텀 재생/일시정지 버튼 -->
-                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+                <div class="absolute top-4 left-4 z-30">
                     <button id="play-pause-btn" class="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition">
                         ▶️
                     </button>
@@ -256,13 +260,32 @@
             progressBar.style.width = percent + '%';
         });
 
-        // 클릭으로 이동
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const newTime = (clickX / rect.width) * video.duration;
-            video.currentTime = newTime;
+        let isDragging = false;
+
+        progressContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updateProgress(e);
         });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateProgress(e);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+            }
+        });
+
+        function updateProgress(e) {
+            const rect = progressContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const ratio = Math.min(Math.max(x / rect.width, 0), 1);
+            video.currentTime = ratio * video.duration;
+            progressBar.style.width = `${ratio * 100}%`;
+        }
 
         // 초기화
         updatePlayPauseIcon();
