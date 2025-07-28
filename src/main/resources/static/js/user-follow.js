@@ -1,9 +1,178 @@
 // 개선된 팔로우 JavaScript (중복 클릭 완전 방지)
 document.addEventListener('DOMContentLoaded', function() {
-    const followBtn = document.getElementById('user-follow-btn');
+    const followBtn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
     let isProcessing = false; // 처리 중 플래그
     let lastClickTime = 0; // 마지막 클릭 시간
     const CLICK_DELAY = 1000; // 1초 지연
+    const profileEditBtn = document.getElementById("user-profile-edit-btn");
+
+    if (profileEditBtn) {
+        profileEditBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            // 현재 사용자 정보 가져오기 (실제 구현에서는 API 호출이나 다른 방법으로 가져올 수 있음)
+            const currentUser = {
+                username: document.querySelector('.username')?.textContent || '',
+                mail: document.querySelector('.user-email')?.textContent || '',
+                mention: document.querySelector('.user-mention')?.textContent || '',
+                bio: document.querySelector('.user-bio')?.textContent || '',
+                profileImgSrc: document.querySelector('.profile-img')?.src || ''
+            };
+
+            const modal = document.createElement("div");
+            modal.style.position = "fixed";
+            modal.style.left = '0';
+            modal.style.top = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.zIndex = '1000';
+
+            modal.innerHTML = `
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
+                    <h2 class="text-xl font-bold mb-4">프로필 수정</h2>
+                    
+                    <form id="profile-edit-form" class="space-y-4 text-black">
+                        <!-- 프로필 이미지 -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">프로필 이미지</label>
+                            <div class="flex items-center space-x-4">
+                                <img id="preview-img" src="${currentUser.profileImgSrc}" alt="프로필 미리보기" 
+                                     class="w-16 h-16 rounded-full object-cover border">
+                                <input type="file" id="profile-img-input" accept="image/*" 
+                                       class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            </div>
+                        </div>
+        
+                        <!-- 사용자명 -->
+                        <div>
+                            <label for="username" class="block text-sm font-medium mb-2">사용자명</label>
+                            <input type="text" id="username" name="username" value="${currentUser.username}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+        
+                        <!-- 이메일 -->
+                        <div>
+                            <label for="mail" class="block text-sm font-medium mb-2">이메일</label>
+                            <input type="email" id="mail" name="mail" value="${currentUser.mail}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+        
+                        <!-- 사용자 멘션 -->
+                        <div>
+                            <label for="mention" class="block text-sm font-medium mb-2">사용자 멘션</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+                                <input type="text" id="mention" name="mention" value="${currentUser.mention.replace('@', '')}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       required>
+                            </div>
+                        </div>
+        
+                        <!-- 자기소개 -->
+                        <div>
+                            <label for="bio" class="block text-sm font-medium mb-2">자기소개</label>
+                            <textarea id="bio" name="bio" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="자신을 소개해주세요...">${currentUser.bio}</textarea>
+                        </div>
+        
+                        <!-- 버튼들 -->
+                        <div class="flex space-x-3 pt-4">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600">
+                                저장
+                            </button>
+                            <button type="button" id="close-modal" class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                취소
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // 프로필 이미지 미리보기 기능
+            const profileImgInput = document.getElementById('profile-img-input');
+            const previewImg = document.getElementById('preview-img');
+
+            profileImgInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 폼 제출 처리
+            const form = document.getElementById('profile-edit-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const updatedUser = {
+                    username: formData.get('username'),
+                    mail: formData.get('mail'),
+                    mention: '@' + formData.get('mention'),
+                    bio: formData.get('bio'),
+                    profileImgSrc: previewImg.src
+                };
+
+                // 여기서 실제 업데이트 로직을 구현합니다
+                // 예: API 호출, 로컬 스토리지 업데이트 등
+                console.log('업데이트된 사용자 정보:', updatedUser);
+
+                // 실제 DOM 업데이트 (선택사항)
+                updateProfileDisplay(updatedUser);
+
+                // 성공 메시지
+                alert('프로필이 성공적으로 업데이트되었습니다!');
+
+                // 모달 닫기
+                modal.remove();
+            });
+
+            // 모달 닫기 기능
+            document.getElementById("close-modal").addEventListener("click", () => {
+                modal.remove();
+            });
+
+            // 모달 배경 클릭 시 닫기
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            // ESC 키로 모달 닫기
+            document.addEventListener('keydown', function escapeHandler(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            });
+        });
+    }
+
+    // 프로필 화면 업데이트 함수 (선택사항)
+    function updateProfileDisplay(userData) {
+        const usernameEl = document.querySelector('.username');
+        const emailEl = document.querySelector('.user-email');
+        const mentionEl = document.querySelector('.user-mention');
+        const bioEl = document.querySelector('.user-bio');
+        const profileImgEl = document.querySelector('.profile-img');
+
+        if (usernameEl) usernameEl.textContent = userData.username;
+        if (emailEl) emailEl.textContent = userData.mail;
+        if (mentionEl) mentionEl.textContent = userData.mention;
+        if (bioEl) bioEl.textContent = userData.bio;
+        if (profileImgEl) profileImgEl.src = userData.profileImgSrc;
+    }
 
     if (followBtn) {
         followBtn.addEventListener('click', function(e) {
@@ -34,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
 
-            fetch('/api/follow/toggle', {
+            fetch(`${location.origin}/api/follow/toggle`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -80,16 +249,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     isProcessing = false;
 
                     // 버튼 상태 복구
-                    followBtn.disabled = false;
-                    followBtn.style.opacity = '1';
-                    followBtn.style.cursor = 'pointer';
+                    const currentBtn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
+                    if (currentBtn) {
+                        currentBtn.disabled = false;
+                        currentBtn.style.opacity = '1';
+                        currentBtn.style.cursor = 'pointer';
+                    }
                 });
         });
     }
 
     // 버튼 상태 복구 함수
     function restoreButtonState(originalText, originalClasses) {
-        const btn = document.getElementById('user-follow-btn');
+        const btn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
         if (btn) {
             btn.className = originalClasses;
             btn.querySelector('span').textContent = originalText;
@@ -98,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 팔로우 버튼 UI 업데이트 (개선됨)
     function updateFollowButton(isFollowing) {
-        const btn = document.getElementById('user-follow-btn');
+        const btn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
         if (!btn) return;
 
         const span = btn.querySelector('span');
@@ -112,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isFollowing) {
             // 팔로잉 상태
+            btn.id = 'user-following-btn';
             btn.className = 'bg-gray-600 hover:bg-red-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2';
             span.textContent = '팔로잉';
             if (svg) {
@@ -130,7 +303,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } else {
             // 팔로우 안함 상태
-            btn.className = 'bg-gradient-to-t from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2';
+            btn.id = 'user-follow-btn';
+            btn.className = 'bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2';
             span.textContent = '팔로우';
             if (svg) {
                 svg.setAttribute('fill', 'none');

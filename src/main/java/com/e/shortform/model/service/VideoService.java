@@ -134,7 +134,7 @@ public class VideoService {
         return videoMapper.selectIndexPageAllVideos();
     }
 
-    public List<VideoWithUserFuckingDto> selectUserProfilePageAllVideos(String mention) {
+    public List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention) {
         return videoMapper.selectUserProfilePageAllVideos(mention);
     }
 

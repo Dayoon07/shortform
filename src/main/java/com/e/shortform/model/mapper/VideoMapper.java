@@ -12,5 +12,5 @@ import java.util.List;
 public interface VideoMapper {
     VideoWithUserDto selectByVideo(String mention);
     List<IndexPageAllVideosDto> selectIndexPageAllVideos();
-    List<VideoWithUserFuckingDto> selectUserProfilePageAllVideos(String mention);
+    List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention);
 }

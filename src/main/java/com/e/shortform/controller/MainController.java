@@ -84,10 +84,14 @@ public class MainController {
 
     @GetMapping("/following")
     public String followingPage(HttpSession session) {
-        if (session.getAttribute("user") == null) return "index";
+        if (session.getAttribute("user") == null) {
+            return "index";
+        }
 
 
         return "follow/following";
     }
+
+
 
 }
