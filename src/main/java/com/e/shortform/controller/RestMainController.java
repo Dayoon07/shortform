@@ -262,4 +262,20 @@ public class RestMainController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/follow/user/follower/list")
+    public ResponseEntity<?> selectProfileUserFollowList(@RequestParam Long id) {
+        return ResponseEntity.ok(userService.selectProfileUserFollowList(id));
+    }
+
+    @GetMapping("/follow/user/following/list")
+    public ResponseEntity<?> selectProfileUserFollowingList(@RequestParam Long id) {
+        return ResponseEntity.ok(userService.selectProfileUserFollowingList(id));
+    }
+
+    @PostMapping("/user/update")
+    public ResponseEntity<?> updateUserInfo(@RequestParam Map<String, Object> req, HttpSession session) {
+        userService.updateUserInfo(req);
+        return ResponseEntity.ok(1);
+    }
+
 }

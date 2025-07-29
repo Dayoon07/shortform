@@ -3,6 +3,7 @@ package com.e.shortform.model.mapper;
 import com.e.shortform.model.dto.UserProfileDto;
 import com.e.shortform.model.vo.UserVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,5 +14,12 @@ public interface UserMapper {
     String selectChkUsername(String username);
     String selectChkUserMail(String mail);
     UserProfileDto getUserProfilePageInfo(Long id);
+    List<UserVo> selectProfileUserFollowList(Long id);
+    List<UserVo> selectProfileUserFollowingList(Long id);
+    void updateUserInfo(@Param("username") String username, @Param("mail") String mail,
+                        @Param("mention") String mention, @Param("bio") String bio,
+                        @Param("profileImg") String profileImg,
+                        @Param("profileImgSrc") String profileImgSrc,
+                        @Param("id") Long id);
 
 }

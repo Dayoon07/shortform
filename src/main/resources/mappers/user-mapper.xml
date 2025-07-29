@@ -68,5 +68,39 @@
         FROM SHORTFORM_USERS u
         WHERE u.ID = #{id}
     </select>
+    
+    <select id="selectProfileUserFollowList" parameterType="Long" resultMap="userResultMap">
+        SELECT
+            u.ID,
+            u.USERNAME,
+            u.PROFILE_IMG,
+            u.PROFILE_IMG_SRC,
+            u.MENTION,
+            f.CREATE_AT as FOLLOWED_AT
+        FROM SHORTFORM_USERS_FOLLOWS f
+                 JOIN SHORTFORM_USERS u ON f.FOLLOW_USER_ID = u.ID
+        WHERE f.FOLLOWED_USER_ID = #{id}
+        ORDER BY f.CREATE_AT DESC
+    </select>
+    
+    <select id="selectProfileUserFollowingList" parameterType="Long" resultMap="userResultMap">
+        SELECT
+            u.ID,
+            u.USERNAME,
+            u.PROFILE_IMG_SRC,
+            u.MENTION,
+            f.CREATE_AT as FOLLOWED_AT
+        FROM SHORTFORM_USERS_FOLLOWS f
+                 JOIN SHORTFORM_USERS u ON f.FOLLOWED_USER_ID = u.ID
+        WHERE f.FOLLOW_USER_ID = #{id}
+        ORDER BY f.CREATE_AT DESC
+    </select>
+
+    <update id="updateUserInfo">
+        UPDATE SHORTFORM_USERS SET USERNAME = #{username},
+           MAIL = #{mail}, MENTION = #{mention}, BIO = #{bio},
+           PROFILE_IMG = #{profileImg}, PROFILE_IMG_SRC = #{profileImgSrc}
+        WHERE ID = #{id}
+    </update>
 
 </mapper>

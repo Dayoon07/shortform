@@ -22,12 +22,13 @@
 
                 <div class="flex space-x-6 mb-4 p-6">
                     <div>
-                        <img th:src="${profileInfo.getProfileImgSrc()}" alt="..." class="md:w-44 md:h-44 w-32 h-32 rounded-full object-cover" />
+                        <img th:src="${profileInfo.getProfileImgSrc()}" id="profile-img-src" alt="..." class="md:w-44 md:h-44 w-32 h-32 rounded-full object-cover p-1 bg-gradient-to-r from-pink-500 to-sky-500" />
                     </div>
                     <div class="space-y-2">
                         <div>
-                            <h1 th:text="${profileInfo.getUsername()}" class="text-[30px] font-semibold"></h1>
-                            <small th:text="'@' + ${profileInfo.getMention()}" class="font-semibold"></small>
+                            <h1 th:text="${profileInfo.getUsername()}" id="h1-but-username" class="text-[30px] font-semibold"></h1>
+                            <small th:text="'@' + ${profileInfo.getMention()}" id="small-tag-but-just-user-mention" class="font-semibold"></small>
+                            <p style="display: none;" th:text="${profileInfo.getMail()}" id="user-mail-nothing-aaaaaaaaa"></p>
                         </div>
 
                         <!-- 팔로우 버튼 (다른 사용자의 프로필을 볼 때) -->
@@ -66,14 +67,21 @@
 
                         <div class="flex space-x-4">
                             <div>
-                                <span id="following-count" style="font-size: large;" th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;<span class="text-gray-500">팔로잉</span>
+                                <span id="following-count" style="font-size: large;" th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;
+                                <span id="find-following-user-btn" th:data-following-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로우</span>
                             </div>
                             <div>
-                                <span id="follower-count" style="font-size: large;" th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;<span class="text-gray-500">팔로워</span>
+                                <span id="follower-count" style="font-size: large;" th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;
+                                <span id="find-follow-user-btn" th:data-follow-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로워</span>
                             </div>
                             <div>
-                                <span class="text-gray-500">동영상</span>&nbsp;<span style="font-size: large;" th:text="${profileUserVideoInfo.size()}"></span><span class="text-gray-500">개</span>
+                                <span style="font-size: large;" th:text="${profileUserVideoInfo.size()}"></span>
+                                <span class="text-gray-500">동영상</span>
                             </div>
+                        </div>
+
+                        <div>
+                            <p th:text="${profileInfo.getBio()}" style="word-wrap: break-word; white-space: pre-wrap;" id="biobiobio"></p>
                         </div>
                     </div>
                 </div>
@@ -132,6 +140,16 @@
 
             <div class="h-20"></div>
         </main>
+    </div>
+
+    <div id="follow-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white w-full md:max-w-md md:h-[500px] h-full mx-auto md:my-20 shadow-lg overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 id="follow-modal-title" class="text-xl font-semibold text-black"></h2>
+                <button id="follow-modal-close" class="text-black text-4xl pb-2">&times;</button>
+            </div>
+            <ul id="follow-modal-list" class="divide-y divide-gray-200"></ul>
+        </div>
     </div>
 
     <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>

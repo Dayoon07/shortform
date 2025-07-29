@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 현재 사용자 정보 가져오기 (실제 구현에서는 API 호출이나 다른 방법으로 가져올 수 있음)
             const currentUser = {
-                username: document.querySelector('.username')?.textContent || '',
-                mail: document.querySelector('.user-email')?.textContent || '',
-                mention: document.querySelector('.user-mention')?.textContent || '',
-                bio: document.querySelector('.user-bio')?.textContent || '',
-                profileImgSrc: document.querySelector('.profile-img')?.src || ''
+                username: document.getElementById("h1-but-username")?.textContent || '',
+                mail: document.getElementById("user-mail-nothing-aaaaaaaaa")?.textContent || '',
+                mention: document.getElementById("small-tag-but-just-user-mention")?.textContent || '',
+                bio: document.getElementById("biobiobio")?.textContent || '',
+                profileImgSrc: document.getElementById("profile-img-src").src || ''
             };
 
             const modal = document.createElement("div");
@@ -111,10 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 폼 제출 처리
             const form = document.getElementById('profile-edit-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const formData = new FormData(form);
+                formData.append("profileImgSrc", previewImg.src);
                 const updatedUser = {
                     username: formData.get('username'),
                     mail: formData.get('mail'),
@@ -123,8 +124,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     profileImgSrc: previewImg.src
                 };
 
-                // 여기서 실제 업데이트 로직을 구현합니다
-                // 예: API 호출, 로컬 스토리지 업데이트 등
+                try {
+                    const res = await fetch(`${location.origin}/api/user/update`, {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        console.log(data);
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                }
+
                 console.log('업데이트된 사용자 정보:', updatedUser);
 
                 // 실제 DOM 업데이트 (선택사항)
@@ -414,4 +428,90 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    const findFollowingUserBtn = document.getElementById("find-following-user-btn");
+    const findFollowUserBtn = document.getElementById("find-follow-user-btn");
+
+    const followModal = document.getElementById("follow-modal");
+    const followModalTitle = document.getElementById("follow-modal-title");
+    const followModalList = document.getElementById("follow-modal-list");
+    const followModalClose = document.getElementById("follow-modal-close");
+
+    function openFollowModal(title, data) {
+        followModalTitle.textContent = title;
+        followModalList.innerHTML = ""; // 기존 목록 초기화
+
+        data.forEach(user => {
+            const li = document.createElement("li");
+            li.className = "flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-200 transition duration-300";
+            li.onclick = () => {
+                location.href = `${location.origin}/@${user.mention}`;
+            };
+
+            const img = document.createElement("img");
+            img.src = user.profileImgSrc || "/default-profile.png";
+            img.alt = `${user.username}의 프로필 이미지`;
+            img.className = "w-12 h-12 rounded-full object-cover";
+
+            const infoDiv = document.createElement("div");
+            infoDiv.className = "flex flex-col";
+
+            const username = document.createElement("span");
+            username.className = "font-medium text-gray-800";
+            username.textContent = user.username;
+
+            const mention = document.createElement("span");
+            mention.className = "text-sm text-gray-500";
+            mention.textContent = user.mention;
+
+            infoDiv.appendChild(username);
+            infoDiv.appendChild(mention);
+            li.appendChild(img);
+            li.appendChild(infoDiv);
+            followModalList.appendChild(li);
+        });
+
+        followModal.classList.remove("hidden");
+    }
+
+    followModalClose.addEventListener("click", () => {
+        followModal.classList.add("hidden");
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") followModal.classList.add("hidden");
+    });
+
+    // 팔로잉 목록 버튼 이벤트
+    if (findFollowingUserBtn) {
+        findFollowingUserBtn.addEventListener("click", async () => {
+            const id = findFollowingUserBtn.dataset.followingId;
+            try {
+                const res = await fetch(`${location.origin}/api/follow/user/following/list?id=${id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    openFollowModal("팔로우 목록", data);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    }
+
+    // 팔로워 목록 버튼 이벤트
+    if (findFollowUserBtn) {
+        findFollowUserBtn.addEventListener("click", async () => {
+            const id = findFollowUserBtn.dataset.followId;
+            try {
+                const res = await fetch(`${location.origin}/api/follow/user/follower/list?id=${id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    openFollowModal("팔로워 목록", data);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    }
+
 });

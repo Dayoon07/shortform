@@ -11,6 +11,7 @@
 /* 스크롤바 커스터마이징 */
 main::-webkit-scrollbar {
     width: 6px;
+    z-index: 60;
 }
 main::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);

@@ -7,6 +7,7 @@ import com.e.shortform.model.repository.UserRepo;
 import com.e.shortform.model.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -104,6 +106,26 @@ public class UserService {
 
     public UserProfileDto getUserProfilePageInfo(Long id) {
         return userMapper.getUserProfilePageInfo(id);
+    }
+
+    public List<UserVo> selectProfileUserFollowList(Long id) {
+        return userMapper.selectProfileUserFollowList(id);
+    }
+
+    public List<UserVo> selectProfileUserFollowingList(Long id) {
+        return userMapper.selectProfileUserFollowingList(id);
+    }
+
+    public void updateUserInfo(Map<String, Object> req) {
+        String username = (String) req.get("username");
+        String mail = (String) req.get("mail");
+        String mention = (String) req.get("mention");
+        String bio = (String) req.get("bio");
+        String profileImg = (String) req.get("profileImg");
+        String profileImgSrc = (String) req.get("profileImgSrc");
+        Long id = (Long) req.get("id");
+
+        userMapper.updateUserInfo(username, mail, mention, bio, profileImg, profileImgSrc, id);
     }
 
 }
