@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="flex items-center space-x-4">
                                 <img id="preview-img" src="${currentUser.profileImgSrc}" alt="프로필 미리보기" 
                                      class="w-16 h-16 rounded-full object-cover border">
-                                <input type="file" id="profile-img-input" accept="image/*" 
+                                <input type="file" id="profile-img-input" src="${currentUser.profileImgSrc}" accept="image/*" 
                                        class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
                         </div>
@@ -114,41 +114,53 @@ document.addEventListener('DOMContentLoaded', function() {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                const formData = new FormData(form);
-                formData.append("profileImgSrc", previewImg.src);
-                const updatedUser = {
-                    username: formData.get('username'),
-                    mail: formData.get('mail'),
-                    mention: '@' + formData.get('mention'),
-                    bio: formData.get('bio'),
-                    profileImgSrc: previewImg.src
-                };
+                const formData = new FormData();
+                const getValue = (id) => document.getElementById(id).value;
+
+                // 기본 정보 추가
+                formData.append('username', getValue('username'));
+                formData.append('mail', getValue('mail'));
+                formData.append('mention', getValue('mention'));
+                formData.append('bio', getValue('bio'));
+
+                const profileImgInput = document.getElementById('profile-img-input');
+                const previewImg = document.getElementById('preview-img');
+
+                const isImageChanged = profileImgInput.files.length > 0;
+
+                if (isImageChanged) {
+                    formData.append('profileImg', profileImgInput.files[0]);
+                } else {
+                    formData.append('currentProfileImgSrc', previewImg.src);
+                }
 
                 try {
                     const res = await fetch(`${location.origin}/api/user/update`, {
                         method: "POST",
-                        body: formData,
+                        body: formData
                     });
 
                     if (res.ok) {
                         const data = await res.json();
-                        console.log(data);
+                        alert(data.message);
+
+                        updateProfileDisplay({
+                            username: getValue('username'),
+                            mail: getValue('mail'),
+                            mention: '@' + getValue('mention'),
+                            bio: getValue('bio'),
+                            profileImgSrc: data.profileImgPath || previewImg.src
+                        });
+
+                        modal.remove();
+                    } else {
+                        alert('업데이트 중 오류가 발생했습니다.');
                     }
 
-                } catch (error) {
-                    console.log(error);
+                } catch (err) {
+                    console.error(err);
+                    alert('네트워크 오류입니다.');
                 }
-
-                console.log('업데이트된 사용자 정보:', updatedUser);
-
-                // 실제 DOM 업데이트 (선택사항)
-                updateProfileDisplay(updatedUser);
-
-                // 성공 메시지
-                alert('프로필이 성공적으로 업데이트되었습니다!');
-
-                // 모달 닫기
-                modal.remove();
             });
 
             // 모달 닫기 기능
@@ -175,11 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 프로필 화면 업데이트 함수 (선택사항)
     function updateProfileDisplay(userData) {
-        const usernameEl = document.querySelector('.username');
-        const emailEl = document.querySelector('.user-email');
-        const mentionEl = document.querySelector('.user-mention');
-        const bioEl = document.querySelector('.user-bio');
-        const profileImgEl = document.querySelector('.profile-img');
+        const usernameEl = document.getElementById("h1-but-username");
+        const emailEl = document.getElementById("user-mail-nothing-aaaaaaaaa");
+        const mentionEl = document.getElementById("small-tag-but-just-user-mention");
+        const bioEl = document.getElementById("biobiobio");
+        const profileImgEl = document.getElementById("profile-img-src");
 
         if (usernameEl) usernameEl.textContent = userData.username;
         if (emailEl) emailEl.textContent = userData.mail;

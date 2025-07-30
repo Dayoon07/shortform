@@ -92,6 +92,4 @@ public class MainController {
         return "follow/following";
     }
 
-
-
 }

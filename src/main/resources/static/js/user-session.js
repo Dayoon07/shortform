@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("signupBtn").onclick = () => {
         document.getElementById("signupModal").classList.remove("hidden");
     };
+
+    document.getElementById("loginBtn2").onclick = () => {
+        document.getElementById("loginModal").classList.remove("hidden");
+    };
+    document.getElementById("signupBtn2").onclick = () => {
+        document.getElementById("signupModal").classList.remove("hidden");
+    };
+
     document.getElementById("closeLoginModal").onclick = () => {
         document.getElementById("loginModal").classList.add("hidden");
     };

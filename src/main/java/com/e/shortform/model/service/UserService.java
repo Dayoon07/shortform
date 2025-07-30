@@ -1,6 +1,7 @@
 package com.e.shortform.model.service;
 
 import com.e.shortform.model.dto.UserProfileDto;
+import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.mapper.UserMapper;
 import com.e.shortform.model.repository.UserRepo;
@@ -8,12 +9,17 @@ import com.e.shortform.model.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -116,16 +122,44 @@ public class UserService {
         return userMapper.selectProfileUserFollowingList(id);
     }
 
-    public void updateUserInfo(Map<String, Object> req) {
-        String username = (String) req.get("username");
-        String mail = (String) req.get("mail");
-        String mention = (String) req.get("mention");
-        String bio = (String) req.get("bio");
-        String profileImg = (String) req.get("profileImg");
-        String profileImgSrc = (String) req.get("profileImgSrc");
-        Long id = (Long) req.get("id");
+    public void updateUserInfo(UserProfileUpdateDto dto) {
+        userMapper.updateUserInfo(
+                dto.username(),
+                dto.mail(),
+                dto.mention(),
+                dto.bio(),
+                dto.profileImg(),
+                dto.profileImgSrc(),
+                dto.id()
+        );
+    }
 
-        userMapper.updateUserInfo(username, mail, mention, bio, profileImg, profileImgSrc, id);
+    public String fileTransfer(MultipartFile profileImg, String currentProfileImgSrc) {
+        if (profileImg != null && !profileImg.isEmpty()) {
+            String newFilename = UUID.randomUUID().toString() + profileImg.getOriginalFilename().substring(profileImg.getOriginalFilename().lastIndexOf("."));
+            String uploadDir = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-user-profile-img/";
+            Path savePath = Paths.get(uploadDir, newFilename);
+
+            try {
+                profileImg.transferTo(savePath);
+                return "/resources/shortform-user-profile-img/" + newFilename;
+            } catch (IOException e) {
+                throw new RuntimeException("프로필 이미지 저장 실패", e);
+            }
+        } else {
+            return extractPathFromUrl(currentProfileImgSrc);
+        }
+    }
+
+    private String extractPathFromUrl(String fullUrl) {
+        if (fullUrl == null || fullUrl.isEmpty()) return null;
+
+        try {
+            return new URL(fullUrl).getPath();
+        } catch (MalformedURLException e) {
+            int index = fullUrl.indexOf("/resources/");
+            return (index != -1) ? fullUrl.substring(index) : fullUrl;
+        }
     }
 
 }

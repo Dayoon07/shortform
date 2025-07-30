@@ -1,6 +1,8 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.model.service.CommentService;
 import com.e.shortform.model.service.FollowService;
 import com.e.shortform.model.service.UserService;
 import com.e.shortform.model.service.VideoService;
@@ -28,6 +30,7 @@ public class RestMainController {
     private final UserService userService;
     private final VideoService videoService;
     private final FollowService followService;
+    private final CommentService commentService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -273,9 +276,72 @@ public class RestMainController {
     }
 
     @PostMapping("/user/update")
-    public ResponseEntity<?> updateUserInfo(@RequestParam Map<String, Object> req, HttpSession session) {
-        userService.updateUserInfo(req);
-        return ResponseEntity.ok(1);
+    public ResponseEntity<?> updateUserInfo(
+            @RequestParam String username,
+            @RequestParam String mail,
+            @RequestParam String mention,
+            @RequestParam String bio,
+            @RequestParam(value = "profileImg", required = false) MultipartFile profileImg,
+            @RequestParam(value = "currentProfileImgSrc", required = false) String currentProfileImgSrc,
+            HttpSession session) {
+
+        UserEntity user = (UserEntity) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "status", "fail",
+                    "message", "로그인이 필요합니다."
+            ));
+        }
+
+        String finalProfileImgPath;
+        try {
+            finalProfileImgPath = userService.fileTransfer(profileImg, currentProfileImgSrc);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
+
+        UserProfileUpdateDto dto = new UserProfileUpdateDto(
+                user.getId(), username, mail, mention, bio, finalProfileImgPath, finalProfileImgPath
+        );
+        userService.updateUserInfo(dto);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "프로필이 업데이트되었습니다.",
+                "profileImgPath", finalProfileImgPath
+        ));
+    }
+
+    @PostMapping("/video/insert/comment")
+    public ResponseEntity<?> insertComment(
+            @RequestParam("commentText") String commentText,
+            @RequestParam("commentVideoId") Long commentVideoId,
+            HttpSession session
+    ) {
+        UserEntity user =  (UserEntity) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", "사용자가 존재하지 않습니다."
+            ));
+        }
+
+        Map<String, Object> response = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/video/find/comment/popular")
+    public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentId(id));
+    }
+
+    @GetMapping("/video/find/comment/desc")
+    public ResponseEntity<?> findVideoCommentDesc(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
     }
 
 }

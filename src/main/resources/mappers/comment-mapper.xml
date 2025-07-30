@@ -13,12 +13,76 @@
     <resultMap id="commentWithUserVideoResultMap" type="com.e.shortform.model.dto.CommentWithUserVideoDto">
         <id property="id" column="ID"/>
         <result property="commentText" column="COMMENT_TEXT"/>
-        <result property="userId" column="COMMENT_USER_ID"/>
-        <result property="videoId" column="COMMENT_VIDEO_ID"/>
+        <result property="commentUserId" column="COMMENT_USER_ID"/>
+        <result property="commentVideoId" column="COMMENT_VIDEO_ID"/>
         <result property="createAt" column="CREATE_AT"/>
 
         <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
         <association property="videoVo" javaType="com.e.shortform.model.vo.VideoVo" />
     </resultMap>
+
+    <resultMap id="commentWithUserVideoFfuucckkResultMap" type="com.e.shortform.model.dto.CommentUserFindWhatTheFuckDto">
+        <id property="id" column="COMMENT_ID"/>
+        <result property="commentText" column="COMMENT_TEXT"/>
+        <result property="commentUserId" column="COMMENT_USER_ID"/>
+        <result property="commentVideoId" column="COMMENT_VIDEO_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+        <result property="username" column="USERNAME"/>
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
+        <result property="mention" column="MENTION"/>
+        <result property="likeCount" column="LIKE_COUNT"/>
+    </resultMap>
+
+    <select id="selectByCommentId" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">
+        SELECT
+            C.ID AS COMMENT_ID,
+            C.COMMENT_TEXT,
+            C.COMMENT_USER_ID,
+            C.COMMENT_VIDEO_ID,
+            C.CREATE_AT,
+            U.USERNAME,
+            U.PROFILE_IMG_SRC,
+            U.MENTION,
+            L.LIKE_COUNT AS LIKE_COUNT
+        FROM
+            SHORTFORM_COMMENTS C
+                JOIN
+            SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                LEFT JOIN (
+                SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+                FROM SHORTFORM_COMMENT_LIKES
+                GROUP BY COMMENT_ID
+            ) L ON C.ID = L.COMMENT_ID
+        WHERE
+            C.COMMENT_VIDEO_ID = #{id}
+        ORDER BY
+            LIKE_COUNT DESC, C.CREATE_AT DESC
+    </select>
+    
+    <select id="selectByCommentButOrderByIsDesc" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">
+        SELECT
+            C.ID AS COMMENT_ID,
+            C.COMMENT_TEXT,
+            C.COMMENT_USER_ID,
+            C.COMMENT_VIDEO_ID,
+            C.CREATE_AT,
+            U.USERNAME,
+            U.PROFILE_IMG_SRC,
+            U.MENTION,
+            L.LIKE_COUNT AS LIKE_COUNT
+        FROM
+            SHORTFORM_COMMENTS C
+                JOIN
+            SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                LEFT JOIN (
+                SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+                FROM SHORTFORM_COMMENT_LIKES
+                GROUP BY COMMENT_ID
+            ) L ON C.ID = L.COMMENT_ID
+        WHERE
+            C.COMMENT_VIDEO_ID = #{id}
+        ORDER BY
+            C.CREATE_AT DESC
+    </select>
 
 </mapper>

@@ -31,7 +31,7 @@
     </resultMap>
 
     <select id="selectAll" resultMap="userResultMap">
-        SELECT * FROM SHORTFORM_USERS
+        SELECT * FROM SHORTFORM_USERS ORDER BY ID DESC
     </select>
 
     <select id="selectChkUsername" resultType="String" parameterType="String">
