@@ -1,9 +1,7 @@
 package com.e.shortform.controller;
 
 import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.service.FollowService;
-import com.e.shortform.model.service.UserService;
-import com.e.shortform.model.service.VideoService;
+import com.e.shortform.model.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +20,8 @@ public class MainController {
     private final UserService userService;
     private final VideoService videoService;
     private final FollowService followService;
+    private final CommentService commentService;
+    private final VideoLikeService videoLikeService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -46,16 +46,18 @@ public class MainController {
         UserEntity profileUser = userService.findByMention(mention);
         UserEntity currentUser = (UserEntity) session.getAttribute("user");
 
-        // 기본 프로필 정보
-        m.addAttribute("profileInfo", userService.getUserProfilePageInfo(profileUser.getId()));
-        m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
+        if (profileUser != null) {
+            // 기본 프로필 정보
+            m.addAttribute("profileInfo", userService.getUserProfilePageInfo(profileUser.getId()));
+            m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
 
-        // 팔로우 상태 확인 (로그인한 사용자가 있을 때만)
-        if (currentUser != null && !currentUser.getId().equals(profileUser.getId())) {
-            boolean isFollowing = followService.isFollowing(currentUser.getId(), profileUser.getId());
-            m.addAttribute("isFollowing", isFollowing);
-        } else {
-            m.addAttribute("isFollowing", false);
+            // 팔로우 상태 확인 (로그인한 사용자가 있을 때만)
+            if (currentUser != null && !currentUser.getId().equals(profileUser.getId())) {
+                boolean isFollowing = followService.isFollowing(currentUser.getId(), profileUser.getId());
+                m.addAttribute("isFollowing", isFollowing);
+            } else {
+                m.addAttribute("isFollowing", false);
+            }
         }
 
         return "profile/profile";
@@ -71,7 +73,18 @@ public class MainController {
 
     @GetMapping("/@{mention}/video/{videoLoc}")
     public String videoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+
         m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
+        m.addAttribute("videoCommentSize", commentService.selectByCommentId(videoService.findByVideoLoc(videoLoc, session).getId()).size());
+
+        VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
+                videoService.findByVideoLoc(videoLoc, session).getId(),
+                user != null ? user.getId() : null
+        );
+
+        m.addAttribute("likeCount", likeInfo.getLikeCount());
+        m.addAttribute("isLiked", likeInfo.isLiked());
         return "video/video";
     }
 
@@ -90,6 +103,15 @@ public class MainController {
 
 
         return "follow/following";
+    }
+
+    @GetMapping("/search")
+    public String searchPage(@RequestParam String q, HttpSession session) {
+        if (session.getAttribute("user") != null) {
+
+        }
+
+        return "search/search";
     }
 
 }

@@ -456,9 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data.forEach(user => {
             const li = document.createElement("li");
             li.className = "flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-200 transition duration-300";
-            li.onclick = () => {
-                location.href = `${location.origin}/@${user.mention}`;
-            };
+            li.onclick = () => location.href = `${location.origin}/@${user.mention}`;
 
             const img = document.createElement("img");
             img.src = user.profileImgSrc || "/default-profile.png";

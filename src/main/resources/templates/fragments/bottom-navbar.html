@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <body>
-    <nav th:fragment="bottom-navbar" class="sticky bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-gray-800 px-4 md:hidden z-50">
+    <nav th:fragment="bottom-navbar" class="fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-sm border-t border-gray-800 px-4 md:hidden z-[100]">
         <div class="flex justify-around items-center">
             <button th:if="${session.user == null}" type="button" class="p-3 text-white">
                 <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">

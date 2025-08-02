@@ -13,4 +13,5 @@ public interface VideoMapper {
     VideoWithUserDto selectByVideo(String mention);
     List<IndexPageAllVideosDto> selectIndexPageAllVideos();
     List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention);
+    List<IndexPageAllVideosDto> searchLogic(String searchWordParam);
 }

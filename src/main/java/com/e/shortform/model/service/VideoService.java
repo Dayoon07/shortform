@@ -2,7 +2,6 @@ package com.e.shortform.model.service;
 
 import com.e.shortform.model.dto.IndexPageAllVideosDto;
 import com.e.shortform.model.dto.VideoWithUserDto;
-import com.e.shortform.model.dto.VideoWithUserFuckingDto;
 import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.mapper.VideoMapper;
@@ -136,6 +135,10 @@ public class VideoService {
 
     public List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention) {
         return videoMapper.selectUserProfilePageAllVideos(mention);
+    }
+
+    public List<IndexPageAllVideosDto> searchLogic(String searchWordParam) {
+        return videoMapper.searchLogic(searchWordParam);
     }
 
 }

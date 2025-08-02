@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/css/custom.css">
-    <title th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
+    <title th:if="${profileInfo != null}" th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
 <body style="background-color: black; color: white; overflow: hidden;">
@@ -16,7 +16,7 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto">
-            <section>
+            <section th:if="${profileInfo != null}">
 
                 <p th:text="${profileInfo}"></p>
 
@@ -138,13 +138,26 @@
                 </div>
             </section>
 
+            <section th:if="${profileInfo == null}">
+                <div class="text-center w-full mx-auto mt-24">
+                    <h1 class="text-2xl font-bold mb-6">
+                        멘션에 해당하는 사용자가 없습니다
+                    </h1>
+                    <div onclick="history.back()" class="inline-block rounded-full px-8 py-2 font-semibold transition-colors hover:bg-gray-200"
+                        style="cursor: pointer; background-color: white; color: black;"
+                    >
+                        돌아가기
+                    </div>
+                </div>
+            </section>
+
             <div class="h-20"></div>
         </main>
     </div>
 
     <div id="follow-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
         <div class="bg-white w-full md:max-w-md md:h-[500px] h-full mx-auto md:my-20 shadow-lg overflow-y-auto">
-            <div class="flex justify-between items-center p-4 border-b">
+            <div class="flex justify-between items-center py-2 px-6 border-b">
                 <h2 id="follow-modal-title" class="text-xl font-semibold text-black"></h2>
                 <button id="follow-modal-close" class="text-black text-4xl pb-2">&times;</button>
             </div>

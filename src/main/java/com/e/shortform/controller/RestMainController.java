@@ -2,10 +2,8 @@ package com.e.shortform.controller;
 
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.service.CommentService;
-import com.e.shortform.model.service.FollowService;
-import com.e.shortform.model.service.UserService;
-import com.e.shortform.model.service.VideoService;
+import com.e.shortform.model.entity.VideoLikeEntity;
+import com.e.shortform.model.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +30,7 @@ public class RestMainController {
     private final VideoService videoService;
     private final FollowService followService;
     private final CommentService commentService;
-
-    private final PasswordEncoder passwordEncoder;
+    private final VideoLikeService videoLikeService;
 
     static class staticTestObj {
         private String message;
@@ -126,7 +124,7 @@ public class RestMainController {
     }
 
     @PostMapping("/upload/video")
-    public ResponseEntity<Map<String, Object>> uploadVideoComplete(
+    public ResponseEntity<Map<String, Object>> uploadVidefoComplete(
             @RequestParam("video") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
@@ -339,9 +337,63 @@ public class RestMainController {
         return ResponseEntity.ok(commentService.selectByCommentId(id));
     }
 
-    @GetMapping("/video/find/comment/desc")
-    public ResponseEntity<?> findVideoCommentDesc(@RequestParam Long id) {
+    @GetMapping("/video/find/comment/recent")
+    public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
         return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
+    }
+
+    /**
+     * 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능)
+     */
+    @PostMapping("/video/like")
+    public ResponseEntity<?> videoLikeToggle(@RequestBody Map<String, Object> req, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "success", false,
+                    "message", "세션이 없습니다"
+            ));
+        }
+
+        try {
+            Long videoId = Long.valueOf(req.get("videoId").toString());
+
+            // MyBatis 방식 사용 (성능상 유리)
+            VideoLikeService.LikeToggleResult result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
+
+            if (result.isSuccess()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "isLiked", result.isLiked(),
+                        "totalLikes", result.getTotalLikes(),
+                        "message", result.getMessage()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                        "success", false,
+                        "message", result.getMessage()
+                ));
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "잘못된 비디오 ID입니다"
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "success", false,
+                    "message", "서버 오류가 발생했습니다"
+            ));
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam String q) {
+        return ResponseEntity.ok(videoService.searchLogic(q));
     }
 
 }

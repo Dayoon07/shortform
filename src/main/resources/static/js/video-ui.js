@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function popularComment() {
         const commentContainer = document.getElementById("comment-list-wawawawawa");
+        commentContainer.innerHTML = "";
         const videoId = commentContainer.dataset.videoId;
 
         function timeAgo(dateString) {
@@ -128,20 +129,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </a>
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-semibold text-sm text-white" style="cursor: pointer" 
+                                        <span class="font-semibold text-md text-white" style="cursor: pointer" 
                                             onclick="location.href = '${location.origin}/@${commentData.mention}'"
                                         >${commentData.username}</span>
-                                        <span class="text-xs text-gray-400">${timeAgo(commentData.createAt)}</span>
+                                        <span class="text-sm text-gray-400">${timeAgo(commentData.createAt)}</span>
                                     </div>
-                                    <p class="text-sm text-gray-300 mt-1">${commentData.commentText}</p>
+                                    <pre style="white-space: pre-wrap; font-family: inherit;">${commentData.commentText}</pre>
                                     <div class="flex items-center space-x-4 mt-2">
-                                        <button class="text-xs text-gray-400 hover:text-white flex items-center space-x-1">
+                                        <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                             </svg>
                                             <span>${commentData.likeCount == null ? 0 : commentData.likeCount}</span>
                                         </button>
-                                        <button class="text-xs text-gray-400 hover:text-white">답글</button>
+                                        <button class="text-md text-gray-400 hover:text-white">답글</button>
                                     </div>
                                 </div>
                             </div>
@@ -153,7 +154,78 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error(error);
         }
+    }
 
+    async function recentComment() {
+        const commentContainer = document.getElementById("comment-list-wawawawawa");
+        commentContainer.innerHTML = "";
+        const videoId = commentContainer.dataset.videoId;
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            const units = [
+                { name: "년", seconds: 60 * 60 * 24 * 365 },
+                { name: "개월", seconds: 60 * 60 * 24 * 30 },
+                { name: "일", seconds: 60 * 60 * 24 },
+                { name: "시간", seconds: 60 * 60 },
+                { name: "분", seconds: 60 },
+                { name: "초", seconds: 1 }
+            ];
+
+            for (let unit of units) {
+                const interval = Math.floor(seconds / unit.seconds);
+                if (interval >= 1) {
+                    return `${interval}${unit.name} 전`;
+                }
+            }
+
+            return "방금 전";
+        }
+
+        try {
+            const res = await fetch(`${location.origin}/api/video/find/comment/recent?id=${videoId}`);
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log(data);
+
+                if (data != null) {
+                    data.forEach(commentData => {
+                        commentContainer.innerHTML += `
+                            <div class="flex space-x-3">
+                                <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer">
+                                    <img src="${commentData.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
+                                </a>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-semibold text-md text-white" style="cursor: pointer" 
+                                            onclick="location.href = '${location.origin}/@${commentData.mention}'"
+                                        >${commentData.username}</span>
+                                        <span class="text-sm text-gray-400">${timeAgo(commentData.createAt)}</span>
+                                    </div>
+                                    <pre style="white-space: pre-wrap; font-family: inherit;">${commentData.commentText}</pre>
+                                    <div class="flex items-center space-x-4 mt-2">
+                                        <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                            </svg>
+                                            <span>${commentData.likeCount == null ? 0 : commentData.likeCount}</span>
+                                        </button>
+                                        <button class="text-md text-gray-400 hover:text-white">답글</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     // 댓글 모달 닫기
@@ -176,29 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
     popularSort.addEventListener('click', () => {
         popularSort.className = 'bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
         recentSort.className = 'bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
+        popularComment();
     });
 
     recentSort.addEventListener('click', () => {
         recentSort.className = 'bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
         popularSort.className = 'bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200';
-    });
-
-    // 좋아요 버튼 애니메이션
-    const likeBtn = document.getElementById('like-btn');
-    let isLiked = false;
-
-    likeBtn.addEventListener('click', () => {
-        if (!isLiked) {
-            likeBtn.querySelector('svg').style.fill = '#ef4444';
-            likeBtn.querySelector('svg').style.stroke = '#ef4444';
-            likeBtn.classList.add('animate-pulse');
-            setTimeout(() => likeBtn.classList.remove('animate-pulse'), 600);
-            isLiked = true;
-        } else {
-            likeBtn.querySelector('svg').style.fill = 'none';
-            likeBtn.querySelector('svg').style.stroke = 'currentColor';
-            isLiked = false;
-        }
+        recentComment();
     });
 
     // 초기화 완료
@@ -234,27 +290,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(data.commentText);
                     console.log(data.userObj);
 
-                    videoCommentContainer.innerHTML += `
+                    videoCommentContainer.insertAdjacentHTML('afterbegin',`
                         <div class="flex space-x-3">
-                            <img src="${data.userObj.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
+                            <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer">
+                                <img src="${data.userObj.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
+                            </a>
                             <div class="flex-1">
                                 <div class="flex items-center space-x-2">
-                                    <span class="font-semibold text-sm text-white">${data.userObj.username}</span>
-                                    <span class="text-xs text-gray-400">방금 전</span>
+                                    <span class="font-semibold text-md text-white" style="cursor: pointer"
+                                              onclick="location.href = '${location.origin}/@${commentData.mention}'"
+                                    >${data.userObj.username}</span>
+                                    <span class="text-sm text-gray-400">방금 전</span>
                                 </div>
-                                <p class="text-sm text-gray-300 mt-1">${data.commentText}</p>
+                                <pre style="white-space: pre-wrap; font-family: inherit;">${data.commentText}</pre>
                                 <div class="flex items-center space-x-4 mt-2">
-                                    <button class="text-xs text-gray-400 hover:text-white flex items-center space-x-1">
+                                    <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                         </svg>
                                         <span>0</span>
                                     </button>
-                                    <button class="text-xs text-gray-400 hover:text-white">답글</button>
+                                    <button class="text-md text-gray-400 hover:text-white">답글</button>
                                 </div>
                             </div>
                         </div>
-                    `;
+                    `);
 
                     commentText.value = '';
                 }
@@ -264,4 +324,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    const likeBtn = document.getElementById('like-btn');
+
+    if (likeBtn) {
+        let isLiked = false;
+
+        likeBtn.addEventListener('click', async (e) => {
+            const videoId = e.currentTarget.dataset.videoId;
+
+            try {
+                const res = await fetch(`${location.origin}/api/video/like`, {
+                    method: "POST",
+                    body: JSON.stringify({ videoId }),
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log(data);
+                    isLiked = data.isLiked;
+                } else {
+                    const errorData = await res.json();
+                    alert(errorData.message || "요청 처리 중 오류가 발생했습니다.");
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
+
+            // 애니메이션 처리
+            if (!isLiked) {
+                likeBtn.querySelector('svg').style.fill = '#ef4444';
+                likeBtn.querySelector('svg').style.stroke = '#ef4444';
+                likeBtn.classList.add('animate-pulse');
+                setTimeout(() => likeBtn.classList.remove('animate-pulse'), 600);
+                isLiked = true;
+            } else {
+                likeBtn.querySelector('svg').style.fill = 'none';
+                likeBtn.querySelector('svg').style.stroke = 'currentColor';
+                isLiked = false;
+            }
+        });
+    }
+
 });
