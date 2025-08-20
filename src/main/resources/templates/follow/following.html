@@ -6,16 +6,123 @@
     <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/css/custom.css">
     <title>FlipFlop</title>
+
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <style>
+        /* 스크롤바 스타일링 */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        main::-webkit-scrollbar-track {
+            background: rgba(55, 65, 81, 0.3);
+        }
+
+        main::-webkit-scrollbar-thumb {
+            background: rgba(107, 114, 128, 0.6);
+            border-radius: 4px;
+        }
+
+        main::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.8);
+        }
+
+        /* 부드러운 애니메이션 */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* 호버 효과를 위한 글로우 */
+        .hover\:shadow-blue-500\/10:hover {
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.1);
+        }
+    </style>
 </head>
 <body style="background-color: black; color: white; overflow: hidden;">
+
+    <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
 
     <div class="flex h-screen">
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto">
-            <section>
+            <section class="p-4 md:p-6 lg:p-8 pb-48">
+                <!-- 팔로우 리스트가 있을 때 -->
+                <div th:if="${followList != null and !followList.isEmpty()}">
+                    <!-- 헤더 -->
+                    <div class="mb-8">
+                        <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">팔로우 중인 친구들</h1>
+                        <p class="text-gray-400 text-sm md:text-base">현재 <span th:text="${followList.size()}" class="text-blue-400 font-semibold">0</span>명을 팔로우하고 있습니다.</p>
+                    </div>
 
+                    <!-- 반응형 그리드 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+                        <div th:each="follow : ${followList}"
+                             class="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center
+                                        hover:bg-gray-700/60 transition-all duration-300
+                                        border border-gray-700/50 hover:border-gray-600/50
+                                        min-h-[280px] max-w-[300px] mx-auto w-full
+                                        hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10">
+
+                            <!-- 프로필 이미지 -->
+                            <a th:href="${'/@' + follow.getMention()}" class="mb-4 group">
+                                <div class="relative">
+                                    <img th:src="${follow.getProfileImgSrc()}"
+                                         alt="프로필 이미지"
+                                         class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28
+                                                    cursor-pointer bg-gradient-to-br from-pink-500 via-purple-500 to-sky-500
+                                                    p-1 rounded-full object-cover
+                                                    group-hover:scale-110 transition-transform duration-300
+                                                    shadow-lg group-hover:shadow-xl" />
+                                </div>
+                            </a>
+
+                            <!-- 사용자 이름 -->
+                            <a th:href="${'/@' + follow.getMention()}" class="mb-4 group">
+                                <h2 th:text="${follow.getUsername()}"
+                                    class="text-center text-lg md:text-xl font-semibold cursor-pointer
+                                               text-white group-hover:text-blue-400 transition-colors duration-200
+                                               truncate max-w-[180px]">
+                                    username
+                                </h2>
+                                <p class="text-center text-sm text-gray-400 mt-1" th:if="${follow.getMention().length() > 10}" th:text="${'@' + follow.getMention().substring(1, 10) + '...'}">@mention</p>
+                                <p class="text-center text-sm text-gray-400 mt-1" th:if="${follow.getMention().length() < 10}" th:text="${'@' + follow.getMention()}">@mention</p>
+                            </a>
+
+                            <!-- 팔로우 취소 버튼 -->
+                            <button type="button"
+                                    id="user-following-btn"
+                                    th:data-mention="${follow.getMention()}"
+                                    class="bg-gray-600/80 hover:bg-red-500 px-4 md:px-6 py-2 md:py-3
+                                               rounded-lg font-medium transition-all duration-300
+                                               flex items-center justify-center space-x-2 w-full max-w-[160px]
+                                               hover:shadow-lg hover:scale-105 text-sm md:text-base
+                                               border border-gray-500/30 hover:border-red-400/50">
+                                <span class="whitespace-nowrap">팔로우 취소</span>
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 팔로우 리스트가 없을 때 -->
+                <div th:if="${followList == null or followList.isEmpty()}"
+                     class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                    <!-- 아이콘 -->
+                    <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-8">
+                        <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                        </svg>
+                    </div>
+
+                    <!-- 메시지 -->
+                    <h2 class="text-xl md:text-2xl font-semibold text-white mb-3">아직 팔로우한 친구가 없어요</h2>
+                    <p class="text-gray-400 text-sm md:text-base mb-8 max-w-md px-4">
+                        흥미로운 사람들을 찾아보고 <br /> 팔로우해서 소식을 받아보세요!
+                    </p>
+                </div>
             </section>
         </main>
     </div>

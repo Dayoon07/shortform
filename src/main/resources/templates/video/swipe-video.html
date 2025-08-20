@@ -127,10 +127,10 @@
                     <div class="text-sm md:text-base font-medium text-white" th:text="${videoInfo.getVideoTitle()}">영상 제목</div>
 
                     <div th:if="${videoInfo.videoTag != null}" class="flex flex-wrap gap-1 md:gap-2">
-                            <span th:each="tag : ${videoInfo.videoTag.split(',')}"
-                                  th:text="${tag}"
-                                  class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
-                            </span>
+                                <span th:each="tag : ${videoInfo.videoTag.split(',')}"
+                                      th:text="${tag}"
+                                      class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
+                                </span>
                     </div>
 
                     <div class="text-xs md:text-sm text-gray-300 line-clamp-2" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
@@ -169,11 +169,11 @@
                     <div class="flex space-x-3">
                         <img th:src="${session.user.getProfileImgSrc()}" alt="내 프로필" class="w-8 h-8 rounded-full object-cover">
                         <div class="flex-1 flex space-x-2 w-full items-center">
-                            <textarea name="commentText" id="commentText" th:data-video-id="${videoInfo.getId()}" placeholder="댓글을 입력하세요..." style="resize: none;"
-                                class="flex-1 bg-gray-800 text-white px-3 py-2 h-[40px] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required
-                            ></textarea>
+                                <textarea name="commentText" id="commentText" th:data-video-id="${videoInfo.getId()}" placeholder="댓글을 입력하세요..." style="resize: none;"
+                                          class="flex-1 bg-gray-800 text-white px-3 py-2 h-[40px] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required
+                                ></textarea>
                             <button id="comment-submit-btn" class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white px-4 py-2
-                                rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                                    rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105"
                             >전송</button>
                         </div>
                     </div>
@@ -188,6 +188,7 @@
 
     <script src="/js/user-session.js"></script>
     <script src="/js/video-ui.js"></script>
+    <script src="/js/swipe-video-ui.js"></script>
     <script>
         document.getElementById("share-btn").addEventListener("click", async (e) => {
             const loc = location.href;

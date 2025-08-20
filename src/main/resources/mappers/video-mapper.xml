@@ -167,9 +167,9 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
-            AND v.VIDEO_TITLE LIKE '%' || #{searchWordParam} || '%'
-            OR v.VIDEO_TAG LIKE '%' || #{searchWordParam} || '%'
-            OR v.VIDEO_DESCRIPTION LIKE '%' || #{searchWordParam} || '%'
+          AND (LOWER(v.VIDEO_TITLE) LIKE '%' || LOWER(#{searchWordParam}) || '%'
+          OR LOWER(v.VIDEO_TAG) LIKE '%' || LOWER(#{searchWordParam}) || '%'
+          OR LOWER(v.VIDEO_DESCRIPTION) LIKE '%' || LOWER(#{searchWordParam}) || '%')
         ORDER BY v.UPLOAD_AT DESC
     </select>
 
@@ -209,5 +209,24 @@
         WHERE u.mention = #{mention}
         ORDER BY v.UPLOAD_AT DESC
     </select>
+
+    <select id="selectRandomVideo" resultMap="videoResultMap">
+        SELECT *
+        FROM (
+        SELECT *
+        FROM shortform_videos
+        <where>
+            <if test="excludeIds != null and excludeIds.size > 0">
+                id NOT IN
+                <foreach item="id" collection="excludeIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY DBMS_RANDOM.RANDOM
+        )
+        WHERE ROWNUM = 1
+    </select>
+
 
 </mapper>

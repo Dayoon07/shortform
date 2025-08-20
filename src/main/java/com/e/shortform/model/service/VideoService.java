@@ -7,6 +7,7 @@ import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.mapper.VideoMapper;
 import com.e.shortform.model.repository.UserRepo;
 import com.e.shortform.model.repository.VideoRepo;
+import com.e.shortform.model.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -139,6 +140,14 @@ public class VideoService {
 
     public List<IndexPageAllVideosDto> searchLogic(String searchWordParam) {
         return videoMapper.searchLogic(searchWordParam);
+    }
+
+    public VideoVo selectRandomVideo(List<Long> excludeIds) {
+        return videoMapper.selectRandomVideo(excludeIds);
+    }
+
+    public List<VideoEntity> explorePageVideo() {
+        return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "uploadAt"));
     }
 
 }

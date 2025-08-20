@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="/css/custom.css">
     <title>FlipFlop</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <style>
+        .tag.active {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        .tag.active:hover {
+            background-color: #f3f4f6 !important;
+        }
+    </style>
 </head>
 <body class="bg-black text-white overflow-hidden">
 
@@ -16,6 +25,20 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
+            <div class="flex items-center my-4 gap-3 flex-wrap">
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl active" data-tag="latest">최신</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="popular">인기</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="music">노래 및 춤</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="featured">코미디</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="new">스포츠</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="hot">애니메이션</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="discussion">게임</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="question">사회</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="question">의상</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="question">자동차</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="question">푸드</div>
+                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="question">동물</div>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
                 <div th:each="item : ${videos}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
@@ -43,16 +66,16 @@
                         <a th:href="@{'/@' + ${item.getMention()}}" class="block flex items-center space-x-2 mb-1">
                             <img th:src="${item.getProfileImgSrc()}" class="w-8 h-8 rounded-full object-cover" alt="프로필">
                             <span class="text-white text-md font-semibold truncate" th:text="${item.getUploaderUsername()}">
-                                username
-                            </span>
+                                    username
+                                </span>
                         </a>
 
                         <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                            th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
+                           th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
                             영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                         </p>
                         <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                            th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                           th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
                             영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                         </p>
 
@@ -70,6 +93,7 @@
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
+    <script src="/js/explore-page.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const observer = new IntersectionObserver(entries => {

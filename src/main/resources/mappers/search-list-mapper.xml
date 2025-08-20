@@ -18,4 +18,17 @@
         <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
     </resultMap>
 
+    <select id="selectMySearchList" parameterType="Long" resultMap="searchListResultMap">
+        SELECT s.ID, s.SEARCHED_USER_ID, s.SEARCHED_WORD, s.CREATE_AT
+        FROM SHORTFORM_SEARCH_LISTS s
+                 JOIN (
+            SELECT SEARCHED_WORD, MAX(CREATE_AT) AS LATEST_TIME
+            FROM SHORTFORM_SEARCH_LISTS
+            WHERE SEARCHED_USER_ID = #{id}
+            GROUP BY SEARCHED_WORD
+        ) t ON s.SEARCHED_WORD = t.SEARCHED_WORD AND s.CREATE_AT = t.LATEST_TIME
+        WHERE s.SEARCHED_USER_ID = #{id}
+        ORDER BY s.CREATE_AT DESC
+    </select>
+
 </mapper>

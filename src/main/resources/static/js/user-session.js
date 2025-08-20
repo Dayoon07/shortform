@@ -219,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                // 예: 로그인 성공 후 페이지 새로고침 또는 이동
                 window.location.reload();
             } else {
                 alert("로그인 실패: " + data.message);
@@ -231,4 +230,64 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    document.getElementById("search-form-submit-btn").addEventListener("click", (e) => {
+        const inputTag = document.querySelector("input[name='q']");
+
+        if (inputTag.value !== "" && inputTag.value !== null) {
+            document.getElementById("search-form").submit();
+        }
+    });
+
+});
+
+async function akakakakakakaka(param) {
+    try {
+        const res = await fetch(`${location.origin}/api/user/search/list?id=${param}`);
+
+        if (res.ok) {
+            const data = await res.json();
+            console.log(data);
+
+            const $div = document.createElement("div");
+            $div.classList.add("search-popup", "absolute", "top-32", "left-2", "w-60", "h-auto", "bg-gray-800", "z-90", "text-lg", "rounded-xl");
+
+            if (data.length > 10) {
+                for (let i = 0; i < 10; i++) {
+                    $div.innerHTML += `
+                    <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300" 
+                        onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
+                        ${data[i].searchedWord}
+                    </div>
+                `;
+                }
+            } else {
+                for (let i = 0; i < data.length; i++) {
+                    $div.innerHTML += `
+                    <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300"
+                        onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
+                        ${data[i].searchedWord}
+                    </div>
+                `;
+                }
+            }
+
+            document.querySelector("body").appendChild($div);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        const popup = document.querySelector(".search-popup"); // $div에 클래스 추가
+        if (popup) popup.remove();
+    }
+});
+
+document.addEventListener("click", (e) => {
+    const popup = document.querySelector(".search-popup");
+    if (popup && !popup.contains(e.target)) {
+        popup.remove();
+    }
 });

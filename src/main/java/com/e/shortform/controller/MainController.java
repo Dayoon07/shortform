@@ -22,6 +22,7 @@ public class MainController {
     private final FollowService followService;
     private final CommentService commentService;
     private final VideoLikeService videoLikeService;
+    private final SearchListService searchListService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -30,7 +31,14 @@ public class MainController {
     }
 
     @GetMapping("/search")
-    public String search(Model m, @RequestParam String q) {
+    public String searchPage(@RequestParam String q, HttpSession session, Model m) {
+        if (session.getAttribute("user") != null) {
+            searchListService.searchWordRecord(q, session);
+        } else {
+            searchListService.searchWordRecord(q);
+        }
+
+        m.addAttribute("videos", videoService.searchLogic(q));
         m.addAttribute("searchWord", q);
         return "search/search";
     }
@@ -96,22 +104,37 @@ public class MainController {
     }
 
     @GetMapping("/following")
-    public String followingPage(HttpSession session) {
-        if (session.getAttribute("user") == null) {
+    public String followingPage(HttpSession session, Model m) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) {
             return "index";
         }
 
-
+        m.addAttribute("followList", userService.selectProfileUserFollowingList(user.getId()));
         return "follow/following";
     }
 
-    @GetMapping("/search")
-    public String searchPage(@RequestParam String q, HttpSession session) {
-        if (session.getAttribute("user") != null) {
+    @GetMapping("/explore")
+    public String explorePage(Model m) {
+        m.addAttribute("videos",  videoService.selectIndexPageAllVideos());
+        return "explore/explore";
+    }
 
-        }
+    @GetMapping("/@{mention}/swipe/video/{videoLoc}")
+    public String profileUserVideoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
 
-        return "search/search";
+        m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
+        m.addAttribute("videoCommentSize", commentService.selectByCommentId(videoService.findByVideoLoc(videoLoc, session).getId()).size());
+
+        VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
+                videoService.findByVideoLoc(videoLoc, session).getId(),
+                user != null ? user.getId() : null
+        );
+
+        m.addAttribute("likeCount", likeInfo.getLikeCount());
+        m.addAttribute("isLiked", likeInfo.isLiked());
+        return "video/swipe-video";
     }
 
 }

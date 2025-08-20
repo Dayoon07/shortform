@@ -292,13 +292,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     videoCommentContainer.insertAdjacentHTML('afterbegin',`
                         <div class="flex space-x-3">
-                            <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer">
+                            <a href="${location.origin}/@${data.mention}" style="cursor: pointer">
                                 <img src="${data.userObj.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
                             </a>
                             <div class="flex-1">
                                 <div class="flex items-center space-x-2">
                                     <span class="font-semibold text-md text-white" style="cursor: pointer"
-                                              onclick="location.href = '${location.origin}/@${commentData.mention}'"
+                                              onclick="location.href = '${location.origin}/@${data.mention}'"
                                     >${data.userObj.username}</span>
                                     <span class="text-sm text-gray-400">방금 전</span>
                                 </div>
@@ -326,12 +326,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const likeBtn = document.getElementById('like-btn');
+    const likeCount = document.getElementById('like-count');
 
     if (likeBtn) {
-        let isLiked = false;
+        // 초기 좋아요 상태를 data-is-liked에서 가져오기
+        let isLiked = likeBtn.dataset.isLiked === 'true';
+
+        // 페이지 로드 시 초기 상태 설정
+        updateLikeUI(isLiked, false); // 애니메이션 없이 초기화
 
         likeBtn.addEventListener('click', async (e) => {
             const videoId = e.currentTarget.dataset.videoId;
+            const heartIcon = likeBtn.querySelector('svg');
+
+            // 클릭 시 즉시 애니메이션 실행
+            heartIcon.classList.add('heart-animation');
+            setTimeout(() => heartIcon.classList.remove('heart-animation'), 600);
 
             try {
                 const res = await fetch(`${location.origin}/api/video/like`, {
@@ -344,6 +354,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await res.json();
                     console.log(data);
                     isLiked = data.isLiked;
+
+                    // UI 업데이트 (좋아요 개수도 함께)
+                    updateLikeUI(isLiked, true);
+                    if (likeCount && data.totalLikes !== undefined) {
+                        likeCount.textContent = data.totalLikes;
+                    }
                 } else {
                     const errorData = await res.json();
                     alert(errorData.message || "요청 처리 중 오류가 발생했습니다.");
@@ -351,21 +367,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.log(error);
-            }
-
-            // 애니메이션 처리
-            if (!isLiked) {
-                likeBtn.querySelector('svg').style.fill = '#ef4444';
-                likeBtn.querySelector('svg').style.stroke = '#ef4444';
-                likeBtn.classList.add('animate-pulse');
-                setTimeout(() => likeBtn.classList.remove('animate-pulse'), 600);
-                isLiked = true;
-            } else {
-                likeBtn.querySelector('svg').style.fill = 'none';
-                likeBtn.querySelector('svg').style.stroke = 'currentColor';
-                isLiked = false;
+                alert("네트워크 오류가 발생했습니다.");
             }
         });
+
+        // UI 업데이트 함수
+        function updateLikeUI(liked, withAnimation = true) {
+            const heartIcon = likeBtn.querySelector('svg');
+
+            if (liked) {
+                heartIcon.style.fill = '#ef4444';
+                heartIcon.style.stroke = '#ef4444';
+                heartIcon.style.color = '#ef4444';
+            } else {
+                heartIcon.style.fill = 'none';
+                heartIcon.style.stroke = 'currentColor';
+                heartIcon.style.color = 'white';
+            }
+
+            // 데이터 속성 업데이트
+            likeBtn.dataset.isLiked = liked;
+        }
     }
 
 });

@@ -153,6 +153,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
 
                         modal.remove();
+                        alert("다시 로그인해주세요");
+                        location.href = location.origin;
+                        location.reload();
                     } else {
                         alert('업데이트 중 오류가 발생했습니다.');
                     }

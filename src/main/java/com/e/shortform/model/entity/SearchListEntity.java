@@ -23,7 +23,6 @@ public class SearchListEntity {
             foreignKey = @ForeignKey(name = "FK_SEARCHED_USER_ID"))
     private UserEntity user;
 
-    @Lob
     @Column(name = "searched_word", nullable = false)
     private String searchedWord;
 

@@ -1,9 +1,15 @@
 package com.e.shortform.controller;
 
 import com.e.shortform.model.dto.UserProfileUpdateDto;
+import com.e.shortform.model.dto.VideoRequestDto;
+import com.e.shortform.model.dto.VideoResponseDto;
+import com.e.shortform.model.entity.SearchListEntity;
 import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.entity.VideoLikeEntity;
 import com.e.shortform.model.service.*;
+import com.e.shortform.model.vo.SearchListVo;
+import com.e.shortform.model.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +38,7 @@ public class RestMainController {
     private final FollowService followService;
     private final CommentService commentService;
     private final VideoLikeService videoLikeService;
+    private final SearchListService searchListService;
 
     static class staticTestObj {
         private String message;
@@ -394,6 +402,31 @@ public class RestMainController {
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String q) {
         return ResponseEntity.ok(videoService.searchLogic(q));
+    }
+
+    @GetMapping("/user/search/list")
+    public List<SearchListVo> mySearchList(@RequestParam String id) {
+        return searchListService.selectMySearchList(Long.parseLong(id));
+    }
+
+    @PostMapping("/videos/random")
+    public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request) {
+        try {
+            VideoVo randomVideo = videoService.selectRandomVideo(request.getExcludeIds());
+
+            if (randomVideo == null) {
+                return ResponseEntity.ok(Map.of(
+                        "message", "더 이상 시청할 영상이 없습니다.",
+                        "hasMore", false
+                ));
+            }
+
+            return ResponseEntity.ok(randomVideo);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "영상을 불러오는 중 오류가 발생했습니다."));
+        }
     }
 
 }
