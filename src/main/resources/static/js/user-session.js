@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                window.location.reload();
+                location.href = location.origin;
             } else {
                 alert("로그인 실패: " + data.message);
             }

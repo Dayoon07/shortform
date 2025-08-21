@@ -274,6 +274,7 @@ publishVideo.addEventListener("click", async () => {
         hideUploadModal();
         resetUpload();
 
+        publishVideo.textContent = "업로드";
     } catch (error) {
         console.error("업로드 오류:", error);
         alert("업로드 중 오류가 발생했습니다: " + error.message);

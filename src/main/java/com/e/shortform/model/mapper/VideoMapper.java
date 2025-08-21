@@ -16,4 +16,5 @@ public interface VideoMapper {
     List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention);
     List<IndexPageAllVideosDto> searchLogic(String searchWordParam);
     VideoVo selectRandomVideo(@Param("excludeIds") List<Long> excludeIds);
+    List<IndexPageAllVideosDto> myLikeVideos(Long id);
 }

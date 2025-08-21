@@ -19,10 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -315,6 +312,9 @@ public class RestMainController {
         );
         userService.updateUserInfo(dto);
 
+        user.setMention(mention);
+        session.setAttribute("user", user);
+
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "프로필이 업데이트되었습니다.",
@@ -412,7 +412,17 @@ public class RestMainController {
     @PostMapping("/videos/random")
     public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request) {
         try {
-            VideoVo randomVideo = videoService.selectRandomVideo(request.getExcludeIds());
+            List<Long> excludeIds = request.getExcludeIds();
+            if (excludeIds == null) {
+                excludeIds = new ArrayList<>();
+            }
+
+            log.info("제외할 영상 ID 개수: {}", excludeIds.size());
+
+            // 중복 제거를 위해 Set 사용
+            Set<Long> excludeIdSet = new HashSet<>(excludeIds);
+
+            VideoEntity randomVideo = videoService.selectRandomVideo(new ArrayList<>(excludeIdSet));
 
             if (randomVideo == null) {
                 return ResponseEntity.ok(Map.of(
@@ -421,9 +431,42 @@ public class RestMainController {
                 ));
             }
 
-            return ResponseEntity.ok(randomVideo);
+            // 중복 체크 - 혹시 반환된 영상이 제외 목록에 있는지 확인
+            if (excludeIdSet.contains(randomVideo.getId())) {
+                log.warn("중복 영상이 반환됨: {}", randomVideo.getId());
+                // 재시도 (최대 3번)
+                for (int i = 0; i < 3; i++) {
+                    randomVideo = videoService.selectRandomVideo(new ArrayList<>(excludeIdSet));
+                    if (randomVideo != null && !excludeIdSet.contains(randomVideo.getId())) {
+                        break;
+                    }
+                }
+
+                // 여전히 중복이거나 null이면 더 이상 영상이 없다고 처리
+                if (randomVideo == null || excludeIdSet.contains(randomVideo.getId())) {
+                    return ResponseEntity.ok(Map.of(
+                            "message", "더 이상 시청할 영상이 없습니다.",
+                            "hasMore", false
+                    ));
+                }
+            }
+
+            log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
+
+            return ResponseEntity.ok(Map.of(
+                    "id", randomVideo.getId(),
+                    "title", randomVideo.getVideoTitle(),
+                    "videoSrc", randomVideo.getVideoSrc(),
+                    "videoLoc", randomVideo.getVideoLoc(),
+                    "uploader", Map.of(
+                            "mention", randomVideo.getUploader().getMention(),
+                            "username", randomVideo.getUploader().getUsername()
+                    ),
+                    "hasMore", true
+            ));
 
         } catch (Exception e) {
+            log.error("영상 로딩 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "영상을 불러오는 중 오류가 발생했습니다."));
         }

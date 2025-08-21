@@ -17,10 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -142,12 +139,19 @@ public class VideoService {
         return videoMapper.searchLogic(searchWordParam);
     }
 
-    public VideoVo selectRandomVideo(List<Long> excludeIds) {
-        return videoMapper.selectRandomVideo(excludeIds);
+    public VideoEntity selectRandomVideo(List<Long> excludeIds) {
+        VideoVo vo = videoMapper.selectRandomVideo(excludeIds);
+        Optional<VideoEntity> entity = videoRepo.findById(vo.getUploaderUserId());
+
+        return entity.orElse(null);
     }
 
     public List<VideoEntity> explorePageVideo() {
         return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "uploadAt"));
+    }
+
+    public List<IndexPageAllVideosDto> myLikeVideos(Long id) {
+        return videoMapper.myLikeVideos(id);
     }
 
 }

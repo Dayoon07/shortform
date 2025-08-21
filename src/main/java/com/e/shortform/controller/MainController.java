@@ -137,4 +137,13 @@ public class MainController {
         return "video/swipe-video";
     }
 
+    @GetMapping("/likes")
+    public String likesPage(HttpSession session, Model m) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) return "loginplz/loginplz";
+
+        m.addAttribute("likeVideos", videoService.myLikeVideos(user.getId()));
+        return "like/like";
+    }
+
 }
