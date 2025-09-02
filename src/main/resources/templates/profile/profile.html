@@ -91,7 +91,7 @@
 
                 <div class="flex border-b border-gray-300 space-x-6">
                     <a th:href="@{'/@' + ${profileInfo.getMention()}}"
-                       class="px-4 py-2 text-white font-semibold border-b-2 border-white hover:text-blue-800 transition">
+                       class="px-4 py-2 text-white font-semibold border-b-2 border-white">
                         동영상
                     </a>
                     <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
@@ -169,7 +169,7 @@
     </div>
 
     <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white rounded-xl shadow-xl p-4 mb-4 md:w-[450px] w-full md:h-[592px] mx-auto md:mt-28 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-xl p-4 mb-4 md:w-[450px] w-full mx-auto md:mt-28 overflow-y-auto">
             <div class="flex justify-between items-center px-2 pb-2 border-b">
                 <h2 th:text="${profileInfo.getUsername()}" class="text-xl font-semibold text-black">username</h2>
                 <button class="text-black text-4xl pb-2" onclick="document.getElementById('info-modal').classList.add('hidden')">&times;</button>
@@ -230,6 +230,15 @@
 
     <script src="/js/user-session.js"></script>
     <script src="/js/user-follow.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    document.getElementById("info-modal").classList.add("hidden");
+                }
+            })
+        });
+    </script>
 
 </body>
 </html>
