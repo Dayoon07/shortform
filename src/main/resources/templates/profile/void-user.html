@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/custom.css">
+    <title th:if="${profileInfo != null}" th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body style="background-color: black; color: white; overflow: hidden;">
+
+    <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
+
+    <div class="flex h-screen">
+        <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+
+        <main class="flex-1 overflow-y-auto">
+
+            <section>
+                <div class="text-center w-full mx-auto mt-24">
+                    <h1 class="text-2xl font-bold mb-6 text-white">
+                        멘션에 해당하는 사용자가 없습니다
+                    </h1>
+                    <div onclick="history.back()" class="inline-block bg-gray-800 rounded-full px-8 py-2 font-semibold transition-colors hover:bg-gray-700"
+                         style="cursor: pointer; color: white;"
+                    >
+                        돌아가기
+                    </div>
+                </div>
+            </section>
+
+            <div class="h-20"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
+    <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
+    <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
+
+    <script src="/js/user-session.js"></script>
+
+</body>
+</html>

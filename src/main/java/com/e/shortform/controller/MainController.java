@@ -66,9 +66,11 @@ public class MainController {
             } else {
                 m.addAttribute("isFollowing", false);
             }
-        }
 
-        return "profile/profile";
+            return "profile/profile";
+        } else {
+            return "profile/void-user";
+        }
     }
 
     @GetMapping("/studio/upload")

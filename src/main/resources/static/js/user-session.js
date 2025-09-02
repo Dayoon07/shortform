@@ -282,6 +282,9 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         const popup = document.querySelector(".search-popup"); // $div에 클래스 추가
         if (popup) popup.remove();
+
+        const searchModalPopupWhat = document.getElementById("search-modal-popup-what");
+        if (searchModalPopupWhat) searchModalPopupWhat.remove();
     }
 });
 
@@ -290,4 +293,66 @@ document.addEventListener("click", (e) => {
     if (popup && !popup.contains(e.target)) {
         popup.remove();
     }
+});
+
+document.getElementById("search-btn-but-app-bar").addEventListener("click", async () => {
+    const $div = document.createElement("div");
+    $div.classList.add("absolute", "top-0", "left-0", "w-full", "h-full", "bg-black/80", "backdrop-blur-xs", "border-b", "border-gray-800", "px-4", "px-3", "py-2", "py-1");
+    $div.style.zIndex = 777;
+    $div.id = "search-modal-popup-what";
+
+    $div.innerHTML = `
+        <div class="flex items-center py-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 20 20" onclick="document.getElementById('search-modal-popup-what').remove()" 
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                 style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
+                <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
+                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+                <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
+                    class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
+                    required>
+            </form>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${location.origin}/api/user/search/list?id=${document.getElementById("search-btn-but-app-bar").dataset.id}`);
+
+        if (res.ok) {
+            const data = await res.json();
+            console.log(data);
+
+            if (data.length > 30) {
+                for (let i = 0; i < 30; i++) {
+                    $div.innerHTML += `
+                        <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300" 
+                            onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
+                            ${data[i].searchedWord}
+                        </div>
+                    `;
+                }
+            } else {
+                for (let i = 0; i < data.length; i++) {
+                    $div.innerHTML += `
+                        <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
+                            onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
+                            ${data[i].searchedWord}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+
+    document.querySelector("body").appendChild($div);
 });
