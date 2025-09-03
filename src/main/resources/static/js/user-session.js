@@ -1,206 +1,319 @@
 "use strict";
 
-let isUsernameAvailable = true;
-let isUsernameAvailable2 = true;
+// 모달 관리 클래스
+class ModalManager {
+    constructor() {
+        this.init();
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
+    init() {
+        this.bindEvents();
+        this.setupEscapeKey();
+    }
 
-    document.getElementById("loginBtn").onclick = () => {
-        document.getElementById("loginModal").classList.remove("hidden");
-    };
-    document.getElementById("signupBtn").onclick = () => {
-        document.getElementById("signupModal").classList.remove("hidden");
-    };
+    bindEvents() {
+        // 로그인 모달 열기
+        document.getElementById("loginBtn")?.addEventListener("click", () => this.openModal("loginModal"));
+        document.getElementById("loginBtn2")?.addEventListener("click", () => this.openModal("loginModal"));
 
-    document.getElementById("loginBtn2").onclick = () => {
-        document.getElementById("loginModal").classList.remove("hidden");
-    };
-    document.getElementById("signupBtn2").onclick = () => {
-        document.getElementById("signupModal").classList.remove("hidden");
-    };
+        // 회원가입 모달 열기
+        document.getElementById("signupBtn")?.addEventListener("click", () => this.openModal("signupModal"));
+        document.getElementById("signupBtn2")?.addEventListener("click", () => this.openModal("signupModal"));
 
-    document.getElementById("closeLoginModal").onclick = () => {
-        document.getElementById("loginModal").classList.add("hidden");
-    };
-    document.getElementById("closeSignupModal").onclick = () => {
-        document.getElementById("signupModal").classList.add("hidden");
-    };
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            document.getElementById("loginModal").classList.add("hidden");
-            document.getElementById("signupModal").classList.add("hidden");
+        // 모달 닫기
+        document.getElementById("closeLoginModal")?.addEventListener("click", () => this.closeModal("loginModal"));
+        document.getElementById("closeSignupModal")?.addEventListener("click", () => this.closeModal("signupModal"));
+    }
+
+    setupEscapeKey() {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                this.closeModal("loginModal");
+                this.closeModal("signupModal");
+            }
+        });
+    }
+
+    openModal(modalId) {
+        document.getElementById(modalId)?.classList.remove("hidden");
+    }
+
+    closeModal(modalId) {
+        document.getElementById(modalId)?.classList.add("hidden");
+    }
+}
+
+// 프로필 이미지 업로드 관리 클래스
+class ProfileImageUploader {
+    constructor() {
+        this.profileInput = document.getElementById("profileImgPath");
+        this.preview = document.getElementById("profilePreview");
+        this.uploadText = document.getElementById("uploadText");
+        this.dropArea = document.getElementById("dropArea");
+        this.maxFileSize = 1024 * 1024 * 3; // 3MB
+        this.init();
+    }
+
+    init() {
+        if (!this.profileInput || !this.preview || !this.uploadText || !this.dropArea) return;
+
+        this.bindEvents();
+    }
+
+    bindEvents() {
+        this.profileInput.addEventListener("change", (e) => this.handleFileSelect(e));
+        this.setupDragAndDrop();
+    }
+
+    setupDragAndDrop() {
+        this.dropArea.addEventListener("dragover", (e) => this.handleDragOver(e));
+        this.dropArea.addEventListener("dragleave", () => this.handleDragLeave());
+        this.dropArea.addEventListener("drop", (e) => this.handleDrop(e));
+    }
+
+    handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) this.previewImage(file);
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        this.dropArea.classList.add("border-gray-400", "bg-gray-400/10");
+    }
+
+    handleDragLeave() {
+        this.dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
+    }
+
+    handleDrop(e) {
+        e.preventDefault();
+        this.dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            this.profileInput.files = e.dataTransfer.files;
+            this.previewImage(file);
         }
-    });
+    }
 
-    const profileInput = document.getElementById("profileImgPath");
-    const preview = document.getElementById("profilePreview");
-    const uploadText = document.getElementById("uploadText");
-    const dropArea = document.getElementById("dropArea");
-
-    const step1 = document.getElementById("signupStep1");
-    const step2 = document.getElementById("signupStep2");
-
-    // 프로필 이미지 미리보기
-    function previewImage(file) {
-        if (file.size > 1024 * 1024 * 3) {
+    previewImage(file) {
+        if (file.size > this.maxFileSize) {
             alert("프로필 이미지 최대 용량은 3MB입니다.");
-            profileInput.value = "";
+            this.profileInput.value = "";
             return;
         }
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.classList.remove("hidden");
-            uploadText.style.display = "none";
+            this.preview.src = e.target.result;
+            this.preview.classList.remove("hidden");
+            this.uploadText.style.display = "none";
         };
         reader.readAsDataURL(file);
     }
 
-    // 파일 업로드 이벤트
-    profileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) previewImage(file);
-    });
+    hasFile() {
+        return this.profileInput?.files.length > 0;
+    }
 
-    // 드래그앤드롭 처리
-    dropArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropArea.classList.add("border-gray-400", "bg-gray-400/10");
-    });
+    getFile() {
+        return this.profileInput?.files[0];
+    }
+}
 
-    dropArea.addEventListener("dragleave", () => {
-        dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
-    });
+// 입력 검증 관리 클래스
+class ValidationManager {
+    constructor() {
+        this.isUsernameAvailable = true;
+        this.isEmailAvailable = true;
+        this.init();
+    }
 
-    dropArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropArea.classList.remove("border-gray-400", "bg-gray-400/10");
+    init() {
+        this.setupUsernameValidation();
+        this.setupEmailValidation();
+    }
 
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            profileInput.files = e.dataTransfer.files;
-            previewImage(file);
+    setupUsernameValidation() {
+        const usernameInput = document.getElementById("usernameInput");
+        if (!usernameInput) return;
+
+        usernameInput.addEventListener("input", () => this.validateUsername());
+    }
+
+    setupEmailValidation() {
+        const emailInput = document.getElementById("emailInput");
+        if (!emailInput) return;
+
+        emailInput.addEventListener("input", () => this.validateEmail());
+    }
+
+    async validateUsername() {
+        const username = document.getElementById("usernameInput").value;
+        const feedbackElement = document.getElementById('username-feedback');
+
+        if (!username) {
+            this.setFeedback(feedbackElement, "이름을 입력해주세요.", "red");
+            return;
         }
-    });
 
-    // 다음 버튼 → 사용자 정보 입력 단계로 전환
-    document.getElementById("nextToStep2Btn").addEventListener("click", () => {
-        if (!profileInput.files.length) {
+        try {
+            const response = await fetch(`${location.origin}/api/user/chk/username?username=${username}`);
+            const data = await response.json();
+            this.isUsernameAvailable = data;
+
+            const message = this.isUsernameAvailable ? "사용 가능한 이름입니다." : "이미 사용 중인 이름입니다.";
+            const color = this.isUsernameAvailable ? "green" : "red";
+            this.setFeedback(feedbackElement, message, color);
+        } catch (error) {
+            console.error("Username validation error:", error);
+        }
+    }
+
+    async validateEmail() {
+        const email = document.getElementById("emailInput").value;
+        const feedbackElement = document.getElementById('mail-feedback');
+
+        if (!email) {
+            this.setFeedback(feedbackElement, "이메일을 입력해주세요.", "red");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${location.origin}/api/user/chk/mail?mail=${email}`);
+            const data = await response.json();
+            this.isEmailAvailable = data;
+
+            const message = this.isEmailAvailable ? "사용 가능한 이메일입니다." : "이미 사용 중인 이메일입니다.";
+            const color = this.isEmailAvailable ? "green" : "red";
+            this.setFeedback(feedbackElement, message, color);
+        } catch (error) {
+            console.error("Email validation error:", error);
+        }
+    }
+
+    setFeedback(element, message, color) {
+        if (element) {
+            element.innerText = message;
+            element.style.color = color;
+        }
+    }
+
+    isValid() {
+        return this.isUsernameAvailable && this.isEmailAvailable;
+    }
+}
+
+// 회원가입 관리 클래스
+class SignupManager {
+    constructor(profileUploader, validator) {
+        this.profileUploader = profileUploader;
+        this.validator = validator;
+        this.step1 = document.getElementById("signupStep1");
+        this.step2 = document.getElementById("signupStep2");
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+    }
+
+    bindEvents() {
+        document.getElementById("nextToStep2Btn")?.addEventListener("click", () => this.goToStep2());
+        document.getElementById("submitSignupBtn")?.addEventListener("click", () => this.submitSignup());
+    }
+
+    goToStep2() {
+        if (!this.profileUploader.hasFile()) {
             alert("프로필 이미지를 업로드해주세요.");
             return;
         }
-        step1.classList.add("hidden");
-        step2.classList.remove("hidden");
-    });
+        this.step1?.classList.add("hidden");
+        this.step2?.classList.remove("hidden");
+    }
 
-    // 가입 버튼 → REST API 호출
-    document.getElementById("submitSignupBtn").addEventListener("click", async () => {
-        const email = document.getElementById("emailInput").value.trim();
-        const username = document.getElementById("usernameInput").value.trim();
-        const password = document.getElementById("passwordInput").value;
-        const confirm = document.getElementById("confirmPasswordInput").value;
-        const profile = profileInput.files[0];
+    async submitSignup() {
+        const formData = this.collectFormData();
+        if (!formData) return;
+
+        try {
+            const response = await fetch(`${location.origin}/api/user/signup`, {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                this.showSignupSuccess();
+                document.getElementById("signupModal")?.classList.add("hidden");
+            } else {
+                const message = await response.text();
+                alert("회원가입 실패: " + message);
+            }
+        } catch (error) {
+            alert("에러 발생: " + error.message);
+        }
+    }
+
+    collectFormData() {
+        const email = document.getElementById("emailInput")?.value.trim();
+        const username = document.getElementById("usernameInput")?.value.trim();
+        const password = document.getElementById("passwordInput")?.value;
+        const confirm = document.getElementById("confirmPasswordInput")?.value;
+        const profile = this.profileUploader.getFile();
 
         if (!email || !username || !password || !confirm) {
             alert("모든 정보를 입력해주세요.");
-            return;
-        }
-        if (password !== confirm) {
-            alert("비밀번호가 일치하지 않습니다.");
-            return;
+            return null;
         }
 
-        // FormData로 전송 (멀티파트 업로드)
+        if (password !== confirm) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return null;
+        }
+
+        if (!this.validator.isValid()) {
+            alert("입력 정보를 확인해주세요.");
+            return null;
+        }
+
         const formData = new FormData();
         formData.append("email", email);
         formData.append("username", username);
         formData.append("password", password);
         formData.append("profileImage", profile);
 
-        try {
-            const res = await fetch(`${location.origin}/api/user/signup`, {
-                method: "POST",
-                body: formData
-            });
+        return formData;
+    }
 
-            if (res.ok) {
-                showSignupSuccess();
-                document.getElementById("signupModal").classList.add("hidden");
-            } else {
-                const msg = await res.text();
-                alert("회원가입 실패: " + msg);
-            }
-        } catch (err) {
-            alert("에러 발생: " + err.message);
-        }
-    });
-
-    // 회원가입 완료 알림 표시
-    function showSignupSuccess() {
+    showSignupSuccess() {
         const alertDiv = document.createElement("div");
         alertDiv.innerText = "회원가입이 완료되었습니다.";
         alertDiv.className = "fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-[9999]";
         document.body.appendChild(alertDiv);
 
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 3000);
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+}
+
+// 로그인 관리 클래스
+class LoginManager {
+    constructor() {
+        this.init();
     }
 
-    document.getElementById("usernameInput").addEventListener("input", function () {
-        let username = document.getElementById("usernameInput").value;
+    init() {
+        this.bindEvents();
+    }
 
-        // 사용자 이름 중복 여부를 체크
-        fetch(`${location.origin}/api/user/chk/username?username=${username}`)
-            .then(response => response.json())
-            .then(data => {
-                isUsernameAvailable = data; // 중복 여부 상태 업데이트
+    bindEvents() {
+        document.getElementById("loginSubmitBtn")?.addEventListener("click", (e) => this.submitLogin(e));
+    }
 
-                if (isUsernameAvailable) {
-                    document.getElementById('username-feedback').innerText = "사용 가능한 이름입니다.";
-                    document.getElementById('username-feedback').style.color = "green";
-                } else {
-                    document.getElementById('username-feedback').innerText = "이미 사용 중인 이름입니다.";
-                    document.getElementById('username-feedback').style.color = "red";
-                }
-                if (document.getElementById("usernameInput").value == "") {
-                    document.getElementById('username-feedback').innerText = "이름을 입력해주세요.";
-                    document.getElementById('username-feedback').style.color = "red";
-                }
+    async submitLogin(e) {
+        e.preventDefault();
 
-            });
-    });
-
-    document.getElementById("emailInput").addEventListener("input", function () {
-        let emailVal = document.getElementById("emailInput").value;
-
-        // 사용자 이름 중복 여부를 체크
-        fetch(`${location.origin}/api/user/chk/mail?mail=${emailVal}`)
-            .then(response => response.json())
-            .then(data => {
-                isUsernameAvailable2 = data; // 중복 여부 상태 업데이트
-
-                if (isUsernameAvailable2) {
-                    document.getElementById('mail-feedback').innerText = "사용 가능한 이메일입니다.";
-                    document.getElementById('mail-feedback').style.color = "green";
-                } else {
-                    document.getElementById('mail-feedback').innerText = "이미 사용 중인 이메일입니다.";
-                    document.getElementById('mail-feedback').style.color = "red";
-                }
-                if (document.getElementById("emailInput").value == "") {
-                    document.getElementById('mail-feedback').innerText = "이메일을 입력해주세요.";
-                    document.getElementById('mail-feedback').style.color = "red";
-                }
-
-            });
-    });
-
-    document.getElementById("loginSubmitBtn").addEventListener("click", async (e) => {
-        e.preventDefault(); // 폼 전송 막기
-
-        const username = document.getElementById("loginUsername").value.trim();
-        const password = document.getElementById("loginPassword").value.trim();
+        const username = document.getElementById("loginUsername")?.value.trim();
+        const password = document.getElementById("loginPassword")?.value.trim();
 
         if (!username || !password) {
             alert("아이디와 비밀번호를 모두 입력해주세요.");
@@ -223,136 +336,184 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert("로그인 실패: " + data.message);
             }
-
         } catch (error) {
             console.error("로그인 요청 오류:", error);
             alert("로그인 중 오류가 발생했습니다.");
         }
-    });
-
-    document.getElementById("search-form-submit-btn").addEventListener("click", (e) => {
-        const inputTag = document.querySelector("input[name='q']");
-
-        if (inputTag.value !== "" && inputTag.value !== null) {
-            document.getElementById("search-form").submit();
-        }
-    });
-
-});
-
-async function akakakakakakaka(param) {
-    try {
-        const res = await fetch(`${location.origin}/api/user/search/list?id=${param}`);
-
-        if (res.ok) {
-            const data = await res.json();
-            console.log(data);
-
-            const $div = document.createElement("div");
-            $div.classList.add("search-popup", "absolute", "top-32", "left-2", "w-60", "h-auto", "bg-gray-800", "z-90", "text-lg", "rounded-xl");
-
-            if (data.length > 10) {
-                for (let i = 0; i < 10; i++) {
-                    $div.innerHTML += `
-                    <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300" 
-                        onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
-                        ${data[i].searchedWord}
-                    </div>
-                `;
-                }
-            } else {
-                for (let i = 0; i < data.length; i++) {
-                    $div.innerHTML += `
-                    <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300"
-                        onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
-                        ${data[i].searchedWord}
-                    </div>
-                `;
-                }
-            }
-
-            document.querySelector("body").appendChild($div);
-        }
-    } catch (error) {
-        console.log(error);
     }
 }
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-        const popup = document.querySelector(".search-popup"); // $div에 클래스 추가
-        if (popup) popup.remove();
-
-        const searchModalPopupWhat = document.getElementById("search-modal-popup-what");
-        if (searchModalPopupWhat) searchModalPopupWhat.remove();
+// 검색 관리 클래스
+class SearchManager {
+    constructor() {
+        this.init();
     }
-});
 
-document.addEventListener("click", (e) => {
-    const popup = document.querySelector(".search-popup");
-    if (popup && !popup.contains(e.target)) {
-        popup.remove();
+    init() {
+        this.bindEvents();
+        this.setupDocumentEvents();
     }
-});
 
-document.getElementById("search-btn-but-app-bar").addEventListener("click", async () => {
-    const $div = document.createElement("div");
-    $div.classList.add("absolute", "top-0", "left-0", "w-full", "h-full", "bg-black/80", "backdrop-blur-xs", "border-b", "border-gray-800", "px-4", "px-3", "py-2", "py-1");
-    $div.style.zIndex = 777;
-    $div.id = "search-modal-popup-what";
+    bindEvents() {
+        document.getElementById("search-form-submit-btn")?.addEventListener("click", (e) => this.handleSearchSubmit(e));
+        document.getElementById("search-btn-but-app-bar")?.addEventListener("click", (e) => this.openSearchModal(e));
 
-    $div.innerHTML = `
-        <div class="flex items-center py-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 20 20" onclick="document.getElementById('search-modal-popup-what').remove()" 
-                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                 style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-            </svg>
-            <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
-                <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
-                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                </button>
-                <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
-                    class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
-                    required>
-            </form>
-        </div>
-    `;
+        // 클래스 기반 검색 버튼들
+        document.querySelectorAll(".search-btn-but-app-bar").forEach(btn => {
+            btn.addEventListener("click", (e) => this.openSearchModal(e));
+        });
+    }
 
-    try {
-        const res = await fetch(`${location.origin}/api/user/search/list?id=${document.getElementById("search-btn-but-app-bar").dataset.id}`);
+    setupDocumentEvents() {
+        document.addEventListener("keydown", (e) => this.handleEscapeKey(e));
+        document.addEventListener("click", (e) => this.handleOutsideClick(e));
+    }
 
-        if (res.ok) {
-            const data = await res.json();
-            console.log(data);
+    handleSearchSubmit(e) {
+        const inputTag = document.querySelector("input[name='q']");
+        if (inputTag?.value) {
+            document.getElementById("search-form")?.submit();
+        }
+    }
 
-            if (data.length > 30) {
-                for (let i = 0; i < 30; i++) {
-                    $div.innerHTML += `
-                        <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300" 
-                            onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
-                            ${data[i].searchedWord}
-                        </div>
-                    `;
-                }
-            } else {
-                for (let i = 0; i < data.length; i++) {
-                    $div.innerHTML += `
-                        <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
-                            onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
-                            ${data[i].searchedWord}
-                        </div>
-                    `;
-                }
-            }
+    handleEscapeKey(e) {
+        if (e.key === "Escape") {
+            this.removeSearchPopup();
+            this.removeSearchModal();
+        }
+    }
+
+    handleOutsideClick(e) {
+        const popup = document.querySelector(".search-popup");
+        if (popup && !popup.contains(e.target)) {
+            popup.remove();
+        }
+    }
+
+    removeSearchPopup() {
+        document.querySelector(".search-popup")?.remove();
+    }
+
+    removeSearchModal() {
+        document.getElementById("search-modal-popup-what")?.remove();
+    }
+
+    async showSearchSuggestions(userId) {
+        try {
+            const response = await fetch(`${location.origin}/api/user/search/list?id=${userId}`);
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const popup = this.createSearchPopup(data);
+            document.body.appendChild(popup);
+        } catch (error) {
+            console.error("Search suggestions error:", error);
+        }
+    }
+
+    createSearchPopup(data) {
+        const popup = document.createElement("div");
+        popup.classList.add("search-popup", "absolute", "top-32", "left-2", "w-60", "h-auto", "bg-gray-800", "z-90", "text-lg", "rounded-xl");
+
+        const itemsToShow = Math.min(data.length, 10);
+        for (let i = 0; i < itemsToShow; i++) {
+            popup.innerHTML += `
+                <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300" 
+                    onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
+                    ${data[i].searchedWord}
+                </div>
+            `;
         }
 
-    } catch (error) {
-        console.log(error);
+        return popup;
     }
 
-    document.querySelector("body").appendChild($div);
+    openSearchModal(e) {
+        const modal = this.createSearchModal();
+        document.body.appendChild(modal);
+
+        // 사용자 ID가 있으면 검색 기록 표시
+        if (e.currentTarget.dataset.id) {
+            this.addSearchHistory(modal, e.currentTarget.dataset.id);
+        }
+    }
+
+    createSearchModal() {
+        const modal = document.createElement("div");
+        modal.classList.add(
+            "absolute", "top-0", "left-0", "w-full", "h-full",
+            "bg-black/80", "backdrop-blur-xs", "border-b", "border-gray-800",
+            "px-4", "px-3", "py-2", "py-1"
+        );
+        modal.style.zIndex = 777;
+        modal.id = "search-modal-popup-what";
+
+        modal.innerHTML = `
+            <div class="flex items-center py-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" 
+                    viewBox="0 0 20 20"
+                    onclick="document.getElementById('search-modal-popup-what').remove()" 
+                    fill="none" stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round" 
+                    style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+                <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
+                    <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
+                        <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </button>
+                    <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
+                        class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
+                        required>
+                </form>
+            </div>
+        `;
+
+        return modal;
+    }
+
+    async addSearchHistory(modal, userId) {
+        try {
+            const response = await fetch(`${location.origin}/api/user/search/list?id=${userId}`);
+            const data = await response.json();
+
+            data.slice(0, 30).forEach(item => {
+                modal.innerHTML += `
+                    <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
+                        onclick="location.href='${location.origin}/search?q=${item.searchedWord}'">
+                        ${item.searchedWord}
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error("Search history error:", error);
+        }
+    }
+}
+
+// 애플리케이션 초기화 클래스
+class App {
+    constructor() {
+        this.modalManager = new ModalManager();
+        this.profileUploader = new ProfileImageUploader();
+        this.validator = new ValidationManager();
+        this.signupManager = new SignupManager(this.profileUploader, this.validator);
+        this.loginManager = new LoginManager();
+        this.searchManager = new SearchManager();
+    }
+}
+
+// 레거시 함수 (기존 코드와의 호환성을 위해 유지)
+async function akakakakakakaka(param) {
+    const searchManager = new SearchManager();
+    await searchManager.showSearchSuggestions(param);
+}
+
+// DOM 로드 시 애플리케이션 초기화
+document.addEventListener("DOMContentLoaded", () => {
+    new App();
 });

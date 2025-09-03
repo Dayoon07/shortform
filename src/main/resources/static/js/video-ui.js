@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(commentData => {
                         commentContainer.innerHTML += `
                             <div class="flex space-x-3">
-                                <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer">
+                                <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer; width: 32px; height: 32px;">
                                     <img src="${commentData.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
                                 </a>
                                 <div class="flex-1">
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                     <pre style="white-space: pre-wrap; font-family: inherit;">${commentData.commentText}</pre>
                                     <div class="flex items-center space-x-4 mt-2">
-                                        <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
+                                        <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1 comment-other-user-like-submit-btn" data-comment-id="${commentData.id}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                             </svg>
@@ -389,5 +389,41 @@ document.addEventListener('DOMContentLoaded', function() {
             likeBtn.dataset.isLiked = liked;
         }
     }
+
+    document.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".comment-other-user-like-submit-btn");
+        if (!btn) return;
+
+        const commentId = btn.dataset.commentId;
+        const countSpan = btn.querySelector("span");
+        const heartIcon = btn.querySelector("svg");
+
+        try {
+            const res = await fetch(`${location.origin}/api/comment/like/submit?commentId=${commentId}`, {
+                method: "POST"
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                let count = parseInt(countSpan.textContent) || 0;
+
+                if (data.status === "liked") {
+                    count += 1;
+                    // 하트 색상 빨강
+                    heartIcon.classList.remove("text-gray-400");
+                    heartIcon.classList.add("text-red-500");
+                } else {
+                    count -= 1;
+                    // 하트 색상 원래대로
+                    heartIcon.classList.remove("text-red-500");
+                    heartIcon.classList.add("text-gray-400");
+                }
+
+                countSpan.textContent = count;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    });
 
 });

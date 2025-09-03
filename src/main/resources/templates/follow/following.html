@@ -44,9 +44,7 @@
 
         <main class="flex-1 overflow-y-auto">
             <section class="p-4 md:p-6 lg:p-8 pb-48">
-                <!-- 팔로우 리스트가 있을 때 -->
                 <div th:if="${followList != null and !followList.isEmpty()}">
-                    <!-- 헤더 -->
                     <div class="mb-8">
                         <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">팔로우 중인 친구들</h1>
                         <p class="text-gray-400 text-sm md:text-base">현재 <span th:text="${followList.size()}" class="text-blue-400 font-semibold">0</span>명을 팔로우하고 있습니다.</p>
@@ -72,7 +70,6 @@
                                 </div>
                             </a>
 
-                            <!-- 사용자 이름 -->
                             <a th:href="${'/@' + follow.getMention()}" class="mb-4 group">
                                 <h2 th:text="${follow.getUsername()}"
                                     class="text-center text-lg md:text-xl font-semibold cursor-pointer
@@ -84,7 +81,6 @@
                                 <p class="text-center text-sm text-gray-400 mt-1" th:if="${follow.getMention().length() < 10}" th:text="${'@' + follow.getMention()}">@mention</p>
                             </a>
 
-                            <!-- 팔로우 취소 버튼 -->
                             <button type="button"
                                     id="user-following-btn"
                                     th:data-mention="${follow.getMention()}"
@@ -102,17 +98,14 @@
                     </div>
                 </div>
 
-                <!-- 팔로우 리스트가 없을 때 -->
                 <div th:if="${followList == null or followList.isEmpty()}"
                      class="flex flex-col items-center justify-center min-h-[60vh] text-center">
-                    <!-- 아이콘 -->
                     <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-8">
                         <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                         </svg>
                     </div>
 
-                    <!-- 메시지 -->
                     <h2 class="text-xl md:text-2xl font-semibold text-white mb-3">아직 팔로우한 친구가 없어요</h2>
                     <p class="text-gray-400 text-sm md:text-base mb-8 max-w-md px-4">
                         흥미로운 사람들을 찾아보고 <br /> 팔로우해서 소식을 받아보세요!

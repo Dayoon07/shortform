@@ -154,4 +154,46 @@ public class VideoService {
         return videoMapper.myLikeVideos(id);
     }
 
+    public List<IndexPageAllVideosDto> selectExploreVideoListButTag(String hashtag) {
+        String hashtagButLangIsKo = "";
+
+        switch (hashtag) {
+            case "music":
+                hashtagButLangIsKo = "음악";
+                break;
+            case "dance":
+                hashtagButLangIsKo = "춤";
+                break;
+            case "featured":
+                hashtagButLangIsKo = "코미디";
+                break;
+            case "sport":
+                hashtagButLangIsKo = "스포츠";
+                break;
+            case "animation":
+                hashtagButLangIsKo = "애니메이션";
+                break;
+            case "game":
+                hashtagButLangIsKo = "게임";
+                break;
+            case "social":
+                hashtagButLangIsKo = "사회";
+                break;
+            case "faction":
+                hashtagButLangIsKo = "의상";
+                break;
+            case "car":
+                hashtagButLangIsKo = "자동차";
+                break;
+            case "food":
+                hashtagButLangIsKo = "음식";
+                break;
+            case "animal":
+                hashtagButLangIsKo = "동물";
+                break;
+        }
+
+        return videoMapper.selectExploreVideoListButTag(hashtag, hashtagButLangIsKo);
+    }
+
 }

@@ -119,18 +119,42 @@
                                 <span th:if="${videoInfo.getUploader().getMention().length() > 10}" th:text="'@' + ${videoInfo.getUploader().getMention().substring(0, 10) + '...'}">@mention</span>
                             </a>
                         </div>
-                        <button class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium transition-all duration-200 transform hover:scale-105">
-                            팔로우
-                        </button>
+                        <!-- 팔로우 버튼 (다른 사용자의 프로필을 볼 때) -->
+                        <div th:if="${session.user != null and session.user.id != videoInfo.getUploader().getId()}">
+                            <!-- 팔로우 중일 때 -->
+                            <button type="button"
+                                    id="user-following-btn"
+                                    th:if="${isFollowing}"
+                                    th:data-mention="${videoInfo.getUploader().getMention()}"
+                                    class="bg-gray-600 hover:bg-red-600 px-8 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2">
+                                <span>팔로잉</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- 팔로우 안 했을 때 -->
+                            <button type="button"
+                                    id="user-follow-btn"
+                                    th:unless="${isFollowing}"
+                                    th:data-mention="${videoInfo.getUploader().getMention()}"
+                                    class="bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2">
+                                <span>팔로우</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="text-sm md:text-base font-medium text-white" th:text="${videoInfo.getVideoTitle()}">영상 제목</div>
 
                     <div th:if="${videoInfo.videoTag != null}" class="flex flex-wrap gap-1 md:gap-2">
-                            <span th:each="tag : ${videoInfo.videoTag.split(',')}"
-                                  th:text="${tag}"
-                                  class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
-                            </span>
+                        <a th:each="tag : ${#strings.arraySplit(videoInfo.videoTag, ' ')}"
+                           th:href="@{'/hashtag/' + ${tag}}"
+                           th:text="${tag}"
+                           class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
+                        </a>
                     </div>
 
                     <div class="text-xs md:text-sm text-gray-300 line-clamp-2" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
@@ -188,6 +212,7 @@
 
     <script src="/js/user-session.js"></script>
     <script src="/js/video-ui.js"></script>
+    <script src="/js/user-follow.js"></script>
     <script>
         document.getElementById("share-btn").addEventListener("click", async (e) => {
             const loc = location.href;

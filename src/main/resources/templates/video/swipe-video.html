@@ -22,7 +22,6 @@
                 transform: scale(1.1);
             }
         }
-
         .heart-animation {
             animation: heartBeat 0.6s ease-in-out;
         }
@@ -104,7 +103,7 @@
                     </div>
                 </div>
 
-                <div class="absolute left-2 md:left-6 bottom-20 md:bottom-32 space-y-2 md:space-y-3 w-2/3 md:w-1/2">
+                <div class="absolute left-2 md:left-6 bottom-20 md:bottom-32 space-y-2 md:space-y-3 w-2/3 md:w-1/2 z-20">
                     <div class="flex items-center space-x-2 md:space-x-3">
                         <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" style="cursor: pointer;">
                             <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}" alt="프로필" class="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white border-opacity-30">
@@ -127,10 +126,11 @@
                     <div class="text-sm md:text-base font-medium text-white" th:text="${videoInfo.getVideoTitle()}">영상 제목</div>
 
                     <div th:if="${videoInfo.videoTag != null}" class="flex flex-wrap gap-1 md:gap-2">
-                                <span th:each="tag : ${videoInfo.videoTag.split(',')}"
-                                      th:text="${tag}"
-                                      class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
-                                </span>
+                        <a th:each="tag : ${#strings.arraySplit(videoInfo.videoTag, ' ')}"
+                           th:href="@{'/hashtag/' + ${tag}}"
+                           th:text="${tag}"
+                           class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
+                        </a>
                     </div>
 
                     <div class="text-xs md:text-sm text-gray-300 line-clamp-2" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>

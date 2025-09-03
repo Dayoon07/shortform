@@ -3,10 +3,7 @@ package com.e.shortform.controller;
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.dto.VideoRequestDto;
 import com.e.shortform.model.dto.VideoResponseDto;
-import com.e.shortform.model.entity.SearchListEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.entity.VideoLikeEntity;
+import com.e.shortform.model.entity.*;
 import com.e.shortform.model.service.*;
 import com.e.shortform.model.vo.SearchListVo;
 import com.e.shortform.model.vo.VideoVo;
@@ -36,6 +33,8 @@ public class RestMainController {
     private final CommentService commentService;
     private final VideoLikeService videoLikeService;
     private final SearchListService searchListService;
+    private final ViewStoryService viewStoryService;
+    private final CommentLikeService commentLikeService;
 
     static class staticTestObj {
         private String message;
@@ -410,7 +409,8 @@ public class RestMainController {
     }
 
     @PostMapping("/videos/random")
-    public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request) {
+    public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
         try {
             List<Long> excludeIds = request.getExcludeIds();
             if (excludeIds == null) {
@@ -453,6 +453,8 @@ public class RestMainController {
 
             log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
 
+            if (user != null) viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+
             return ResponseEntity.ok(Map.of(
                     "id", randomVideo.getId(),
                     "title", randomVideo.getVideoTitle(),
@@ -470,6 +472,23 @@ public class RestMainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "영상을 불러오는 중 오류가 발생했습니다."));
         }
+    }
+
+    @GetMapping("/user/find/viewstory")
+    public List<ViewStoryEntity> viewStoryList(@RequestParam Long id) {
+        return viewStoryService.getViewStoryListByUserId(id);
+    }
+
+    @PostMapping("/videos/tag")
+    public ResponseEntity<List<?>> exploreVideoList(@RequestParam String hashtag) {
+        return ResponseEntity.ok(videoService.selectExploreVideoListButTag(hashtag));
+    }
+
+    @PostMapping("/comment/like/submit")
+    public ResponseEntity<?> commentLikeLogic(@RequestParam Long commentId, HttpSession session) {
+        log.info("신호 수신 완료 {}", commentId);
+        boolean isLiked = commentLikeService.toggleCommentLike(commentId, session);
+        return ResponseEntity.ok(Map.of("status", isLiked ? "liked" : "unliked"));
     }
 
 }

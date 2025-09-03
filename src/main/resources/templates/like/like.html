@@ -8,17 +8,58 @@
     <title>FlipFlop</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
-<body style="background-color: black; color: white;">
+<body class="bg-black text-white overflow-hidden">
 
-    <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
+<div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
 
     <div class="flex h-screen">
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
-        <main class="flex-1 overflow-y-auto">
-            <section>
-                <div th:text="${likeVideos}"></div>
-            </section>
+        <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[130px]">
+                <div th:each="item : ${likeVideos}">
+                    <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
+                        <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
+                            <video th:data-src="${item.getVideoSrc()}" playsinline muted preload="none" class="lazy-video w-full h-full object-cover"></video>
+                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+
+                            <div class="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/60 rounded-full px-2 py-1 backdrop-blur-sm">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                                <span class="text-white text-xs font-medium" th:text="${item.getLikeCount()}">28.1K</span>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+                                    <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="mt-2 px-1">
+                        <a th:href="@{'/@' + ${item.getMention()}}" class="block flex items-center space-x-2 mb-1">
+                            <img th:src="${item.getProfileImgSrc()}" class="w-8 h-8 rounded-full object-cover" alt="프로필">
+                            <span class="text-white text-md font-semibold truncate" th:text="${item.getUploaderUsername()}">
+                                    username
+                                </span>
+                        </a>
+
+                        <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
+                           th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
+                            영상 제목이나 설명이 여기에 들어갑니다 #해시태그
+                        </p>
+                        <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
+                           th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                            영상 제목이나 설명이 여기에 들어갑니다 #해시태그
+                        </p>
+
+                        <span class="text-gray-400 text-sm" th:text="${'조회수 ' + item.getVideoViews() + '회'}">조회수 1.2만회</span>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -27,6 +68,59 @@
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const video = entry.target;
+
+                        // 실제 src 설정
+                        const src = video.dataset.src;
+                        if (src && !video.src) {
+                            video.src = src;
+                            video.load();
+                        }
+
+                        // 마우스 이벤트 등록 (한 번만)
+                        const card = video.closest('.relative.group.cursor-pointer');
+                        if (card && !card.dataset.listenerAttached) {
+                            card.dataset.listenerAttached = "true";
+
+                            card.addEventListener("mouseover", () => {
+                                video.currentTime = 0;
+                                video.play().catch(e => console.log('Video play failed:', e));
+                            });
+
+                            card.addEventListener("mouseout", () => {
+                                video.pause();
+                                video.currentTime = 0;
+                            });
+
+                            video.addEventListener("click", (e) => {
+                                e.preventDefault();
+                                if (video.paused) {
+                                    video.play();
+                                } else {
+                                    video.pause();
+                                }
+                            });
+                        }
+
+                        observer.unobserve(video); // 이벤트 및 src 설정 후 감시 중단
+                    }
+                });
+            }, {
+                rootMargin: '100px',
+                threshold: 0.1
+            });
+
+            // 초기 관찰 대상 등록 (lazy-video 클래스를 사용해야 함)
+            document.querySelectorAll('video.lazy-video').forEach(video => {
+                observer.observe(video);
+            });
+        });
+    </script>
 
 </body>
 </html>

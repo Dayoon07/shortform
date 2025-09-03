@@ -1,6 +1,7 @@
 package com.e.shortform.controller;
 
 import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class MainController {
     private final CommentService commentService;
     private final VideoLikeService videoLikeService;
     private final SearchListService searchListService;
+    private final ViewStoryService viewStoryService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -55,7 +57,6 @@ public class MainController {
         UserEntity currentUser = (UserEntity) session.getAttribute("user");
 
         if (profileUser != null) {
-            // 기본 프로필 정보
             m.addAttribute("profileInfo", userService.getUserProfilePageInfo(profileUser.getId()));
             m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
 
@@ -76,7 +77,7 @@ public class MainController {
     @GetMapping("/studio/upload")
     public String uploadPage(HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "index";
+            return "loginplz/loginplz";
         }
         return "video/upload";
     }
@@ -84,17 +85,20 @@ public class MainController {
     @GetMapping("/@{mention}/video/{videoLoc}")
     public String videoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
-
-        m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
-        m.addAttribute("videoCommentSize", commentService.selectByCommentId(videoService.findByVideoLoc(videoLoc, session).getId()).size());
+        VideoEntity video = videoService.findByVideoLoc(videoLoc, session);
 
         VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
                 videoService.findByVideoLoc(videoLoc, session).getId(),
                 user != null ? user.getId() : null
         );
 
+        if (user != null) viewStoryService.userViewstoryInsert(user.getId(), video.getId());
+
+        m.addAttribute("videoInfo", video);
+        m.addAttribute("videoCommentSize", commentService.selectByCommentId(videoService.findByVideoLoc(videoLoc, session).getId()).size());
         m.addAttribute("likeCount", likeInfo.getLikeCount());
         m.addAttribute("isLiked", likeInfo.isLiked());
+
         return "video/video";
     }
 
@@ -109,7 +113,7 @@ public class MainController {
     public String followingPage(HttpSession session, Model m) {
         UserEntity user = (UserEntity) session.getAttribute("user");
         if (user == null) {
-            return "index";
+            return "loginplz/loginplz";
         }
 
         m.addAttribute("followList", userService.selectProfileUserFollowingList(user.getId()));
@@ -125,17 +129,41 @@ public class MainController {
     @GetMapping("/@{mention}/swipe/video/{videoLoc}")
     public String profileUserVideoPage(@PathVariable String mention, @PathVariable String videoLoc, Model m, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
+        VideoEntity video = videoService.findByVideoLoc(videoLoc, session);
+        UserEntity followUser = userService.findByMention(mention);
 
-        m.addAttribute("videoInfo", videoService.findByVideoLoc(videoLoc, session));
-        m.addAttribute("videoCommentSize", commentService.selectByCommentId(videoService.findByVideoLoc(videoLoc, session).getId()).size());
+        // 비디오나 사용자가 없으면 에러 처리
+        if (video == null || followUser == null) {
+            return "error/404";
+        }
 
+        // 팔로우 상태 확인 - 로직 개선
+        boolean isFollowing = false;
+        if (user != null && !user.getId().equals(followUser.getId())) {
+            isFollowing = followService.isFollowing(user.getId(), followUser.getId());
+        }
+        m.addAttribute("isFollowing", isFollowing);
+        m.addAttribute("followUser", followUser); // 팔로우 대상 사용자 정보 추가
+
+        // 비디오 좋아요 정보
         VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
-                videoService.findByVideoLoc(videoLoc, session).getId(),
+                video.getId(),
                 user != null ? user.getId() : null
         );
 
+        // 조회 기록 추가
+        if (user != null) {
+            viewStoryService.userViewstoryInsert(user.getId(), video.getId());
+        }
+
+        // 댓글 수 계산
+        int commentSize = commentService.selectByCommentId(video.getId()).size();
+
+        m.addAttribute("videoInfo", video);
+        m.addAttribute("videoCommentSize", commentSize);
         m.addAttribute("likeCount", likeInfo.getLikeCount());
         m.addAttribute("isLiked", likeInfo.isLiked());
+
         return "video/swipe-video";
     }
 
@@ -146,6 +174,17 @@ public class MainController {
 
         m.addAttribute("likeVideos", videoService.myLikeVideos(user.getId()));
         return "like/like";
+    }
+
+    @GetMapping("/loginplz")
+    public String loginplz() {
+        return "loginplz/loginplz";
+    }
+
+    @GetMapping("/hashtag/{videoTag}")
+    public String hashtagPage(@PathVariable String videoTag, Model m) {
+        m.addAttribute("hashtagVideo", videoService.selectExploreVideoListButTag(videoTag));
+        return "hashtag/hashtag";
     }
 
 }
