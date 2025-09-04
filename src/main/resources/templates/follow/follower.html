@@ -8,16 +8,16 @@
     <title>FlipFlop</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
-<body style="background-color: black; color: white; overflow: hidden;">
+<body style="background-color: black; color: white;">
 
     <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
 
     <div class="flex h-screen">
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
-        <main class="flex-1">
-            <section class="p-4 m-4">
-                <h1 class="text-3xl text-center font-semibold md:mt-64 mt-32">로그인이 필요합니다.</h1>
+        <main class="flex-1 overflow-y-auto">
+            <section>
+
             </section>
         </main>
     </div>

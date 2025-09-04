@@ -48,11 +48,7 @@
                         </a>
 
                         <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                            th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
-                            영상 제목이나 설명이 여기에 들어갑니다 #해시태그
-                        </p>
-                        <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                            th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                            th:text="${item.getVideoTitle().length() > 25 ? item.getVideoTitle().substring(0, 25) + '...' : item.getVideoTitle()}">
                             영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                         </p>
 

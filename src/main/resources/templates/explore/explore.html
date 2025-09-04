@@ -26,7 +26,6 @@
 
         <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
             <div class="flex items-center md:my-4 max-md:mb-4 gap-3 flex-wrap z-90">
-                <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl active" data-tag="recent">최신</div>
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="popular">인기</div>
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="music">음악</div>
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="dance">춤</div>
@@ -40,7 +39,7 @@
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="food">음식</div>
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="animal">동물</div>
             </div>
-            <div id="aaaaaaaa" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 pb-36">
+            <div id="video-con" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 pb-36">
                 <div th:each="item : ${videos}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">

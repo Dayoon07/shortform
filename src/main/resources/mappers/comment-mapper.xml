@@ -56,7 +56,7 @@
         WHERE
             C.COMMENT_VIDEO_ID = #{id}
         ORDER BY
-            LIKE_COUNT DESC, C.CREATE_AT DESC
+            LIKE_COUNT ASC
     </select>
     
     <select id="selectByCommentButOrderByIsDesc" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">

@@ -230,15 +230,30 @@ function showErrorMessage(message) {
 
 // 키보드 단축키 지원
 document.addEventListener('keydown', function(e) {
+    const tagName = e.target.tagName.toLowerCase();
+    const isTyping = tagName === 'input' || tagName === 'textarea' || e.target.isContentEditable;
+
+    if (isTyping) return; // 입력창에서 누른 키는 무시
+
     switch(e.key) {
         case 'ArrowDown':
-        case ' ': // 스페이스바
             e.preventDefault();
             nextVideo();
             break;
         case 'ArrowUp':
             e.preventDefault();
             prevVideo();
+            break;
+        case ' ': // 스페이스바
+            e.preventDefault();
+            const video = document.getElementById('main-video');
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            }
             break;
     }
 });

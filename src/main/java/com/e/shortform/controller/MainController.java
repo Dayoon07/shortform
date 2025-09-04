@@ -104,9 +104,25 @@ public class MainController {
 
     @GetMapping("/@{mention}/post")
     public String profilePostPage(@PathVariable String mention, Model m, HttpSession session) {
-        m.addAttribute("profileInfo", userService.getUserProfilePageInfo(userService.findByMention(mention).getId()));
-        m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
-        return "profile/profile-post";
+        UserEntity profileUser = userService.findByMention(mention);
+        UserEntity currentUser = (UserEntity) session.getAttribute("user");
+
+        if (profileUser != null) {
+            m.addAttribute("profileInfo", userService.getUserProfilePageInfo(profileUser.getId()));
+            m.addAttribute("profileUserVideoInfo", videoService.selectUserProfilePageAllVideos(mention));
+
+            // 팔로우 상태 확인 (로그인한 사용자가 있을 때만)
+            if (currentUser != null && !currentUser.getId().equals(profileUser.getId())) {
+                boolean isFollowing = followService.isFollowing(currentUser.getId(), profileUser.getId());
+                m.addAttribute("isFollowing", isFollowing);
+            } else {
+                m.addAttribute("isFollowing", false);
+            }
+
+            return "profile/profile-post";
+        } else {
+            return "profile/void-user";
+        }
     }
 
     @GetMapping("/following")

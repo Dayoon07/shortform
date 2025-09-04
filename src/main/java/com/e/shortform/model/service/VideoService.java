@@ -155,45 +155,19 @@ public class VideoService {
     }
 
     public List<IndexPageAllVideosDto> selectExploreVideoListButTag(String hashtag) {
-        String hashtagButLangIsKo = "";
-
-        switch (hashtag) {
-            case "music":
-                hashtagButLangIsKo = "음악";
-                break;
-            case "dance":
-                hashtagButLangIsKo = "춤";
-                break;
-            case "featured":
-                hashtagButLangIsKo = "코미디";
-                break;
-            case "sport":
-                hashtagButLangIsKo = "스포츠";
-                break;
-            case "animation":
-                hashtagButLangIsKo = "애니메이션";
-                break;
-            case "game":
-                hashtagButLangIsKo = "게임";
-                break;
-            case "social":
-                hashtagButLangIsKo = "사회";
-                break;
-            case "faction":
-                hashtagButLangIsKo = "의상";
-                break;
-            case "car":
-                hashtagButLangIsKo = "자동차";
-                break;
-            case "food":
-                hashtagButLangIsKo = "음식";
-                break;
-            case "animal":
-                hashtagButLangIsKo = "동물";
-                break;
+        if (hashtag.equals("popular")) {
+            return videoMapper.selectExploreVideoListByTagsButVideoViewsDescFuck(hashtag);
+        } else {
+            return videoMapper.selectExploreVideoListByTags(hashtag);
         }
+    }
 
-        return videoMapper.selectExploreVideoListButTag(hashtag, hashtagButLangIsKo);
+    public List<VideoEntity> selectAllVideos() {
+        return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "uploadAt"));
+    }
+
+    public List<IndexPageAllVideosDto> selectExploreVideoListByTagsButVideoViewsDescFuck(String hashtag) {
+        return videoMapper.selectExploreVideoListByTagsButVideoViewsDescFuck(hashtag);
     }
 
 }

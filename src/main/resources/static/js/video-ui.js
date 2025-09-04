@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             </svg>
                                             <span>${commentData.likeCount == null ? 0 : commentData.likeCount}</span>
                                         </button>
-                                        <button class="text-md text-gray-400 hover:text-white">답글</button>
+                                        <button class="text-md text-gray-400 hover:text-white relative comment" data-id="${commentData.id}">답글</button>
                                     </div>
                                 </div>
                             </div>
@@ -266,62 +266,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const commentText = document.getElementById("commentText");
 
-        if (commentText.value == null || commentText.value === "") {
+        if (commentText.value == null || commentText.value.trim() === "") {
             alert("댓글을 입력해주세요");
+            return; // 조건 충족하면 여기서 끝냄
         }
 
-        if (commentText.value != null || commentText.value !== "") {
-            const commentFormData = new FormData();
-            const videoId = commentText.dataset.videoId;
-            const videoCommentContainer = document.getElementById("comment-list-wawawawawa");
+        const commentFormData = new FormData();
+        const videoId = commentText.dataset.videoId;
+        const videoCommentContainer = document.getElementById("comment-list-wawawawawa");
 
-            commentFormData.append('commentText', commentText.value);
-            commentFormData.append('commentVideoId', videoId);
+        commentFormData.append('commentText', commentText.value.trim());
+        commentFormData.append('commentVideoId', videoId);
 
-            try {
-                const res = await fetch(`${location.origin}/api/video/insert/comment`, {
-                    method: 'POST',
-                    body: commentFormData
-                });
+        try {
+            const res = await fetch(`${location.origin}/api/video/insert/comment`, {
+                method: 'POST',
+                body: commentFormData
+            });
 
-                if (res.ok) {
-                    const data = await res.json();
-                    console.log(data);
-                    console.log(data.commentText);
-                    console.log(data.userObj);
-
-                    videoCommentContainer.insertAdjacentHTML('afterbegin',`
-                        <div class="flex space-x-3">
-                            <a href="${location.origin}/@${data.mention}" style="cursor: pointer">
-                                <img src="${data.userObj.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
-                            </a>
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-2">
-                                    <span class="font-semibold text-md text-white" style="cursor: pointer"
-                                              onclick="location.href = '${location.origin}/@${data.mention}'"
-                                    >${data.userObj.username}</span>
-                                    <span class="text-sm text-gray-400">방금 전</span>
-                                </div>
-                                <pre style="white-space: pre-wrap; font-family: inherit;">${data.commentText}</pre>
-                                <div class="flex items-center space-x-4 mt-2">
-                                    <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                        </svg>
-                                        <span>0</span>
-                                    </button>
-                                    <button class="text-md text-gray-400 hover:text-white">답글</button>
-                                </div>
-                            </div>
+            if (res.ok) {
+                const data = await res.json();
+                videoCommentContainer.insertAdjacentHTML('afterbegin', `
+                <div class="flex space-x-3">
+                    <a href="${location.origin}/@${data.mention}" style="cursor: pointer">
+                        <img src="${data.userObj.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
+                    </a>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-md text-white" style="cursor: pointer"
+                                  onclick="location.href = '${location.origin}/@${data.mention}'">
+                                ${data.userObj.username}
+                            </span>
+                            <span class="text-sm text-gray-400">방금 전</span>
                         </div>
-                    `);
+                        <pre style="white-space: pre-wrap; font-family: inherit;">${data.commentText}</pre>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <button class="text-md text-gray-400 hover:text-white flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span>0</span>
+                            </button>
+                            <button class="text-md text-gray-400 hover:text-white">답글</button>
+                        </div>
+                    </div>
+                </div>
+            `);
 
-                    commentText.value = '';
-                }
-
-            } catch (error) {
-                console.log(error);
+                commentText.value = '';
             }
+        } catch (error) {
+            console.log(error);
         }
     });
 
@@ -424,6 +420,93 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.log(error);
         }
+    });
+
+    document.getElementById("comment-list-wawawawawa").addEventListener("click", (e) => {
+        // 클릭한 버튼 확인
+        const btn = e.target.closest("button.comment");
+        if (!btn) return;
+
+        console.log("답글 버튼 클릭, 댓글 ID:", btn.dataset.id);
+
+        // 이미 답글 입력창이 있으면 제거 (전체 컨테이너에서 찾기)
+        const existingInput = document.querySelector(".reply-input");
+        if (existingInput) existingInput.remove();
+
+        // 답글 입력창 생성
+        const inputDiv = document.createElement("div");
+        inputDiv.className = "reply-input inline-block ml-2";
+        inputDiv.innerHTML = `
+            <input type="text" data-comment-reply-id="${btn.dataset.id}" placeholder="답글을 입력하세요..." 
+                class="px-2 py-1 border rounded text-sm text-black" />
+            <button type="button" class="reply-submit px-1 text-md ml-1 border rounded bg-gray-200 text-black">
+                작성
+            </button>
+            <button type="button" class="reply-cancel px-1 text-md ml-1 border rounded bg-gray-300 text-black">
+                취소
+            </button>
+        `;
+
+        // 버튼들과 입력창 참조
+        const replyButton = inputDiv.querySelector(".reply-submit");
+        const cancelButton = inputDiv.querySelector(".reply-cancel");
+        const replyInput = inputDiv.querySelector("input");
+
+        // 작성 버튼 클릭 이벤트
+        replyButton.addEventListener("click", async () => {
+            if (replyInput.value.trim() === "") {
+                alert("댓글을 입력해주세요");
+                return;
+            }
+            console.log("작성된 답글:", replyInput.value, "댓글 ID:", replyInput.dataset.commentReplyId);
+            // 여기에 실제 답글 전송 로직 추가 가능
+
+            try {
+                const res = await fetch(`${location.origin}/api/insert/comment/reply`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        commentReplyUserId: JSON.parse(localStorage.getItem("user")).id,
+                        commentReplyId: replyInput.dataset.commentReplyId,
+                        commentReplyText: replyInput.value,
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log(data);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+
+            // 전송 후 입력창 제거
+            inputDiv.remove();
+        });
+
+        // 취소 버튼 클릭 이벤트
+        cancelButton.addEventListener("click", () => {
+            inputDiv.remove();
+        });
+
+        // Enter 키로 전송
+        replyInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                replyButton.click();
+            }
+            // ESC 키로 취소
+            if (e.key === "Escape") {
+                e.preventDefault();
+                cancelButton.click();
+            }
+        });
+
+        // 입력창을 버튼 다음에 삽입
+        btn.insertAdjacentElement("afterend", inputDiv);
+        replyInput.focus();
     });
 
 });

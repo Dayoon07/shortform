@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const usernameEl = document.getElementById("h1-but-username");
         const emailEl = document.getElementById("user-mail-nothing-aaaaaaaaa");
         const mentionEl = document.getElementById("small-tag-but-just-user-mention");
-        const bioEl = document.getElementById("biobiobio");
+        const bioEl = document.getElementById("biobiobio") || '';
         const profileImgEl = document.getElementById("profile-img-src");
 
         if (usernameEl) usernameEl.textContent = userData.username;
@@ -248,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
+                    console.log(data);
                     if (data.success) {
                         // UI 업데이트
                         updateFollowButton(data.isFollowing);
@@ -382,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const notification = document.createElement('div');
-        notification.className = `notification-toast absolute top-4 right-64 px-6 py-3 rounded-lg text-white z-50 transform translate-x-full transition-transform duration-300 ${
+        notification.className = `notification-toast w-[300px] text-center absolute top-4 left-68 px-6 py-3 rounded-lg text-white z-50 transform translate-x-full transition-transform duration-300 ${
             type === 'success' ? 'bg-green-500' : 'bg-red-500'
         }`;
 

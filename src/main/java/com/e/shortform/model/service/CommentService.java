@@ -58,4 +58,8 @@ public class CommentService {
         return commentMapper.selectByCommentButOrderByIsDesc(id);
     }
 
+    public List<?> selectAllComments() {
+        return commentRepo.findAll();
+    }
+
 }

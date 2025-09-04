@@ -82,24 +82,25 @@
                                 </div>
                             </div>
 
-                            <div>
-                                <p th:text="${profileInfo.getBio()}" style="word-wrap: break-word; white-space: pre-wrap;" id="biobiobio"></p>
+                            <div th:if="${profileInfo.getBio() != null}">
+                                <p th:text="${profileInfo.getBio().length() > 21 ? profileInfo.getBio().substring(0, 20) + '...' : profileInfo.getBio()}"
+                                    style="word-wrap: break-word; white-space: pre-wrap;" id="biobiobio"></p>
                             </div>
                         </div>
                     </div>
 
-                  <div class="flex border-b border-gray-800 w-full">
-                      <a th:href="@{'/@' + ${profileInfo.getMention()}}"
-                         class="flex-1 text-center py-3 font-semibold border-b-2 border-white text-white">
-                          동영상
-                      </a>
-                      <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
-                         class="flex-1 text-center py-3 font-semibold border-b-2 border-transparent text-gray-700 hover:border-white hover:text-white transition duration-300">
-                          게시글
-                      </a>
-                  </div>
+                    <div class="flex border-b border-gray-800 w-full">
+                        <a th:href="@{'/@' + ${profileInfo.getMention()}}"
+                            class="flex-1 text-center py-3 font-semibold border-b-2 border-white text-white">
+                            동영상
+                        </a>
+                        <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
+                            class="flex-1 text-center py-3 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
+                            게시글
+                        </a>
+                    </div>
 
-                  <div class="p-6">
+                    <div class="p-6">
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[75px]">
                             <div th:each="item : ${profileUserVideoInfo}">
                                 <a th:href="@{/{username}/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
@@ -125,11 +126,7 @@
                                 </a>
                                 <div class="mt-2 px-1">
                                     <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                                       th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
-                                        영상 제목이나 설명이 여기에 들어갑니다 #해시태그
-                                    </p>
-                                    <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                                       th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                                       th:text="${item.getVideoTitle().length() > 25 ? item.getVideoTitle().substring(0, 25) + '...' : item.getVideoTitle()}">
                                         영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                                     </p>
 
@@ -145,66 +142,69 @@
     </div>
 
     <div id="follow-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white w-full md:max-w-md md:h-[500px] h-full mx-auto md:my-20 shadow-lg overflow-y-auto">
+        <div class="bg-white md:rounded-xl shadow-xl w-full h-full md:w-[450px] md:h-[500px] mx-auto md:mt-28 md:max-w-md">
             <div class="flex justify-between items-center py-2 px-6 border-b">
                 <h2 id="follow-modal-title" class="text-xl font-semibold text-black"></h2>
                 <button id="follow-modal-close" class="text-black text-4xl pb-2">&times;</button>
             </div>
-            <ul id="follow-modal-list" class="divide-y divide-gray-200"></ul>
+            <ul id="follow-modal-list" class="divide-y divide-gray-200 md:h-[435px] overflow-y-auto"></ul>
         </div>
     </div>
 
     <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white rounded-xl shadow-xl p-4 mb-4 md:w-[450px] w-full mx-auto md:mt-28 overflow-y-auto">
+        <div class="bg-white md:rounded-xl shadow-xl w-full h-full md:w-[450px] md:h-[500px] mx-auto md:mt-28 p-4 mb-4">
             <div class="flex justify-between items-center px-2 pb-2 border-b">
                 <h2 th:text="${profileInfo.getUsername()}" class="text-xl font-semibold text-black">username</h2>
                 <button class="text-black text-4xl pb-2" onclick="document.getElementById('info-modal').classList.add('hidden')">&times;</button>
             </div>
-            <div th:if="${profileInfo.getBio() != null}" class="my-4 px-2 text-black">
-                <h2 class="text-xl font-semibold text-black">설명</h2>
-                <p th:text="${profileInfo.getBio()}" style="margin-left: 2px; margin-top: 4px;"></p>
-            </div>
-            <div class="my-4 px-2 space-y-4 text-black">
-                <h2 class="text-xl font-semibold text-black">추가 정보</h2>
-                <div class="flex justify-start items-center">
-                    <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
-                            <path d="M13 17h-2v-6h2v6zm0-10h-2v2h2V7zm-1-4c-4.96 0-9 4.04-9 9s4.04 9 9 9 9-4.04 9-9-4.04-9-9-9m0-1c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path>
-                        </svg>
-                    </div>
-                    <div th:text="'가입일: ' + ${profileInfo.getCreateAt().toString().substring(0, 10)}">가입일</div>
+            <div class="md:h-[400px] overflow-y-auto">
+                <div th:if="${profileInfo.getBio() != null}" class="my-4 px-2 text-black">
+                    <h2 class="text-xl font-semibold text-black">설명</h2>
+                    <p style="word-wrap: break-word; white-space: pre-wrap; margin-left: 2px; margin-top: 4px;"
+                       th:text="${profileInfo.getBio()}"></p>
                 </div>
-                <div class="flex justify-start items-center">
-                    <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
-                            <path d="M11.72 11.93C13.58 11.59 15 9.96 15 8c0-2.21-1.79-4-4-4S7 5.79 7 8c0 1.96 1.42 3.59 3.28 3.93C4.77 12.21 2 15.76 2 20h18c0-4.24-2.77-7.79-8.28-8.07zM8 8c0-1.65 1.35-3 3-3s3 1.35 3 3-1.35 3-3 3-3-1.35-3-3zm3 4.9c5.33 0 7.56 2.99 7.94 6.1H3.06c.38-3.11 2.61-6.1 7.94-6.1zm5.68-1.46-.48-.88C17.31 9.95 18 8.77 18 7.5s-.69-2.45-1.81-3.06l.49-.88C18.11 4.36 19 5.87 19 7.5c0 1.64-.89 3.14-2.32 3.94zm2.07 1.69-.5-.87c1.7-.98 2.75-2.8 2.75-4.76s-1.05-3.78-2.75-4.76l.5-.87C20.75 3.03 22 5.19 22 7.5s-1.24 4.47-3.25 5.63z"></path>
-                        </svg>
+                <div class="my-4 px-2 space-y-4 text-black">
+                    <h2 class="text-xl font-semibold text-black">추가 정보</h2>
+                    <div class="flex justify-start items-center">
+                        <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
+                                <path d="M13 17h-2v-6h2v6zm0-10h-2v2h2V7zm-1-4c-4.96 0-9 4.04-9 9s4.04 9 9 9 9-4.04 9-9-4.04-9-9-9m0-1c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path>
+                            </svg>
+                        </div>
+                        <div th:text="'가입일: ' + ${profileInfo.getCreateAt().toString().substring(0, 10)}">가입일</div>
                     </div>
-                    <div th:text="'팔로워: ' + ${profileInfo.getFollowerCount()} + '명'">팔로워 수</div>
-                </div>
-                <div class="flex justify-start items-center">
-                    <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
-                            <path d="m10 8 6 4-6 4V8zm11-5v18H3V3h18zm-1 1H4v16h16V4z"></path>
-                        </svg>
+                    <div class="flex justify-start items-center">
+                        <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
+                                <path d="M11.72 11.93C13.58 11.59 15 9.96 15 8c0-2.21-1.79-4-4-4S7 5.79 7 8c0 1.96 1.42 3.59 3.28 3.93C4.77 12.21 2 15.76 2 20h18c0-4.24-2.77-7.79-8.28-8.07zM8 8c0-1.65 1.35-3 3-3s3 1.35 3 3-1.35 3-3 3-3-1.35-3-3zm3 4.9c5.33 0 7.56 2.99 7.94 6.1H3.06c.38-3.11 2.61-6.1 7.94-6.1zm5.68-1.46-.48-.88C17.31 9.95 18 8.77 18 7.5s-.69-2.45-1.81-3.06l.49-.88C18.11 4.36 19 5.87 19 7.5c0 1.64-.89 3.14-2.32 3.94zm2.07 1.69-.5-.87c1.7-.98 2.75-2.8 2.75-4.76s-1.05-3.78-2.75-4.76l.5-.87C20.75 3.03 22 5.19 22 7.5s-1.24 4.47-3.25 5.63z"></path>
+                            </svg>
+                        </div>
+                        <div th:text="'팔로워: ' + ${profileInfo.getFollowerCount()} + '명'">팔로워 수</div>
                     </div>
-                    <div th:text="'동영상: ' + ${profileUserVideoInfo.size()} + '개'">동영상 개수</div>
-                </div>
-                <div class="flex justify-start items-center">
-                    <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
-                            <path d="M22 6v7h-1V7.6l-8.5 7.6-4-4-5.6 5.6-.7-.7 6.4-6.4 4 4L20.2 7H15V6h7z"></path>
-                        </svg>
+                    <div class="flex justify-start items-center">
+                        <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
+                                <path d="m10 8 6 4-6 4V8zm11-5v18H3V3h18zm-1 1H4v16h16V4z"></path>
+                            </svg>
+                        </div>
+                        <div th:text="'동영상: ' + ${profileUserVideoInfo.size()} + '개'">동영상 개수</div>
                     </div>
-                    <div th:text="'조회수: ' + ${profileInfo.getTotalViews()} + '회'">조회수</div>
-                </div>
-                <div class="flex justify-start items-center">
-                    <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
+                    <div class="flex justify-start items-center">
+                        <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
+                                <path d="M22 6v7h-1V7.6l-8.5 7.6-4-4-5.6 5.6-.7-.7 6.4-6.4 4 4L20.2 7H15V6h7z"></path>
+                            </svg>
+                        </div>
+                        <div th:text="'조회수: ' + ${profileInfo.getTotalViews()} + '회'">조회수</div>
                     </div>
-                    <div th:text="'좋아요: ' + ${profileInfo.getTotalLikes()}">좋아요 수</div>
+                    <div class="flex justify-start items-center">
+                        <div style="width: 32px; height: 32px; display: block; fill: currentcolor; margin-right: 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" focusable="false" aria-hidden="true" style="pointer-events: none; display: inherit; width: 100%; height: 100%;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <div th:text="'좋아요: ' + ${profileInfo.getTotalLikes()}">좋아요 수</div>
+                    </div>
                 </div>
             </div>
         </div>

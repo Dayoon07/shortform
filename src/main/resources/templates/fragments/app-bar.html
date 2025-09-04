@@ -42,6 +42,9 @@
                     <a th:href="${'/@' + session.user.getMention()}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91]">
                         내 채널 보기
                     </a>
+                    <a th:href="@{/likes}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91]">
+                        좋아요
+                    </a>
                     <form action="/logout" method="post" class="z-[91]">
                         <button type="submit" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91] text-left">
                             로그아웃

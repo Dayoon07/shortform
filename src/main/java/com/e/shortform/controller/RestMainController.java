@@ -8,7 +8,7 @@ import com.e.shortform.model.service.*;
 import com.e.shortform.model.vo.SearchListVo;
 import com.e.shortform.model.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,21 +35,14 @@ public class RestMainController {
     private final SearchListService searchListService;
     private final ViewStoryService viewStoryService;
     private final CommentLikeService commentLikeService;
+    private final CommentReplyService commentReplyService;
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     static class staticTestObj {
         private String message;
-
-        public staticTestObj(String message) {
-            this.message = message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
     }
 
     // 동시 요청 방지를 위한 Map (간단한 해결책)
@@ -64,6 +57,11 @@ public class RestMainController {
     @GetMapping("/user/all")
     public ResponseEntity<?> selectAll() {
         return ResponseEntity.ok(userService.selectAll());
+    }
+
+    @GetMapping("/video/all")
+    public List<VideoEntity> selectAllVideos() {
+        return videoService.selectAllVideos();
     }
 
     @PostMapping("/user/signup")
@@ -104,7 +102,10 @@ public class RestMainController {
             response.put("user", Map.of(
                     "id", user.getId(),
                     "username", user.getUsername(),
-                    "email", user.getMail()
+                    "mail", user.getMail(),
+                    "profileImgSrc", user.getProfileImgSrc(),
+                    "mention", user.getMention(),
+                    "createAt", user.getCreateAt()
             ));
 
             return ResponseEntity.ok(response);
@@ -489,6 +490,18 @@ public class RestMainController {
         log.info("신호 수신 완료 {}", commentId);
         boolean isLiked = commentLikeService.toggleCommentLike(commentId, session);
         return ResponseEntity.ok(Map.of("status", isLiked ? "liked" : "unliked"));
+    }
+
+    @GetMapping("/comment/all")
+    public List<?> selectAllComments() {
+        return commentService.selectAllComments();
+    }
+
+    @PostMapping("/insert/comment/reply")
+    public ResponseEntity<?> commentReplyInsertLogicFuncFuck(@RequestBody Map<String, Object> req) {
+        log.info("commentReplyId: {}, commentReplyText: {}, commentReplyUserId: {}", req.get("commentReplyId"), req.get("commentReplyText"), req.get("commentReplyUserId"));
+        commentReplyService.commentReplyInsertFuck((Long) req.get("commentReplyId"), req.get("commentReplyText").toString(), (Long) req.get("commentReplyUserId"));
+        return ResponseEntity.ok(Map.of("message", "데이터 보냄"));
     }
 
 }

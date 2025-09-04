@@ -63,12 +63,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (parentDiv) {
                         parentDiv.remove();
-
+                        document.getElementById("following-cnt").textContent = parseFloat(document.getElementById("following-cnt").textContent) - 1;
                         setTimeout(() => {
                             const remainingFollows = document.querySelectorAll(".follow-div, div[class*='bg-gray-800']");
-                            if (remainingFollows.length === 0) {
-                                location.reload();
-                            }
+                            if (remainingFollows.length === 0) location.reload();
+
+                            const $msgDiv = document.createElement("div");
+                            $msgDiv.style.position = "fixed";
+                            $msgDiv.style.left = "50%";
+                            $msgDiv.style.top = "20px";
+                            $msgDiv.style.translate = "-50%, 0px";
+                            $msgDiv.style.backgroundColor = "gray";
+                            $msgDiv.className = "text-white px-10 py-2 rounded shadow-md z-50";
+                            $msgDiv.innerText = data.message;
+                            document.body.appendChild($msgDiv);
+
+                            setTimeout(() => $msgDiv.remove(), 2000);
                         }, 100);
                     } else {
                         console.warn("부모 요소를 찾을 수 없어서 페이지를 새로고침합니다.");

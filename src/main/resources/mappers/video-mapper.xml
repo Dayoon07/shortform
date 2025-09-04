@@ -263,7 +263,7 @@
         ORDER BY v.UPLOAD_AT DESC
     </select>
 
-    <select id="selectExploreVideoListButTag" resultMap="IndexPageAllVideosResultMap" parameterType="String">
+    <select id="selectExploreVideoListByTags" resultMap="IndexPageAllVideosResultMap" parameterType="String">
         SELECT
             v.ID AS VIDEO_ID,
             v.VIDEO_TITLE,
@@ -297,9 +297,45 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
-            AND v.video_tag LIKE '%' || #{hashtag} || '%'
-           OR v.video_tag LIKE '%' || #{hashtagButLangIsKo} || '%'
+        AND v.video_tag LIKE '%' || #{hashtag} || '%'
         ORDER BY v.UPLOAD_AT DESC
+    </select>
+
+    <select id="selectExploreVideoListByTagsButVideoViewsDescFuck" resultMap="IndexPageAllVideosResultMap" parameterType="String">
+        SELECT
+            v.ID AS VIDEO_ID,
+            v.VIDEO_TITLE,
+            v.VIDEO_DESCRIPTION,
+            v.VIDEO_NAME,
+            v.VIDEO_SRC,
+            v.VIDEO_TAG,
+            v.VIDEO_VIEWS,
+            v.VIDEO_LOC,
+            v.VIDEO_WATCH_AVAILABILITY,
+            v.COMMENT_AVAILABILITY,
+            v.UPLOAD_AT,
+            -- 업로더 정보
+            u.ID AS UPLOADER_ID,
+            u.USERNAME AS UPLOADER_USERNAME,
+            u.MAIL AS UPLOADER_MAIL,
+            u.PROFILE_IMG,
+            u.PROFILE_IMG_SRC,
+            u.BIO,
+            u.MENTION,
+            u.CREATE_AT AS UPLOADER_CREATE_AT,
+            -- 통계 정보
+            COALESCE(like_counts.LIKE_COUNT, 0) AS LIKE_COUNT
+        FROM SHORTFORM_VIDEOS v
+                 LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
+                 LEFT JOIN (
+            SELECT
+                LIKE_VIDEO_ID,
+                COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_VIDEO_LIKES
+            GROUP BY LIKE_VIDEO_ID
+        ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        ORDER BY v.VIDEO_VIEWS DESC
     </select>
 
 </mapper>

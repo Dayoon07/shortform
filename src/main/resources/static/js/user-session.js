@@ -243,8 +243,9 @@ class SignupManager {
             });
 
             if (response.ok) {
-                this.showSignupSuccess();
                 document.getElementById("signupModal")?.classList.add("hidden");
+                this.showSignupSuccess();
+                this.resetSignupForm();
             } else {
                 const message = await response.text();
                 alert("회원가입 실패: " + message);
@@ -252,6 +253,74 @@ class SignupManager {
         } catch (error) {
             alert("에러 발생: " + error.message);
         }
+    }
+
+    resetSignupForm() {
+        // Step을 1단계로 되돌리기
+        this.step1?.classList.remove("hidden");
+        this.step2?.classList.add("hidden");
+
+        // 모든 입력 필드 초기화
+        const inputs = [
+            "emailInput",
+            "usernameInput",
+            "passwordInput",
+            "confirmPasswordInput"
+        ];
+
+        inputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) input.value = "";
+        });
+
+        // 프로필 이미지 초기화
+        this.resetProfileImage();
+
+        // 유효성 검사 피드백 초기화
+        this.resetValidationFeedback();
+
+        // 유효성 검사 상태 초기화
+        if (this.validator) {
+            this.validator.isUsernameAvailable = true;
+            this.validator.isEmailAvailable = true;
+        }
+    }
+
+    // 프로필 이미지 초기화 메서드 (새로 추가)
+    resetProfileImage() {
+        if (this.profileUploader) {
+            // 파일 입력 초기화
+            if (this.profileUploader.profileInput) {
+                this.profileUploader.profileInput.value = "";
+            }
+
+            // 미리보기 이미지 숨기기
+            if (this.profileUploader.preview) {
+                this.profileUploader.preview.classList.add("hidden");
+                this.profileUploader.preview.src = "";
+            }
+
+            // 업로드 텍스트 다시 표시
+            if (this.profileUploader.uploadText) {
+                this.profileUploader.uploadText.style.display = "block";
+            }
+        }
+    }
+
+    // 유효성 검사 피드백 초기화 메서드 (새로 추가)
+    resetValidationFeedback() {
+        const feedbackElements = [
+            "username-feedback",
+            "mail-feedback"
+        ];
+
+        feedbackElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerText = "";
+                element.style.color = "";
+            }
+        });
     }
 
     collectFormData() {
@@ -332,7 +401,8 @@ class LoginManager {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                location.href = location.origin;
+                localStorage.setItem("user", JSON.stringify(data.user));
+                location.href = location.origin + "?login=success&message=" + encodeURIComponent(data.message);
             } else {
                 alert("로그인 실패: " + data.message);
             }
@@ -514,6 +584,27 @@ async function akakakakakakaka(param) {
 }
 
 // DOM 로드 시 애플리케이션 초기화
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener('DOMContentLoaded', () => {
     new App();
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('login') === 'success') {
+        const message = params.get('message') || '로그인 성공!';
+        showToast(message, 'success');
+        // URL 파라미터 제거
+        history.replaceState({}, '', location.pathname);
+    }
 });
+
+function showToast(message, type = 'info') {
+    const $div = document.createElement("div");
+    $div.style.position = "fixed";
+    $div.style.left = "50%";
+    $div.style.top = "20px";
+    $div.style.translate = "-50%, 0px";
+    $div.style.backgroundColor = type === "success" ? "rgb(22, 163, 74)" : "rgb(107, 114, 128)";
+    $div.className = "text-white px-10 py-2 rounded shadow-md z-50";
+    $div.innerText = message;
+    document.body.appendChild($div);
+    setTimeout(() => $div.remove(), 2000);
+}

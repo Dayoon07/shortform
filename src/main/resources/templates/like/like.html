@@ -16,7 +16,7 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[130px]">
+            <div th:if="${likeVideos != null}" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[130px]">
                 <div th:each="item : ${likeVideos}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
@@ -48,17 +48,16 @@
                         </a>
 
                         <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                           th:if="${item.getVideoTitle().length() > 25}" th:text="${item.getVideoTitle().substring(0, 25) + '...'}">
-                            영상 제목이나 설명이 여기에 들어갑니다 #해시태그
-                        </p>
-                        <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                           th:if="${item.getVideoTitle().length() < 25}" th:text="${item.getVideoTitle()}">
+                           th:text="${item.getVideoTitle().length() > 25 ? item.getVideoTitle().substring(0, 25) + '...' : item.getVideoTitle()}">
                             영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                         </p>
 
                         <span class="text-gray-400 text-sm" th:text="${'조회수 ' + item.getVideoViews() + '회'}">조회수 1.2만회</span>
                     </div>
                 </div>
+            </div>
+            <div th:if="${#lists.isEmpty(likeVideos)}">
+                <h1 style="color: white; font-size: 30px; font-weight: bold; text-align: center;" class="md:mt-64 mt-32">좋아요를 누른 영상이 없습니다</h1>
             </div>
         </main>
     </div>

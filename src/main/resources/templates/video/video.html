@@ -228,10 +228,7 @@
                 $div.className = "text-white px-10 py-2 rounded shadow-md z-50";
                 $div.innerText = "링크가 복사되었습니다!";
                 document.body.appendChild($div);
-
-                setTimeout(() => {
-                    $div.remove();
-                }, 2000);
+                setTimeout(() => $div.remove(), 2000);
 
             } catch (err) {
                 console.error('클립보드 복사 실패:', err);
