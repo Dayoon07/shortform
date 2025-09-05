@@ -43,20 +43,16 @@
             U.USERNAME,
             U.PROFILE_IMG_SRC,
             U.MENTION,
-            L.LIKE_COUNT AS LIKE_COUNT
-        FROM
-            SHORTFORM_COMMENTS C
-                JOIN
-            SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
-                LEFT JOIN (
+            NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT
+        FROM SHORTFORM_COMMENTS C
+        JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+            LEFT JOIN (
                 SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
                 FROM SHORTFORM_COMMENT_LIKES
                 GROUP BY COMMENT_ID
             ) L ON C.ID = L.COMMENT_ID
-        WHERE
-            C.COMMENT_VIDEO_ID = #{id}
-        ORDER BY
-            LIKE_COUNT ASC
+        WHERE C.COMMENT_VIDEO_ID = #{id}
+        ORDER BY LIKE_COUNT DESC
     </select>
     
     <select id="selectByCommentButOrderByIsDesc" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">

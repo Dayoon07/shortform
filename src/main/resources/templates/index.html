@@ -16,7 +16,7 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 pb-[200px]">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[150px]">
                 <div th:each="item, idx : ${videos}" th:if="${idx.index < 100}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
@@ -32,7 +32,7 @@
 
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
-                                    <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
                                 </div>
@@ -78,7 +78,6 @@
                             video.load();
                         }
 
-                        // 마우스 이벤트 등록 (한 번만)
                         const card = video.closest('.relative.group.cursor-pointer');
                         if (card && !card.dataset.listenerAttached) {
                             card.dataset.listenerAttached = "true";

@@ -83,19 +83,18 @@
                         </div>
 
                         <div th:if="${profileInfo.getBio() != null}">
-                            <p th:text="${profileInfo.getBio().length() > 21 ? profileInfo.getBio().substring(0, 20) + '...' : profileInfo.getBio()}"
-                               style="word-wrap: break-word; white-space: pre-wrap;" id="biobiobio"></p>
+                            <p th:text="${profileInfo.getBio().length() > 21 ? profileInfo.getBio().substring(0, 20) + '...' : profileInfo.getBio()}" id="biobiobio"></p>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex border-b border-gray-800 w-full">
                     <a th:href="@{'/@' + ${profileInfo.getMention()}}"
-                        class="flex-1 text-center py-3 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
+                        class="text-center py-3 px-20 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
                         동영상
                     </a>
                     <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
-                        class="flex-1 text-center py-3 font-semibold border-b-2 border-white text-white">
+                        class="text-center py-3 px-20 font-semibold border-b-2 border-white text-white">
                         게시글
                     </a>
                 </div>

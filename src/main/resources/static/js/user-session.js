@@ -484,19 +484,73 @@ class SearchManager {
 
     createSearchPopup(data) {
         const popup = document.createElement("div");
-        popup.classList.add("search-popup", "absolute", "top-32", "left-2", "w-60", "h-auto", "bg-gray-800", "z-90", "text-lg", "rounded-xl");
+        popup.classList.add("search-popup", "absolute", "top-32", "left-2", "w-60", "h-auto",
+            "bg-gray-800", "z-90", "text-lg", "rounded-3xl", "shadow-lg");
 
-        const itemsToShow = Math.min(data.length, 10);
+        const itemsToShow = Math.min(data.length, 7);
         for (let i = 0; i < itemsToShow; i++) {
-            popup.innerHTML += `
-                <div class="py-2 px-4 cursor-pointer rounded-xl hover:bg-gray-900 transition duration-300" 
-                    onclick="location.href = '${location.origin}/search?q=${data[i].searchedWord}'">
-                    ${data[i].searchedWord}
-                </div>
-            `;
+            const item = document.createElement("div");
+            item.className = "flex justify-between items-center py-1.5 pl-4 pr-2 text-md cursor-pointer rounded-full text-white hover:bg-gray-700 transition duration-200";
+            item.id = `item-search-id-${data[i].id}`;
+            item.addEventListener("click", () => location.href = `${location.origin}/search?q=${data[i].searchedWord}`);
+
+            const textDiv = document.createElement("div");
+            textDiv.className = "flex-1 truncate pr-3";
+            textDiv.textContent = data[i].searchedWord;
+
+            const deleteBtn = document.createElement("div");
+            deleteBtn.className = "flex-shrink-0 w-9 h-9 pb-1 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-500 transition duration-200";
+            deleteBtn.dataset.searchId = data[i].id;
+            deleteBtn.innerHTML = "&times;";
+            deleteBtn.addEventListener("click", (e) => this.deleteSearchWord(e));
+
+            item.appendChild(textDiv);
+            item.appendChild(deleteBtn);
+            popup.appendChild(item);
         }
 
         return popup;
+    }
+
+    async deleteSearchWord(e) {
+        e.stopPropagation();
+
+        const sid = e.currentTarget.dataset.searchId;
+        // console.log(sid);
+        // console.log(document.querySelector(`#item-search-id-${sid} > div`));
+        try {
+            const res = await fetch(
+                `${location.origin}/api/search/list/delete`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: JSON.parse(localStorage.getItem("user")).id,
+                        searchWord: document.querySelector(`#item-search-id-${sid} > div`).textContent
+                    })
+                }
+            );
+
+            if (res.ok) {
+                const data = await res.text();
+                // console.log(data);
+
+                const itemToRemove = document.getElementById(`item-search-id-${sid}`);
+                // console.log(itemToRemove);
+
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                    // console.log("아이템이 성공적으로 삭제되었습니다.");
+                } else {
+                    console.error("삭제할 아이템을 찾을 수 없습니다.");
+                }
+            } else {
+                console.error("삭제 실패:", res.status);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     openSearchModal(e) {
@@ -583,19 +637,6 @@ async function akakakakakakaka(param) {
     await searchManager.showSearchSuggestions(param);
 }
 
-// DOM 로드 시 애플리케이션 초기화
-window.addEventListener('DOMContentLoaded', () => {
-    new App();
-
-    const params = new URLSearchParams(location.search);
-    if (params.get('login') === 'success') {
-        const message = params.get('message') || '로그인 성공!';
-        showToast(message, 'success');
-        // URL 파라미터 제거
-        history.replaceState({}, '', location.pathname);
-    }
-});
-
 function showToast(message, type = 'info') {
     const $div = document.createElement("div");
     $div.style.position = "fixed";
@@ -608,3 +649,27 @@ function showToast(message, type = 'info') {
     document.body.appendChild($div);
     setTimeout(() => $div.remove(), 2000);
 }
+
+
+
+
+
+
+
+
+
+
+
+// DOM 로드 시 애플리케이션 초기화
+window.addEventListener('DOMContentLoaded', () => {
+    new App();
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('login') === 'success') {
+        const message = params.get('message') || '로그인 성공!';
+        showToast(message, 'success');
+        // URL 파라미터 제거
+        history.replaceState({}, '', location.pathname);
+    }
+
+});

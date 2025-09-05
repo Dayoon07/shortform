@@ -25,11 +25,9 @@ public class VideoEntity {
     @Column(name = "video_description")
     private String videoDescription;
 
-    @Lob
     @Column(name = "video_name", nullable = false)
     private String videoName;
 
-    @Lob
     @Column(name = "video_src", nullable = false)
     private String videoSrc;
 

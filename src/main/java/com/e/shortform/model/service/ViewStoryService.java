@@ -8,6 +8,7 @@ import com.e.shortform.model.repository.VideoRepo;
 import com.e.shortform.model.repository.ViewStoryRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +36,10 @@ public class ViewStoryService {
 
     public List<ViewStoryEntity> getViewStoryListByUserId(Long userId) {
         return viewStoryRepo.findByUser(userRepo.findById(userId).orElseThrow());
+    }
+
+    public List<ViewStoryEntity> selectAllViewStory() {
+        return viewStoryRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
 }

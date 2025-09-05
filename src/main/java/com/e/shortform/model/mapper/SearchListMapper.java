@@ -8,4 +8,5 @@ import java.util.List;
 @Mapper
 public interface SearchListMapper {
     List<SearchListVo> selectMySearchList(Long id);
+    int deleteSearchWord(Long searchedUserId, String searchedWord);
 }

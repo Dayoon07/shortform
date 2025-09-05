@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(commentData => {
                         commentContainer.innerHTML += `
                             <div class="flex space-x-3">
-                                <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer; width: 32px; height: 32px;">
-                                    <img src="${commentData.profileImgSrc}" alt="프로필" class="w-8 h-8 rounded-full">
+                                <a href="${location.origin}/@${commentData.mention}" style="cursor: pointer; width: 36px; height: 36px;">
+                                    <img src="${commentData.profileImgSrc}" alt="${commentData.username}님의 프로필" style="width: 36px; height: 36px; padding: 2px; border-radius: 9999px; object-fit: cover; background: linear-gradient(to right, #ec4899, #0ea5e9);" />
                                 </a>
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2">
@@ -314,6 +314,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `);
 
+                let currentCount = parseInt(document.getElementById("video-comment-size").textContent.match(/\d+/)[0], 10);
+                currentCount += 1;
+                document.getElementById("video-comment-size").textContent = `댓글 ${currentCount}개`;
+
                 commentText.value = '';
             }
         } catch (error) {
@@ -423,17 +427,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("comment-list-wawawawawa").addEventListener("click", (e) => {
-        // 클릭한 버튼 확인
         const btn = e.target.closest("button.comment");
         if (!btn) return;
 
         console.log("답글 버튼 클릭, 댓글 ID:", btn.dataset.id);
 
-        // 이미 답글 입력창이 있으면 제거 (전체 컨테이너에서 찾기)
         const existingInput = document.querySelector(".reply-input");
         if (existingInput) existingInput.remove();
 
-        // 답글 입력창 생성
         const inputDiv = document.createElement("div");
         inputDiv.className = "reply-input inline-block ml-2";
         inputDiv.innerHTML = `
@@ -447,19 +448,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         `;
 
-        // 버튼들과 입력창 참조
         const replyButton = inputDiv.querySelector(".reply-submit");
         const cancelButton = inputDiv.querySelector(".reply-cancel");
         const replyInput = inputDiv.querySelector("input");
 
-        // 작성 버튼 클릭 이벤트
         replyButton.addEventListener("click", async () => {
             if (replyInput.value.trim() === "") {
                 alert("댓글을 입력해주세요");
                 return;
             }
             console.log("작성된 답글:", replyInput.value, "댓글 ID:", replyInput.dataset.commentReplyId);
-            // 여기에 실제 답글 전송 로직 추가 가능
 
             try {
                 const res = await fetch(`${location.origin}/api/insert/comment/reply`, {
@@ -482,22 +480,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(error);
             }
 
-            // 전송 후 입력창 제거
             inputDiv.remove();
         });
 
-        // 취소 버튼 클릭 이벤트
         cancelButton.addEventListener("click", () => {
             inputDiv.remove();
         });
 
-        // Enter 키로 전송
         replyInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
                 replyButton.click();
             }
-            // ESC 키로 취소
             if (e.key === "Escape") {
                 e.preventDefault();
                 cancelButton.click();

@@ -169,7 +169,7 @@
         <div class="relative w-full h-full flex items-center justify-center p-4">
             <div class="bg-gray-900 rounded-2xl w-full max-w-2xl h-3/4 flex flex-col shadow-2xl">
                 <div class="flex items-center justify-between p-4 border-b border-gray-700">
-                    <h2 th:text="'댓글 ' + ${videoCommentSize} + '개'" class="text-xl font-bold text-white">댓글</h2>
+                    <h2 th:text="'댓글 ' + ${videoCommentSize} + '개'" id="video-comment-size" class="text-xl font-bold text-white">댓글</h2>
                     <div style="display: flex;" class="space-x-4">
                         <div style="display: flex;" class="space-x-2">
                             <button id="popular-sort" class="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
@@ -191,7 +191,8 @@
 
                 <div th:if="${session.user != null}" class="p-4 border-t border-gray-700">
                     <div class="flex space-x-3">
-                        <img th:src="${session.user.getProfileImgSrc()}" alt="내 프로필" class="w-8 h-8 rounded-full object-cover">
+                        <img th:src="${session.user.getProfileImgSrc()}" alt="..."
+                             style="width: 36px; height: 36px; padding: 2px; border-radius: 9999px; object-fit: cover; background: linear-gradient(to right, #ec4899, #0ea5e9);">
                         <div class="flex-1 flex space-x-2 w-full items-center">
                             <textarea name="commentText" id="commentText" th:data-video-id="${videoInfo.getId()}" placeholder="댓글을 입력하세요..." style="resize: none;"
                                 class="flex-1 bg-gray-800 text-white px-3 py-2 h-[40px] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required

@@ -163,7 +163,7 @@ public class VideoService {
     }
 
     public List<VideoEntity> selectAllVideos() {
-        return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "uploadAt"));
+        return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public List<IndexPageAllVideosDto> selectExploreVideoListByTagsButVideoViewsDescFuck(String hashtag) {

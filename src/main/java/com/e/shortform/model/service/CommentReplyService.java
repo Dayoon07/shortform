@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +32,11 @@ public class CommentReplyService {
                 .build();
 
         commentReplyRepo.save(commentReplyEntity);
+        log.info("댓글 들어감!!");
+    }
+
+    public List<CommentReplyEntity> selectAllCommentReply() {
+        return commentReplyRepo.findAll();
     }
 
 

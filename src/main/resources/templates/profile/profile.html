@@ -28,7 +28,7 @@
                                 <h1 th:text="${profileInfo.getUsername()}" id="h1-but-username" class="text-[30px] font-semibold"></h1>
                                 <div class="flex space-x-4">
                                     <small th:text="'@' + ${profileInfo.getMention()}" id="small-tag-but-just-user-mention" class="font-semibold"></small>
-                                    <small class="text-gray-400 cursor-pointer" onclick="document.getElementById('info-modal').classList.remove('hidden')">더보기</small>
+                                    <small class="text-gray-400 hover:underline cursor-pointer" onclick="document.getElementById('info-modal').classList.remove('hidden')">더보기</small>
                                 </div>
                                 <p style="display: none;" th:text="${profileInfo.getMail()}" id="user-mail-nothing-aaaaaaaaa"></p>
                             </div>
@@ -70,11 +70,11 @@
                             <div class="flex space-x-4">
                                 <div>
                                     <span id="following-count" style="font-size: large;" th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;
-                                    <span id="find-following-user-btn" th:data-following-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로우</span>
+                                    <span id="find-following-user-btn" th:data-following-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500 hover:underline">팔로우</span>
                                 </div>
                                 <div>
                                     <span id="follower-count" style="font-size: large;" th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;
-                                    <span id="find-follow-user-btn" th:data-follow-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로워</span>
+                                    <span id="find-follow-user-btn" th:data-follow-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500 hover:underline">팔로워</span>
                                 </div>
                                 <div>
                                     <span style="font-size: large;" th:text="${profileUserVideoInfo.size()}"></span>
@@ -83,19 +83,18 @@
                             </div>
 
                             <div th:if="${profileInfo.getBio() != null}">
-                                <p th:text="${profileInfo.getBio().length() > 21 ? profileInfo.getBio().substring(0, 20) + '...' : profileInfo.getBio()}"
-                                    style="word-wrap: break-word; white-space: pre-wrap;" id="biobiobio"></p>
+                                <p th:text="${profileInfo.getBio().length() > 21 ? profileInfo.getBio().substring(0, 20) + '...' : profileInfo.getBio()}" id="biobiobio"></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex border-b border-gray-800 w-full">
                         <a th:href="@{'/@' + ${profileInfo.getMention()}}"
-                            class="flex-1 text-center py-3 font-semibold border-b-2 border-white text-white">
+                            class="text-center py-3 px-20 font-semibold border-b-2 border-white text-white">
                             동영상
                         </a>
                         <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
-                            class="flex-1 text-center py-3 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
+                            class="text-center py-3 px-20 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
                             게시글
                         </a>
                     </div>
@@ -117,7 +116,7 @@
 
                                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                             <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
-                                                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M8 5v14l11-7z"/>
                                                 </svg>
                                             </div>

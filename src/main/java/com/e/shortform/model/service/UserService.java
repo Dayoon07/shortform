@@ -9,6 +9,7 @@ import com.e.shortform.model.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class UserService {
 
     public List<UserVo> selectAll() {
         return userMapper.selectAll();
+    }
+
+    public List<UserEntity> selectAllUsers() {
+        return userRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public String selectChkUsername(String username) {

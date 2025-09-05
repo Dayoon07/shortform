@@ -10,12 +10,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -202,6 +200,10 @@ public class FollowService {
         public boolean isFollowing() { return isFollowing; }
         public boolean isSuccess() { return success; }
         public String getMessage() { return message; }
+    }
+
+    public List<FollowEntity> selectAllFollow() {
+        return followRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
 }

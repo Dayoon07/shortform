@@ -55,8 +55,8 @@ public class RestMainController {
     }
 
     @GetMapping("/user/all")
-    public ResponseEntity<?> selectAll() {
-        return ResponseEntity.ok(userService.selectAll());
+    public List<UserEntity> selectAll() {
+        return userService.selectAllUsers();
     }
 
     @GetMapping("/video/all")
@@ -500,8 +500,37 @@ public class RestMainController {
     @PostMapping("/insert/comment/reply")
     public ResponseEntity<?> commentReplyInsertLogicFuncFuck(@RequestBody Map<String, Object> req) {
         log.info("commentReplyId: {}, commentReplyText: {}, commentReplyUserId: {}", req.get("commentReplyId"), req.get("commentReplyText"), req.get("commentReplyUserId"));
-        commentReplyService.commentReplyInsertFuck((Long) req.get("commentReplyId"), req.get("commentReplyText").toString(), (Long) req.get("commentReplyUserId"));
+        commentReplyService.commentReplyInsertFuck(
+                Long.parseLong(req.get("commentReplyId").toString()),
+                String.valueOf(req.get("commentReplyText")),
+                Long.parseLong(req.get("commentReplyUserId").toString()));
         return ResponseEntity.ok(Map.of("message", "데이터 보냄"));
+    }
+
+    @GetMapping("/viewstory/all")
+    public List<?> selectAllViewStory() {
+        return viewStoryService.selectAllViewStory();
+    }
+
+    @GetMapping("/search/list/all")
+    public List<?> selectAllSearchList() {
+        return searchListService.selectAllSearchList();
+    }
+
+    @GetMapping("/user/follow/all")
+    public List<?> selectAllFollow() {
+        return followService.selectAllFollow();
+    }
+
+    @PostMapping("/search/list/delete")
+    public String deleteSearchWord(@RequestBody Map<String, Object> req) {
+        log.info("데이터는 {}", Long.parseLong(req.get("id").toString()));
+        return searchListService.deleteSearchWord(Long.parseLong(req.get("id").toString()), String.valueOf(req.get("searchWord")));
+    }
+
+    @GetMapping("/comment/reply/all")
+    public List<?> selectAllCommentReply() {
+        return  commentReplyService.selectAllCommentReply();
     }
 
 }

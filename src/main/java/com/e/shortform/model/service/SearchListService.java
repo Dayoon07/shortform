@@ -9,6 +9,7 @@ import com.e.shortform.model.vo.SearchListVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class SearchListService {
 
     private final SearchListRepo searchListRepo;
     private final SearchListMapper searchListMapper;
+    private final UserRepo userRepo;
 
     public void searchWordRecord(String q) {
         SearchListEntity et = SearchListEntity.builder()
@@ -42,5 +44,19 @@ public class SearchListService {
         return searchListMapper.selectMySearchList(id);
     }
 
+    public List<SearchListEntity> selectAllSearchList() {
+        return searchListRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    }
+
+    public String deleteSearchWord(Long searchedUserId, String searchedWord) {
+        try {
+            // 직접 삭제 - 조회 불필요
+            int deletedCount = searchListMapper.deleteSearchWord(searchedUserId, searchedWord);
+            return deletedCount > 0 ? "검색어 삭제됨" : "삭제할 검색어가 없습니다";
+        } catch (Exception e) {
+            log.error("검색어 삭제 중 오류 발생: {}", e.getMessage());
+            return "삭제 실패";
+        }
+    }
 
 }
