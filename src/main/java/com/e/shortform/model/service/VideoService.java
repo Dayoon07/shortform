@@ -34,7 +34,7 @@ public class VideoService {
             String description,
             String hashtags,
             String visibility,
-            Integer commentsAllowed,
+            String commentsAllowed,
             UserEntity user) {
 
         Map<String, Object> response = new HashMap<>();
@@ -48,7 +48,7 @@ public class VideoService {
             }
 
             // 2. 파일 저장
-            String fileExtension = getFileExtension(file.getOriginalFilename());
+            String fileExtension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
             String savedFileName = UUID.randomUUID().toString() + fileExtension;
             String filePath = uploadPath + savedFileName;
 

@@ -22,7 +22,7 @@ public class IndexPageAllVideosDto {
     private Long videoViews;
     private String videoLoc;
     private String videoWatchAvailability;
-    private Long commentAvailability;
+    private String commentAvailability;
     private LocalDateTime uploadAt;
     private Long uploaderId;
     private String uploaderUsername;

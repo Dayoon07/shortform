@@ -20,7 +20,7 @@ public class VideoVo {
     private String videoLoc;
     private Long uploaderUserId;
     private String videoWatchAvailability;
-    private Integer commentAvailability;
+    private String commentAvailability;
     private LocalDateTime uploadAt;
 
 }

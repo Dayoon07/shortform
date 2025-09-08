@@ -6,6 +6,10 @@
             <a th:href="@{/}">FlipFlop</a>
         </h1>
 
+        <div th:if="${searchWord != null}">
+            <h1 class="text-white font-semibold" th:text="${searchWord}">검색 단어</h1>
+        </div>
+
         <div class="flex justify-around items-center">
             <button id="search-btn-but-app-bar" onclick="openSearchModal(this)" class="nav-btn flex items-center space-x-3 p-3 hover:bg-gray-800/50 rounded-xl transition-colors group"
                     th:if="${session.user != null}" th:data-id="${session.user.getId()}">
@@ -18,18 +22,6 @@
                     <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
             </button>
-
-            <div th:if="${session.user == null}">
-                <button id="signupBtn2"
-                        class="nav-btn px-4 py-1 border-2 border-gray-600 text-gray-300 hover:border-gray-700 hover:bg-gray-800/50 hover:text-white rounded-full transition-colors whitespace-nowrap">
-                    회원가입
-                </button>
-
-                <button id="loginBtn2"
-                        class="nav-btn px-4 py-1 border-2 border-gray-600 text-gray-300 hover:border-gray-700 hover:bg-gray-800/50 hover:text-white rounded-full transition-colors whitespace-nowrap ml-1">
-                    로그인
-                </button>
-            </div>
 
             <details th:if="${session.user != null}" class="z-[91]">
                 <summary class="list-none cursor-pointer w-8 h-8 p-0.5 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 z-[91]">

@@ -41,7 +41,7 @@ public class MainController {
         }
 
         m.addAttribute("videos", videoService.searchLogic(q));
-        m.addAttribute("searchWord", q);
+        m.addAttribute("searchWord", q.length() > 12 ? q.substring(0, 12) + "..." : q);
         return "search/search";
     }
 
@@ -78,8 +78,9 @@ public class MainController {
     public String uploadPage(HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "loginplz/loginplz";
+        } else {
+            return "video/upload";
         }
-        return "video/upload";
     }
 
     @GetMapping("/@{mention}/video/{videoLoc}")
@@ -128,9 +129,7 @@ public class MainController {
     @GetMapping("/following")
     public String followingPage(HttpSession session, Model m) {
         UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null) {
-            return "loginplz/loginplz";
-        }
+        if (user == null) return "loginplz/loginplz";
 
         m.addAttribute("followList", userService.selectProfileUserFollowingList(user.getId()));
         return "follow/following";
@@ -193,7 +192,7 @@ public class MainController {
     }
 
     @GetMapping("/loginplz")
-    public String loginplz() {
+    public String loginplzPage() {
         return "loginplz/loginplz";
     }
 

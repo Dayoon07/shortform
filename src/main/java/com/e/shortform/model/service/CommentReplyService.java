@@ -39,5 +39,10 @@ public class CommentReplyService {
         return commentReplyRepo.findAll();
     }
 
+    public List<CommentReplyEntity> findByParentComment(Long commentId) {
+        CommentEntity parentComment = commentRepo.findById(commentId).orElseThrow();
+        return commentReplyRepo.findByParentComment(parentComment);
+    }
+
 
 }

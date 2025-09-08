@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/custom.css">
     <title>FlipFlop</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body style="background-color: black; color: white; overflow: hidden;">
 
@@ -17,7 +18,23 @@
 
         <main class="flex-1">
             <section class="p-4 m-4">
-                <h1 class="text-3xl text-center font-semibold md:mt-64 mt-32">로그인이 필요합니다.</h1>
+                <div class="text-center md:mt-64 mt-32">
+                    <div class="mb-6">
+                        <i data-lucide="lock" class="w-16 h-16 mx-auto text-gray-400"></i>
+                    </div>
+                    <h1 class="text-3xl font-semibold">로그인이 필요합니다.</h1>
+                    <p class="text-gray-400 mt-4 text-lg">서비스를 이용하려면 먼저 로그인해주세요.</p>
+                </div>
+                <div th:if="${session.user == null}" class="flex justify-center items-center pt-4">
+                    <button id="signupBtn2"
+                            class="nav-btn px-5 py-2 border-2 border-gray-600 text-gray-300 bg-gray-900/50 rounded-full transition-all duration-200 shadow-sm">
+                        회원가입
+                    </button>
+                    <button id="loginBtn2"
+                            class="nav-btn px-5 py-2 border-2 border-gray-600 text-gray-300 bg-gray-900/50 rounded-full transition-all duration-200 shadow-sm ml-2">
+                        로그인
+                    </button>
+                </div>
             </section>
         </main>
     </div>
@@ -27,6 +44,10 @@
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>

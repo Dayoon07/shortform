@@ -296,9 +296,9 @@
             FROM SHORTFORM_VIDEO_LIKES
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
-        AND v.video_tag LIKE '%' || #{hashtag} || '%'
-        ORDER BY v.UPLOAD_AT DESC
+        WHERE VIDEO_WATCH_AVAILABILITY = 'public'
+        AND VIDEO_TAG = #{hashtag}
+        ORDER BY UPLOAD_AT DESC
     </select>
 
     <select id="selectExploreVideoListByTagsButVideoViewsDescFuck" resultMap="IndexPageAllVideosResultMap" parameterType="String">

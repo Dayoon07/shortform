@@ -17,18 +17,16 @@
 
         <main class="flex-1 overflow-y-auto">
             <section>
-                <p th:text="${profileInfo}"></p>
-
-                <div class="flex space-x-6 mb-4 p-6 items-center">
-                    <div>
+                <div class="sm:flex sm:space-x-6 mb-4 p-6 sm:items-center">
+                    <div class="max-sm:flex max-sm:justify-center">
                         <img th:src="${profileInfo.getProfileImgSrc()}" id="profile-img-src" alt="..." class="md:w-44 md:h-44 w-32 h-32 rounded-full object-cover p-1 bg-gradient-to-r from-pink-500 to-sky-500" />
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2 max-sm:text-center">
                         <div>
-                            <h1 th:text="${profileInfo.getUsername()}" id="h1-but-username" class="text-[30px] font-semibold"></h1>
-                            <div class="flex space-x-4">
+                            <h1 th:text="${profileInfo.getUsername()}" id="h1-but-username" class="text-[30px] max-sm:text-center font-semibold"></h1>
+                            <div class="flex space-x-4 max-sm:justify-center">
                                 <small th:text="'@' + ${profileInfo.getMention()}" id="small-tag-but-just-user-mention" class="font-semibold"></small>
-                                <small class="text-gray-400 cursor-pointer" onclick="document.getElementById('info-modal').classList.remove('hidden')">더보기</small>
+                                <small class="text-gray-400 hover:underline cursor-pointer" onclick="document.getElementById('info-modal').classList.remove('hidden')">더보기</small>
                             </div>
                             <p style="display: none;" th:text="${profileInfo.getMail()}" id="user-mail-nothing-aaaaaaaaa"></p>
                         </div>
@@ -67,14 +65,14 @@
                             프로필 편집
                         </button>
 
-                        <div class="flex space-x-4">
+                        <div class="flex space-x-4 max-sm:justify-center">
                             <div>
                                 <span id="following-count" style="font-size: large;" th:text="${profileInfo.getFollowingCount()}"></span>&nbsp;
-                                <span id="find-following-user-btn" th:data-following-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로우</span>
+                                <span id="find-following-user-btn" th:data-following-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500 hover:underline">팔로잉</span>
                             </div>
                             <div>
                                 <span id="follower-count" style="font-size: large;" th:text="${profileInfo.getFollowerCount()}"></span>&nbsp;
-                                <span id="find-follow-user-btn" th:data-follow-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500">팔로워</span>
+                                <span id="find-follow-user-btn" th:data-follow-id="${profileInfo.getId()}" class="cursor-pointer text-gray-500 hover:underline">팔로워</span>
                             </div>
                             <div>
                                 <span style="font-size: large;" th:text="${profileUserVideoInfo.size()}"></span>
@@ -90,11 +88,11 @@
 
                 <div class="flex border-b border-gray-800 w-full">
                     <a th:href="@{'/@' + ${profileInfo.getMention()}}"
-                        class="text-center py-3 px-20 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
+                       class="max-sm:w-full text-center py-3 sm:px-20 font-semibold border-b-2 border-transparent text-gray-400 hover:border-white hover:text-white transition duration-300">
                         동영상
                     </a>
                     <a th:href="@{'/@' + ${profileInfo.getMention()} + '/post'}"
-                        class="text-center py-3 px-20 font-semibold border-b-2 border-white text-white">
+                       class="max-sm:w-full text-center py-3 sm:px-20 font-semibold border-b-2 border-white text-white">
                         게시글
                     </a>
                 </div>

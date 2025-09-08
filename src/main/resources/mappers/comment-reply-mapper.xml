@@ -20,4 +20,25 @@
         <association property="commentVo" javaType="com.e.shortform.model.vo.CommentVo" />
     </resultMap>
 
+<!--    <select id="selectCommentReplyContent" parameterType="Long" resultMap="">-->
+<!--        SELECT-->
+<!--            A.ID AS COMMENT_REPLY_ID,-->
+<!--            A.COMMENT_REPLY_TEXT,-->
+<!--            A.COMMENT_REPLY_USER_ID,-->
+<!--            B.ID AS COMMENT_ID,-->
+<!--            B.COMMENT_TEXT,-->
+<!--            B.COMMENT_USER_ID,-->
+<!--            B.COMMENT_VIDEO_ID,-->
+<!--            C.PROFILE_IMG_SRC,-->
+<!--            C.BIO,-->
+<!--            C.MENTION-->
+<!--        FROM SHORTFORM_COMMENT_REPLYS A-->
+<!--                 JOIN SHORTFORM_COMMENTS B-->
+<!--                      ON A.COMMENT_REPLY_ID = B.ID-->
+<!--                 JOIN SHORTFORM_USERS C-->
+<!--                      ON B.COMMENT_USER_ID = C.ID-->
+<!--        WHERE A.COMMENT_REPLY_ID = 2-->
+<!--        ORDER BY A.CREATE_AT-->
+<!--    </select>-->
+
 </mapper>

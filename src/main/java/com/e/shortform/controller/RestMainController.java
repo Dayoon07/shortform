@@ -135,7 +135,7 @@ public class RestMainController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam("visibility") String visibility,
-            @RequestParam("commentsAllowed") Integer commentsAllowed,
+            @RequestParam("commentsAllowed") String commentsAllowed,
             HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
         Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, user);
@@ -531,6 +531,11 @@ public class RestMainController {
     @GetMapping("/comment/reply/all")
     public List<?> selectAllCommentReply() {
         return  commentReplyService.selectAllCommentReply();
+    }
+
+    @PostMapping("/find/comment/reply/content")
+    public ResponseEntity<List<CommentReplyEntity>> findByCommentReply(@RequestParam Long commentId) {
+        return ResponseEntity.ok(commentReplyService.findByParentComment(commentId));
     }
 
 }

@@ -23,7 +23,7 @@ public class VideoWithUserFuckingDto {
     private String videoLoc;
     private Long uploaderUserId;
     private String videoWatchAvailability;
-    private Long commentAvailability;
+    private String commentAvailability;
     private LocalDateTime uploadAt;
     private Long userId;
     private String username;

@@ -383,7 +383,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const notification = document.createElement('div');
-        notification.className = `notification-toast w-[300px] text-center absolute top-4 left-68 px-6 py-3 rounded-lg text-white z-50 transform translate-x-full transition-transform duration-300 ${
+        notification.style.position = "absolute";
+        notification.style.left = "50%";
+        notification.style.top = "50px";
+        notification.style.transform = 'translate(-50%, -20px)';
+        notification.className = `notification-toast w-[300px] text-center px-6 py-3 rounded-lg text-white z-50 transform translate-x-full transition-transform duration-300 ${
             type === 'success' ? 'bg-green-500' : 'bg-red-500'
         }`;
 

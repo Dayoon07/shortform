@@ -49,7 +49,7 @@ public class VideoEntity {
     private String videoWatchAvailability;
 
     @Column(name = "comment_availability", nullable = false)
-    private Integer commentAvailability;
+    private String commentAvailability;
 
     @CreationTimestamp
     @Column(name = "upload_at", updatable = false)

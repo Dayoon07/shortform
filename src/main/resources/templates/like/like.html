@@ -15,8 +15,8 @@
     <div class="flex h-screen">
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
-        <main class="flex-1 overflow-y-auto p-2" style="z-index: 9;">
-            <div th:if="${likeVideos != null}" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[130px]">
+        <main class="flex-1 overflow-y-auto p-2 md:p-4" style="z-index: 9;">
+            <div th:if="${likeVideos != null}" class="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[100px]">
                 <div th:each="item : ${likeVideos}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
@@ -42,22 +42,24 @@
                     <div class="mt-2 px-1">
                         <a th:href="@{'/@' + ${item.getMention()}}" class="block flex items-center space-x-2 mb-1">
                             <img th:src="${item.getProfileImgSrc()}" class="w-8 h-8 rounded-full object-cover" alt="프로필">
-                            <span class="text-white text-md font-semibold truncate" th:text="${item.getUploaderUsername()}">
-                                    username
-                                </span>
+                            <span class="text-white text-sm md:text-md font-semibold truncate" th:text="${item.getUploaderUsername()}">username</span>
                         </a>
 
-                        <p class="text-gray-300 text-md leading-tight line-clamp-2 mb-1" style="word-wrap: break-word; white-space: pre-wrap;"
-                           th:text="${item.getVideoTitle().length() > 25 ? item.getVideoTitle().substring(0, 25) + '...' : item.getVideoTitle()}">
+                        <p class="text-gray-300 text-sm md:text-md leading-tight line-clamp-2 mb-1 break-words" th:text="${item.getVideoTitle().length() > 25 ? item.getVideoTitle().substring(0, 25) + '...' : item.getVideoTitle()}">
                             영상 제목이나 설명이 여기에 들어갑니다 #해시태그
                         </p>
 
-                        <span class="text-gray-400 text-sm" th:text="${'조회수 ' + item.getVideoViews() + '회'}">조회수 1.2만회</span>
+                        <span class="text-gray-400 text-xs md:text-sm" th:text="${'조회수 ' + @longTypeNumberFormat.formatViewCount(item.getVideoViews())}">조회수 1.2만회</span>
                     </div>
                 </div>
             </div>
-            <div th:if="${#lists.isEmpty(likeVideos)}">
-                <h1 style="color: white; font-size: 30px; font-weight: bold; text-align: center;" class="md:mt-64 mt-32">좋아요를 누른 영상이 없습니다</h1>
+
+            <div th:if="${#lists.isEmpty(likeVideos)}" class="flex flex-col items-center justify-center text-center mt-32 md:mt-64 px-4">
+                <svg class="w-20 h-20 text-gray-400 mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+                <h1 class="text-white text-xl md:text-2xl font-bold">좋아요를 누른 영상이 없습니다</h1>
+                <p class="text-gray-400 text-sm md:text-base mt-2">마음에 드는 영상에 좋아요를 눌러보세요!</p>
             </div>
         </main>
     </div>

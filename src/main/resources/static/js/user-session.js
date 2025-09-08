@@ -563,6 +563,45 @@ class SearchManager {
         }
     }
 
+    async deleteSearchWordWtf(e) {
+        e.stopPropagation();
+
+        const sid = e.target.dataset.searchId;
+        const targetElement = document.querySelector(`#item-search-id-${sid}`);
+        console.log(targetElement);
+
+        try {
+            const res = await fetch(
+                `${location.origin}/api/search/list/delete`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: JSON.parse(localStorage.getItem("user")).id,
+                        searchWord: document.querySelectorAll(`#item-search-id-${sid} > div`)[0].textContent
+                    })
+                }
+            );
+
+            if (res.ok) {
+                const data = await res.text();
+                console.log(data);
+                const itemToRemove = document.getElementById(`item-search-id-${sid}`);
+
+                if (itemToRemove) {
+                    itemToRemove.remove();
+                } else {
+                    console.error("삭제할 아이템을 찾을 수 없습니다.");
+                }
+            } else {
+                console.error("삭제 실패:", res.status);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     createSearchModal() {
         const modal = document.createElement("div");
         modal.classList.add(
@@ -574,28 +613,28 @@ class SearchManager {
         modal.id = "search-modal-popup-what";
 
         modal.innerHTML = `
-            <div class="flex items-center py-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" 
-                    viewBox="0 0 20 20"
-                    onclick="document.getElementById('search-modal-popup-what').remove()" 
-                    fill="none" stroke="currentColor" stroke-width="2" 
-                    stroke-linecap="round" stroke-linejoin="round" 
-                    style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
-                    <line x1="19" y1="12" x2="5" y2="12" />
-                    <polyline points="12 19 5 12 12 5" />
-                </svg>
-                <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
-                    <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
-                        <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                        </svg>
-                    </button>
-                    <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
-                        class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
-                        required>
-                </form>
-            </div>
-        `;
+        <div class="flex items-center py-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" 
+                viewBox="0 0 20 20"
+                onclick="document.getElementById('search-modal-popup-what').remove()" 
+                fill="none" stroke="currentColor" stroke-width="2" 
+                stroke-linecap="round" stroke-linejoin="round" 
+                style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
+                <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
+                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+                <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
+                    class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
+                    required>
+            </form>
+        </div>
+    `;
 
         return modal;
     }
@@ -606,12 +645,25 @@ class SearchManager {
             const data = await response.json();
 
             data.slice(0, 30).forEach(item => {
-                modal.innerHTML += `
-                    <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
-                        onclick="location.href='${location.origin}/search?q=${item.searchedWord}'">
-                        ${item.searchedWord}
-                    </div>
-                `;
+                const historyItem = document.createElement("div");
+                historyItem.className = "flex justify-between items-center";
+                historyItem.id = `item-search-id-${item.id}`; // ✅ item.id 사용
+
+                historyItem.innerHTML = `
+                <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
+                    onclick="location.href='${location.origin}/search?q=${item.searchedWord}'">
+                    ${item.searchedWord}
+                </div>
+                <div class="delete-btn cursor-pointer px-2 py-1 hover:bg-red-600 rounded" 
+                     data-search-id="${item.id}">
+                       &times;
+                </div>
+            `;
+
+                const deleteBtn = historyItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => this.deleteSearchWordWtf(e));
+
+                modal.appendChild(historyItem);
             });
         } catch (error) {
             console.error("Search history error:", error);
@@ -639,10 +691,10 @@ async function akakakakakakaka(param) {
 
 function showToast(message, type = 'info') {
     const $div = document.createElement("div");
-    $div.style.position = "fixed";
+    $div.style.position = "absolute";
     $div.style.left = "50%";
-    $div.style.top = "20px";
-    $div.style.translate = "-50%, 0px";
+    $div.style.top = "50px";
+    $div.style.transform = 'translate(-50%, -20px)';
     $div.style.backgroundColor = type === "success" ? "rgb(22, 163, 74)" : "rgb(107, 114, 128)";
     $div.className = "text-white px-10 py-2 rounded shadow-md z-50";
     $div.innerText = message;
@@ -671,5 +723,40 @@ window.addEventListener('DOMContentLoaded', () => {
         // URL 파라미터 제거
         history.replaceState({}, '', location.pathname);
     }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            this.style.transform = 'scale(0.95)';
+            this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.backgroundColor = '';
+            }, 150);
+        });
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('touchstart', function(e) {
+            this.style.transform = 'scale(0.95)';
+            this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        });
+
+        item.addEventListener('touchend', function(e) {
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.backgroundColor = '';
+            }, 150);
+        });
+
+        item.addEventListener('touchcancel', function(e) {
+            this.style.transform = '';
+            this.style.backgroundColor = '';
+        });
+    });
 
 });

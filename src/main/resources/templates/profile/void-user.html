@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/custom.css">
     <title th:if="${profileInfo != null}" th:text="${profileInfo.getUsername() + ' | FlipFlop'}"></title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body style="background-color: black; color: white; overflow: hidden;">
 
@@ -19,12 +20,17 @@
 
             <section>
                 <div class="text-center w-full mx-auto mt-24">
+                    <div class="mb-6">
+                        <i data-lucide="user-x" class="w-16 h-16 mx-auto text-gray-400"></i>
+                    </div>
                     <h1 class="text-2xl font-bold mb-6 text-white">
                         멘션에 해당하는 사용자가 없습니다
                     </h1>
-                    <div onclick="history.back()" class="inline-block bg-gray-800 rounded-full px-8 py-2 font-semibold transition-colors hover:bg-gray-700"
+                    <p class="text-gray-400 mb-8 text-lg">찾으시는 사용자를 찾을 수 없습니다.</p>
+                    <div onclick="history.back()" class="inline-flex items-center gap-2 bg-gray-800 rounded-full px-8 py-2 font-semibold transition-colors hover:bg-gray-700"
                          style="cursor: pointer; color: white;"
                     >
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
                         돌아가기
                     </div>
                 </div>
@@ -39,6 +45,10 @@
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
 
     <script src="/js/user-session.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>
