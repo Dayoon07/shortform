@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.CommunityCommentReplyMapper">
+
+    <resultMap id="communityCommentReplyResultMap" type="com.e.shortform.model.vo.CommunityCommentReplyVo">
+        <id property="id" column="ID"/>
+        <result property="replyText" column="REPLY_TEXT"/>
+        <result property="replyUserId" column="REPLY_USER_ID"/>
+        <result property="commentId" column="COMMENT_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+    </resultMap>
+
+</mapper>

@@ -250,7 +250,8 @@
             -- 통계 정보
             COALESCE(like_counts.LIKE_COUNT, 0) AS LIKE_COUNT
         FROM SHORTFORM_VIDEOS v
-        JOIN SHORTFORM_VIDEO_LIKES my_like ON v.ID = my_like.LIKE_VIDEO_ID AND my_like.LIKER_USER_ID = #{id}   -- 특정 유저가 좋아요한 영상만
+        JOIN SHORTFORM_VIDEO_LIKES my_like ON v.ID = my_like.LIKE_VIDEO_ID
+            AND my_like.LIKER_USER_ID = #{id}   -- 특정 유저가 좋아요한 영상만
         LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
         LEFT JOIN (
             SELECT
@@ -260,7 +261,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
-        ORDER BY v.UPLOAD_AT DESC
+        ORDER BY my_like.LIKE_AT DESC
     </select>
 
     <select id="selectExploreVideoListByTags" resultMap="IndexPageAllVideosResultMap" parameterType="String">
@@ -297,7 +298,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE VIDEO_WATCH_AVAILABILITY = 'public'
-        AND VIDEO_TAG = #{hashtag}
+        AND REGEXP_LIKE(VIDEO_TAG, '(^| )' || #{hashtag} || '( |$)')
         ORDER BY UPLOAD_AT DESC
     </select>
 

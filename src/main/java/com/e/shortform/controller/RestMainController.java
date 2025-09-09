@@ -524,8 +524,17 @@ public class RestMainController {
 
     @PostMapping("/search/list/delete")
     public String deleteSearchWord(@RequestBody Map<String, Object> req) {
-        log.info("데이터는 {}", Long.parseLong(req.get("id").toString()));
-        return searchListService.deleteSearchWord(Long.parseLong(req.get("id").toString()), String.valueOf(req.get("searchWord")));
+        Object idObj = req.get("id");
+        Object wordObj = req.get("searchWord");
+        log.info("deleteSearchWord req - id: {}, searchWord: {}", idObj, wordObj);
+
+        Long id = Long.parseLong(String.valueOf(idObj));
+        String word = String.valueOf(wordObj).trim();
+
+        String result = searchListService.deleteSearchWord(id, word);
+
+        log.info("deleteSearchWord result: {}", result);
+        return result;
     }
 
     @GetMapping("/comment/reply/all")

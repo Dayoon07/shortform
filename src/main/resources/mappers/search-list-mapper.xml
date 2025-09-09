@@ -31,10 +31,10 @@
         ORDER BY s.CREATE_AT DESC
     </select>
 
-    <delete id="deleteSearchWord">
+    <delete id="deleteSearchWord" parameterType="map">
         DELETE FROM SHORTFORM_SEARCH_LISTS
         WHERE SEARCHED_USER_ID = #{searchedUserId}
-            AND SEARCHED_WORD = #{searchedWord}
+          AND SEARCHED_WORD = #{searchedWord}
     </delete>
 
 </mapper>

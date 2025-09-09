@@ -10,7 +10,7 @@ public class LongTypeNumberFormat {
         } else if (value >= 1_000L) { // 천 이상
             return String.format("%.1fK", value / 1_000.0);
         } else {
-            return value.toString();
+            return value.toString().concat("회");
         }
     }
 

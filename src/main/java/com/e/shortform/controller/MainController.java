@@ -148,9 +148,7 @@ public class MainController {
         UserEntity followUser = userService.findByMention(mention);
 
         // 비디오나 사용자가 없으면 에러 처리
-        if (video == null || followUser == null) {
-            return "error/404";
-        }
+        if (video == null || followUser == null) return "error/404";
 
         // 팔로우 상태 확인 - 로직 개선
         boolean isFollowing = false;
@@ -167,15 +165,10 @@ public class MainController {
         );
 
         // 조회 기록 추가
-        if (user != null) {
-            viewStoryService.userViewstoryInsert(user.getId(), video.getId());
-        }
-
-        // 댓글 수 계산
-        int commentSize = commentService.selectByCommentId(video.getId()).size();
+        if (user != null) viewStoryService.userViewstoryInsert(user.getId(), video.getId());
 
         m.addAttribute("videoInfo", video);
-        m.addAttribute("videoCommentSize", commentSize);
+        m.addAttribute("videoCommentSize", commentService.selectByCommentId(video.getId()).size());
         m.addAttribute("likeCount", likeInfo.getLikeCount());
         m.addAttribute("isLiked", likeInfo.isLiked());
 
@@ -200,6 +193,12 @@ public class MainController {
     public String hashtagPage(@PathVariable String videoTag, Model m) {
         m.addAttribute("hashtagVideo", videoService.selectExploreVideoListButTag(videoTag));
         return "hashtag/hashtag";
+    }
+
+    @GetMapping("/studio/post/write")
+    public String postWritePage(HttpSession s) {
+        if (s.getAttribute("user") == null) return "loginplz/loginplz";
+        return "profile/post-write";
     }
 
 }

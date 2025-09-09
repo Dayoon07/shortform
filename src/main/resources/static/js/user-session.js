@@ -356,8 +356,13 @@ class SignupManager {
 
     showSignupSuccess() {
         const alertDiv = document.createElement("div");
-        alertDiv.innerText = "회원가입이 완료되었습니다.";
-        alertDiv.className = "fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-[9999]";
+        alertDiv.innerHTML = "회원가입이 <br/> 완료되었습니다.";
+        alertDiv.style.position = "absolute";
+        alertDiv.style.left = "50%";
+        alertDiv.style.top = "50px";
+        alertDiv.style.transform = 'translate(-50%, -20px)';
+        alertDiv.style.backgroundColor = "rgb(22, 163, 74)";
+        alertDiv.className = "text-white px-10 py-2 rounded shadow-md z-50 text-center";
         document.body.appendChild(alertDiv);
 
         setTimeout(() => alertDiv.remove(), 3000);
@@ -527,7 +532,7 @@ class SearchManager {
                     },
                     body: JSON.stringify({
                         id: JSON.parse(localStorage.getItem("user")).id,
-                        searchWord: document.querySelector(`#item-search-id-${sid} > div`).textContent
+                        searchWord: document.querySelector(`#item-search-id-${sid} > div`).textContent.trim()
                     })
                 }
             );
@@ -554,6 +559,9 @@ class SearchManager {
     }
 
     openSearchModal(e) {
+        // 이미 모달이 열려 있으면 새로 열지 않음
+        if (document.getElementById("search-modal-popup-what")) return;
+
         const modal = this.createSearchModal();
         document.body.appendChild(modal);
 
@@ -563,10 +571,11 @@ class SearchManager {
         }
     }
 
+
     async deleteSearchWordWtf(e) {
         e.stopPropagation();
 
-        const sid = e.target.dataset.searchId;
+        const sid = e.currentTarget.dataset.searchId;
         const targetElement = document.querySelector(`#item-search-id-${sid}`);
         console.log(targetElement);
 
@@ -606,35 +615,41 @@ class SearchManager {
         const modal = document.createElement("div");
         modal.classList.add(
             "absolute", "top-0", "left-0", "w-full", "h-full",
-            "bg-black/80", "backdrop-blur-xs", "border-b", "border-gray-800",
+            "bg-white/20", "backdrop-blur-md", "border-b", "border-white/30",
             "px-4", "px-3", "py-2", "py-1"
         );
         modal.style.zIndex = 777;
         modal.id = "search-modal-popup-what";
 
         modal.innerHTML = `
-        <div class="flex items-center py-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" 
-                viewBox="0 0 20 20"
-                onclick="document.getElementById('search-modal-popup-what').remove()" 
-                fill="none" stroke="currentColor" stroke-width="2" 
-                stroke-linecap="round" stroke-linejoin="round" 
-                style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px;">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-            </svg>
-            <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
-                <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
-                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                </button>
-                <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
-                    class="w-full pl-10 pr-3 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2"
-                    required>
-            </form>
-        </div>
-    `;
+           <div class="flex items-center py-2">
+               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" 
+                   viewBox="0 0 20 20"
+                   onclick="document.getElementById('search-modal-popup-what').remove()" 
+                   fill="none" stroke="currentColor" stroke-width="2" 
+                   stroke-linecap="round" stroke-linejoin="round" 
+                   style="color: white; margin-right: 10px; cursor: pointer; margin-bottom: 6px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
+                   <line x1="19" y1="12" x2="5" y2="12" />
+                   <polyline points="12 19 5 12 12 5" />
+               </svg>
+               <form action="/search" id="search-form" method="get" autocomplete="off" style="position: relative; width: 100%;">
+                   <button type="submit" class="absolute top-2.5 left-2.5 p-0 bg-transparent border-none cursor-pointer">
+                       <svg class="w-6 h-6 text-white/80 hover:text-white" fill="currentColor" viewBox="0 0 24 24" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
+                           <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                       </svg>
+                   </button>
+                   <input type="text" name="q" placeholder="검색" id="search-input-text" maxlength="100"
+                       class="w-full pl-10 pr-3 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/25"
+                       required style="box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+               </form>
+               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                   stroke-linejoin="round" class="lucide lucide-x-icon lucide-x" onclick="document.getElementById('search-modal-popup-what').remove()" 
+                   style="margin-bottom: 5px; cursor: pointer; color: white; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
+                   <path d="M18 6 6 18"/>
+                   <path d="m6 6 12 12"/>
+               </svg>
+           </div>
+       `;
 
         return modal;
     }
@@ -647,21 +662,21 @@ class SearchManager {
             data.slice(0, 30).forEach(item => {
                 const historyItem = document.createElement("div");
                 historyItem.className = "flex justify-between items-center";
-                historyItem.id = `item-search-id-${item.id}`; // ✅ item.id 사용
+                historyItem.id = `item-search-id-${item.id}`;
 
                 historyItem.innerHTML = `
-                <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
-                    onclick="location.href='${location.origin}/search?q=${item.searchedWord}'">
-                    ${item.searchedWord}
-                </div>
-                <div class="delete-btn cursor-pointer px-2 py-1 hover:bg-red-600 rounded" 
-                     data-search-id="${item.id}">
-                       &times;
-                </div>
-            `;
+                    <div class="py-2 pr-4 pl-12 cursor-pointer rounded-full hover:bg-black/70 hover:backdrop-blur-xs transition duration-300"
+                        onclick="location.href='${location.origin}/search?q=${item.searchedWord}'">
+                        ${item.searchedWord}
+                    </div>
+                    <div class="delete-btn cursor-pointer px-2 py-1 hover:bg-red-600 rounded" 
+                         data-search-id="${item.id}">
+                           &times;
+                    </div>
+                `;
 
                 const deleteBtn = historyItem.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', (e) => this.deleteSearchWordWtf(e));
+                deleteBtn.addEventListener('click', (e) => this.deleteSearchWord(e));
 
                 modal.appendChild(historyItem);
             });

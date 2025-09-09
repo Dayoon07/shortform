@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.e.shortform.model.mapper.CommunityCommentLikeMapper">
+
+    <resultMap id="communityCommentResultMap" type="com.e.shortform.model.vo.CommunityCommentLikeVo">
+        <id property="id" column="ID"/>
+        <result property="likerUserId" column="LIKER_USER_ID"/>
+        <result property="commentId" column="COMMENT_ID"/>
+        <result property="likeAt" column="LIKE_AT"/>
+    </resultMap>
+
+</mapper>

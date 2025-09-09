@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://dayoon07.github.io/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/custom.css">
+    <title>FlipFlop | 커뮤니티 작성</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <style>
+        .drag-drop-area {
+            transition: all 0.3s ease;
+        }
+        .drag-drop-area.drag-over {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+        }
+        .image-preview {
+            position: relative;
+            display: inline-block;
+        }
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            border: 2px solid black;
+        }
+        .char-counter {
+            transition: color 0.3s ease;
+        }
+        .char-counter.warning {
+            color: #f59e0b;
+        }
+        .char-counter.danger {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body style="background-color: black; color: white;">
+
+    <div th:replace="~{fragments/app-bar.html :: app-bar}"></div>
+
+    <div class="flex h-screen">
+        <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
+
+        <main class="flex-1 overflow-y-auto">
+            <section class="max-w-4xl mx-auto px-6 md:py-16 max-md:py-6 max-md:pb-[100px]">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold mb-2">커뮤니티 글 작성</h1>
+                    <p class="text-gray-400">사람들과 생각을 공유해보세요</p>
+                </div>
+                <form id="post-write-form-fuck" class="space-y-6">
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                        <label for="title" class="block text-sm font-semibold text-gray-300 mb-3">제목</label>
+                        <input type="text" id="title" name="title" maxlength="100" placeholder="흥미로운 제목을 작성해보세요..." required
+                                class="w-full bg-black border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors" />
+                        <div class="text-right mt-2">
+                            <span id="titleCounter" class="text-xs text-gray-500 char-counter">0/100</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                        <label for="content" class="block text-sm font-semibold text-gray-300 mb-3">내용</label>
+                        <textarea id="content" name="content" rows="10" maxlength="2000" placeholder="당신의 이야기를 들려주세요..."
+                                class="w-full bg-black border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none"
+                                required
+                        ></textarea>
+                        <div class="text-right mt-2">
+                            <span id="contentCounter" class="text-xs text-gray-500 char-counter">0/2000</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                        <label class="block text-sm font-semibold text-gray-300 mb-3">이미지 첨부</label>
+
+                        <div id="dropArea" class="text-gray-400 drag-drop-area border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-gray-500 transition-colors">
+                            <div style="margin-bottom: 12px; display: flex; justify-content: center; align-items: center; font-size: xxx-large; font-weight: bold;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera">
+                                    <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/>
+                                    <circle cx="12" cy="13" r="3"/>
+                                </svg>
+                            </div>
+                            <p class="mb-2">클릭하거나 파일을 드래그하여 이미지를 업로드하세요</p>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF 파일만 업로드 가능 (최대 5MB, 최대 5장)</p>
+                        </div>
+
+                        <input type="file" id="imageInput" name="images" accept="image/*" multiple class="hidden" />
+                        <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                        <label class="block text-sm font-semibold text-gray-300 mb-4">공개 범위</label>
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-800 p-3 rounded-lg transition-colors">
+                                <input type="radio" name="visibility" checked value="public"
+                                       class="w-5 h-5 text-white bg-black border-gray-600 mt-0.5" />
+                                <div>
+                                    <div class="text-sm font-medium text-gray-300 flex items-center">공개</div>
+                                    <p class="text-xs text-gray-500 mt-1">모든 사용자가 볼 수 있습니다</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-800 p-3 rounded-lg transition-colors">
+                                <input type="radio" name="visibility" value="followers"
+                                       class="w-5 h-5 text-white bg-black border-gray-600 mt-0.5" />
+                                <div>
+                                    <div class="text-sm font-medium text-gray-300 flex items-center">팔로워만</div>
+                                    <p class="text-xs text-gray-500 mt-1">나를 팔로우하는 사용자만 볼 수 있습니다</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-800 p-3 rounded-lg transition-colors">
+                                <input type="radio" name="visibility" value="private"
+                                        class="w-5 h-5 text-white bg-black border-gray-600 mt-0.5" />
+                                <div>
+                                    <div class="text-sm font-medium text-gray-300 flex items-center">비공개</div>
+                                    <p class="text-xs text-gray-500 mt-1">나만 볼 수 있습니다</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-6">
+                        <button type="button" onclick="history.back()" class="px-12 py-3 border border-gray-600 text-gray-300 rounded-xl hover:bg-gray-800 hover:border-gray-500 transition-all">
+                            취소
+                        </button>
+                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+                            게시하기
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
+    <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
+    <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
+
+    <script src="/js/user-session.js"></script>
+    <script src="/js/post-write.js"></script>
+
+</body>
+</html>

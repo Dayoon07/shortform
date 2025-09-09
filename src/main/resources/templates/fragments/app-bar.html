@@ -27,18 +27,21 @@
                 <summary class="list-none cursor-pointer w-8 h-8 p-0.5 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 z-[91]">
                     <img th:src="${session.user.getProfileImgSrc()}" alt="..." class="w-full h-full object-cover rounded-full" />
                 </summary>
-                <div class="absolute right-0 top-14 bg-black border border-gray-800 rounded-md z-[91] text-left">
-                    <a th:href="${'/studio/upload'}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91]">
+                <div class="absolute right-0 top-14 bg-black border border-gray-700 rounded-md z-[91] w-[150px] text-left">
+                    <a th:href="${'/studio/upload'}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
                         업로드
                     </a>
-                    <a th:href="${'/@' + session.user.getMention()}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91]">
+                    <a th:href="${'/@' + session.user.getMention()}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
                         내 채널 보기
                     </a>
-                    <a th:href="@{/likes}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91]">
+                    <a th:href="@{/likes}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
                         좋아요
                     </a>
+                    <a th:href="@{/studio/post/write}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
+                        커뮤니티
+                    </a>
                     <form action="/logout" method="post" class="z-[91]">
-                        <button type="submit" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 z-[91] text-left">
+                        <button type="submit" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] text-left">
                             로그아웃
                         </button>
                     </form>

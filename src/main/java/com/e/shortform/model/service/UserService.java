@@ -61,7 +61,7 @@ public class UserService {
             String fileName = n + UUID.randomUUID().toString().replaceAll("[^a-zA-Z0-9]", "") + exten;
             String uploadDir = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-user-profile-img/";
 
-            String mentionUuid = UUID.randomUUID().toString();
+            String mentionUuid = "user-" + UUID.randomUUID().toString().substring(0, 28);
 
             File dir = new File(uploadDir);
             if (!dir.exists()) {
