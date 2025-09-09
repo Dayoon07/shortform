@@ -1,5 +1,6 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.model.dto.ApiResponse;
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.dto.VideoRequestDto;
 import com.e.shortform.model.dto.VideoResponseDto;
@@ -7,6 +8,7 @@ import com.e.shortform.model.entity.*;
 import com.e.shortform.model.service.*;
 import com.e.shortform.model.vo.SearchListVo;
 import com.e.shortform.model.vo.VideoVo;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -545,6 +547,27 @@ public class RestMainController {
     @PostMapping("/find/comment/reply/content")
     public ResponseEntity<List<CommentReplyEntity>> findByCommentReply(@RequestParam Long commentId) {
         return ResponseEntity.ok(commentReplyService.findByParentComment(commentId));
+    }
+
+    @PostMapping("/post/write")
+    public ResponseEntity<?> createPost(
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam("visibility") String visibility,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            HttpSession session) {
+
+        System.out.println(title + "\n " + content + "\n " + visibility + "\n ");
+
+        if (images == null || images.isEmpty()) {
+            System.out.println("이미지 없음");
+        } else {
+            for (MultipartFile file : images) {
+                System.out.println(file.getOriginalFilename());
+            }
+        }
+
+        return ResponseEntity.ok("");
     }
 
 }
