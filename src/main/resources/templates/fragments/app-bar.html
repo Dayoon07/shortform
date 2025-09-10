@@ -27,21 +27,51 @@
                 <summary class="list-none cursor-pointer w-8 h-8 p-0.5 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 z-[91]">
                     <img th:src="${session.user.getProfileImgSrc()}" alt="..." class="w-full h-full object-cover rounded-full" />
                 </summary>
-                <div class="absolute right-0 top-14 bg-black border border-gray-700 rounded-md z-[91] w-[150px] text-left">
-                    <a th:href="${'/studio/upload'}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
-                        업로드
-                    </a>
-                    <a th:href="${'/@' + session.user.getMention()}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
+                <div class="absolute right-0 top-14 bg-black border border-gray-700 rounded-md z-[91] w-[180px] text-left">
+                    <a th:href="${'/@' + session.user.getMention()}" class="block w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] flex items-center">
+                        <img th:src="${session.user.getProfileImgSrc()}" alt="..." class="w-[26px] h-[26px] p-0.5 object-cover rounded-full cursor-pointer mr-2 bg-gradient-to-r from-pink-500 to-sky-500" />
                         내 채널 보기
                     </a>
-                    <a th:href="@{/likes}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
+                    <a th:href="${'/studio/upload'}" class="block w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] flex items-center">
+                        <svg class="w-6 h-6 text-gray-400 group-hover:text-white mr-2" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                            <path d="M25 15a1 1 0 0 1 1 1v6h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-6v6a1 1 0 0 1-1
+                                1h-2a1 1 0 0 1-1-1v-6h-6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h6v-6a1 1 0 0 1 1-1h2Z">
+                            </path>
+                            <path d="M33.58 4.5H14.42c-1.33 0-2.45 0-3.37.07-.95.08-1.86.25-2.73.7a7 7 0 0 0-3.06 3.05 7.14 7.14 0 0 0-.69 2.73 44.6 44.6 0 0 0-.07 3.37v19.16c0 1.33 0 2.45.07 3.37.08.95.25
+                                1.86.7 2.73a7 7 0 0 0 3.05 3.06c.87.44 1.78.6 2.73.69.92.07 2.04.07 3.37.07h19.16c1.33 0 2.45 0 3.37-.07a7.14 7.14 0 0 0 2.73-.7 7 7 0 0 0
+                                3.06-3.05c.44-.87.6-1.78.69-2.73.07-.92.07-2.04.07-3.37V14.42c0-1.33 0-2.45-.07-3.37a7.14 7.14 0 0 0-.7-2.73 7 7 0 0 0-3.05-3.06 7.14 7.14 0 0 0-2.73-.69 44.6 44.6 0 0 0-3.37-.07ZM10.14
+                                8.83c.2-.1.53-.21 1.24-.27.73-.06 1.69-.06 3.12-.06h19c1.43 0 2.39 0 3.12.06a3.3 3.3 0 0 1 1.24.27 3 3 0 0 1 1.31 1.3c.1.21.21.54.27
+                                1.25.06.73.06 1.69.06 3.12v19c0 1.43 0 2.39-.06 3.12a3.3 3.3 0 0 1-.27 1.24 3 3 0 0 1-1.3 1.31c-.21.1-.54.21-1.25.27-.73.06-1.69.06-3.12.06h-19c-1.43 0-2.39 0-3.12-.06a3.3 3.3 0 0 1-1.24-.27
+                                3 3 0 0 1-1.31-1.3c-.1-.21-.21-.54-.27-1.25-.06-.73-.06-1.69-.06-3.12v-19c0-1.43 0-2.39.06-3.12a3.3 3.3 0 0 1 .27-1.24 3 3 0 0 1 1.3-1.31Z">
+                            </path>
+                        </svg>
+                        업로드
+                    </a>
+                    <a th:href="@{/likes}" class="block w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] flex items-center">
+                        <svg class="w-6 h-6 text-gray-400 group-hover:text-white mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5
+                                  0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
+                        </svg>
                         좋아요
                     </a>
-                    <a th:href="@{/studio/post/write}" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91]">
+                    <a th:href="@{/studio/post/write}" class="block w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-400 group-hover:text-white mr-2 lucide lucide-square-pen-icon lucide-square-pen">
+                            <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/>
+                        </svg>
                         커뮤니티
                     </a>
                     <form action="/logout" method="post" class="z-[91]">
-                        <button type="submit" class="block w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] text-left">
+                        <button type="submit" class="block w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 z-[91] text-left flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-400 group-hover:text-white mr-2 lucide lucide-log-out-icon lucide-log-out">
+                                <path d="m16 17 5-5-5-5"/>
+                                <path d="M21 12H9"/>
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            </svg>
                             로그아웃
                         </button>
                     </form>

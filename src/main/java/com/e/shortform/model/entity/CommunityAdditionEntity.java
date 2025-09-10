@@ -22,12 +22,6 @@ public class CommunityAdditionEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Column(name = "FILE_TYPE", nullable = false)
-    private String fileType;
-
-    @Column(name = "FILE_NAME", nullable = false)
-    private String fileName;
-
     @Column(name = "FILE_SRC", nullable = false)
     private String fileSrc;
 

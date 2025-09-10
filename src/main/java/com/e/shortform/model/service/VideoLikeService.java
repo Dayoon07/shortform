@@ -1,5 +1,6 @@
 package com.e.shortform.model.service;
 
+import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.entity.VideoLikeEntity;
 import com.e.shortform.model.mapper.VideoLikeMapper;
@@ -123,5 +124,12 @@ public class VideoLikeService {
         }
     }
 
+    public long countByVideo(VideoEntity video) {
+        return videoLikeRepo.countByVideo(video);
+    }
+
+    public boolean existsByVideoAndUser(VideoEntity video, UserEntity user) {
+        return videoLikeRepo.existsByVideoAndUser(video, user);
+    }
 
 }

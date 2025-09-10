@@ -1,5 +1,6 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.model.entity.CommunityEntity;
 import com.e.shortform.model.entity.UserEntity;
 import com.e.shortform.model.entity.VideoEntity;
 import com.e.shortform.model.service.*;
@@ -25,6 +26,8 @@ public class MainController {
     private final VideoLikeService videoLikeService;
     private final SearchListService searchListService;
     private final ViewStoryService viewStoryService;
+    private final CommunityService communityService;
+    private final CommunityAdditionService communityAdditionService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -120,6 +123,8 @@ public class MainController {
                 m.addAttribute("isFollowing", false);
             }
 
+            m.addAttribute("posts", communityService.selectByCommunityButWhereId(profileUser.getId()));
+
             return "profile/profile-post";
         } else {
             return "profile/void-user";
@@ -199,6 +204,25 @@ public class MainController {
     public String postWritePage(HttpSession s) {
         if (s.getAttribute("user") == null) return "loginplz/loginplz";
         return "profile/post-write";
+    }
+
+    @GetMapping("/@{mention}/post/{communityUuid}")
+    public String communityArticlePage(@PathVariable String mention, @PathVariable String communityUuid, Model m) {
+        UserEntity user = userService.findByMention(mention);
+        CommunityEntity community = communityService.findByCommunityUuid(communityUuid);
+
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+        }
+        if (community == null) {
+            throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
+        }
+
+        m.addAttribute("communityWriterInfo", user);
+        m.addAttribute("posts", communityService.selectByCommunityButWhereId(user.getId()));
+        m.addAttribute("cat", communityService.findByCommunityBoardFuck(communityUuid));
+
+        return "profile/post-detail";
     }
 
 }

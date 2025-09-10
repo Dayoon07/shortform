@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const mention = document.createElement("span");
             mention.className = "text-sm text-gray-500";
-            mention.textContent = user.mention;
+            mention.textContent = "@" + user.mention;
 
             infoDiv.appendChild(username);
             infoDiv.appendChild(mention);

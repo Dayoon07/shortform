@@ -19,7 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
         videoHistory = [{
             id: currentVideoId,
             url: window.location.pathname,
-            videoData: null // 현재 페이지는 이미 로드되어 있으므로 null
+            videoData: {
+                id: currentVideoId,
+                videoSrc: currentVideo.src,
+                title: document.querySelector(".text-white.font-medium")?.textContent || "",
+                videoLoc: window.location.pathname,
+                uploader: {
+                    mention: "",
+                    username: document.querySelector(".text-sm.font-semibold")?.textContent || ""
+                }
+            }
         }];
         currentVideoIndex = 0;
     }
@@ -58,7 +67,6 @@ async function nextVideo() {
     try {
         showLoadingIndicator();
 
-        // Set을 Array로 변환해서 전송
         const excludeIdsArray = Array.from(watchedVideoIds);
 
         const response = await fetch('/api/videos/random', {
@@ -66,55 +74,36 @@ async function nextVideo() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                excludeIds: excludeIdsArray
-            })
+            body: JSON.stringify({ excludeIds: excludeIdsArray })
         });
 
-        if (!response.ok) {
-            throw new Error('영상을 불러올 수 없습니다.');
-        }
+        if (!response.ok) throw new Error('영상을 불러올 수 없습니다.');
 
         const videoData = await response.json();
 
-        // 더 이상 영상이 없는 경우 처리
         if (videoData.hasMore === false) {
             showErrorMessage('더 이상 시청할 영상이 없습니다.');
             return;
         }
 
-        console.log('새로운 영상:', videoData);
-
-        // 중복 체크 (Set 사용으로 O(1) 시간복잡도)
         if (watchedVideoIds.has(videoData.id)) {
             console.warn('중복 영상 감지, 다시 요청합니다.');
-            nextVideo(); // 재귀 호출로 다시 시도
+            nextVideo();
             return;
         }
 
-        // 새 영상 정보를 기록
         watchedVideoIds.add(videoData.id);
 
-        // 메모리 관리 - Set 크기가 너무 크면 일부 제거
         if (watchedVideoIds.size > 1000) {
             const oldIds = Array.from(watchedVideoIds).slice(0, 500);
             oldIds.forEach(id => watchedVideoIds.delete(id));
         }
 
-        // 히스토리 관리 - 현재 위치 이후의 기록 제거 (앞으로 가기 방지)
         videoHistory = videoHistory.slice(0, currentVideoIndex + 1);
-
-        // 새 영상을 히스토리에 추가
-        videoHistory.push({
-            id: videoData.id,
-            url: `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`,
-            videoData: videoData
-        });
+        videoHistory.push({ id: videoData.id, url: `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`, videoData });
         currentVideoIndex = videoHistory.length - 1;
 
-        // 페이지 이동
-        const newUrl = `${location.origin}/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`;
-        await transitionToVideo(newUrl);
+        await transitionToVideo(videoData);
 
     } catch (error) {
         console.error('다음 영상 로딩 실패:', error);
@@ -135,49 +124,175 @@ async function prevVideo() {
         showLoadingIndicator();
 
         currentVideoIndex--;
-        const prevVideoData = videoHistory[currentVideoIndex];
+        const prevVideoData = videoHistory[currentVideoIndex].videoData;
 
         console.log('이전 영상으로 이동:', prevVideoData);
-
-        // 이전 영상의 전체 URL로 이동
-        let targetUrl;
-        if (prevVideoData.url.startsWith('http')) {
-            targetUrl = prevVideoData.url;
-        } else {
-            targetUrl = `${location.origin}${prevVideoData.url}`;
-        }
-
-        await transitionToVideo(targetUrl);
+        await transitionToVideo(prevVideoData);
 
     } catch (error) {
         console.error('이전 영상 로딩 실패:', error);
         showErrorMessage('이전 영상을 불러올 수 없습니다.');
-        currentVideoIndex++; // 실패시 인덱스 복원
+        currentVideoIndex++;
     } finally {
         hideLoadingIndicator();
     }
 }
 
-// 부드러운 페이지 전환
-async function transitionToVideo(url) {
+// 부드러운 페이지 전환 (SPA 스타일) - 모든 UI 요소 업데이트
+async function transitionToVideo(videoData) {
     try {
-        console.log('페이지 전환:', url);
+        const mainVideo = document.getElementById('main-video');
+        if (!mainVideo) return;
 
         // 페이드 아웃 효과
-        const mainVideo = document.getElementById('main-video');
-        if (mainVideo) {
-            mainVideo.style.transition = 'opacity 0.3s ease-in-out';
-            mainVideo.style.opacity = '0';
-        }
+        mainVideo.style.transition = 'opacity 0.3s ease-in-out';
+        mainVideo.style.opacity = '0';
 
-        // 잠시 대기 후 페이지 이동
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // 직접 페이지 이동 (History API 대신)
-        window.location.href = url;
+        // 영상 소스 변경
+        mainVideo.src = videoData.videoSrc;
+        mainVideo.dataset.videoId = videoData.id;
+        mainVideo.load();
+        mainVideo.play();
+
+        // === 업로더 정보 업데이트 ===
+        // 프로필 이미지들 업데이트
+        const profileImages = document.querySelectorAll('img[alt="프로필"]');
+        profileImages.forEach(img => {
+            if (videoData.uploader.profileImgSrc) {
+                img.src = videoData.uploader.profileImgSrc;
+            }
+        });
+
+        // 업로더 이름과 링크 업데이트
+        const usernameElements = document.querySelectorAll('a[href*="/@"]');
+        usernameElements.forEach(link => {
+            if (videoData.uploader.mention) {
+                link.href = `/@${videoData.uploader.mention}`;
+            }
+        });
+
+        // 사용자 이름 텍스트 업데이트
+        const usernameSpans = document.querySelectorAll('.text-sm.font-semibold span, .text-lg.font-semibold span');
+        usernameSpans.forEach(span => {
+            if (videoData.uploader.username) {
+                const username = videoData.uploader.username;
+                span.textContent = username.length > 10 ? username.substring(0, 10) + '...' : username;
+            }
+        });
+
+        // 멘션 텍스트 업데이트
+        const mentionSpans = document.querySelectorAll('.text-gray-300 span');
+        mentionSpans.forEach(span => {
+            if (videoData.uploader.mention) {
+                const mention = videoData.uploader.mention;
+                span.textContent = mention.length > 10 ? `@${mention.substring(0, 10)}...` : `@${mention}`;
+            }
+        });
+
+        // === 영상 정보 업데이트 ===
+        // 제목 업데이트
+        const titleElements = document.querySelectorAll('.text-white.font-medium');
+        titleElements.forEach(el => {
+            if (videoData.title) {
+                el.textContent = videoData.title;
+            }
+        });
+
+        // 설명 업데이트
+        const descriptionElements = document.querySelectorAll('.text-gray-300.line-clamp-2');
+        descriptionElements.forEach(el => {
+            if (videoData.description) {
+                el.textContent = videoData.description;
+            }
+        });
+
+        // === 태그 업데이트 ===
+        const tagContainer = document.querySelector('.flex.flex-wrap.gap-1');
+        if (tagContainer && videoData.videoTag) {
+            tagContainer.innerHTML = '';
+            const tags = videoData.videoTag.split(' ').filter(tag => tag.trim());
+            tags.forEach(tag => {
+                const tagElement = document.createElement('a');
+                tagElement.href = `/hashtag/${tag}`;
+                tagElement.textContent = tag;
+                tagElement.className = 'text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200';
+                tagContainer.appendChild(tagElement);
+            });
+        } else if (tagContainer && !videoData.videoTag) {
+            tagContainer.innerHTML = ''; // 태그가 없으면 비우기
+        }
+
+        // === 상호작용 요소 업데이트 ===
+        // 좋아요 버튼 업데이트
+        const likeBtn = document.querySelector("#like-btn");
+        if (likeBtn) {
+            likeBtn.dataset.videoId = videoData.id;
+            likeBtn.dataset.isLiked = videoData.isLiked || 'false';
+
+            const heartIcon = likeBtn.querySelector('svg');
+            if (heartIcon) {
+                if (videoData.isLiked) {
+                    heartIcon.classList.remove('heart-empty');
+                    heartIcon.classList.add('heart-filled');
+                } else {
+                    heartIcon.classList.remove('heart-filled');
+                    heartIcon.classList.add('heart-empty');
+                }
+            }
+        }
+
+        // 좋아요 수 업데이트
+        const likeCountElements = document.querySelectorAll("#like-count");
+        likeCountElements.forEach(el => {
+            el.textContent = videoData.likeCount || '0';
+        });
+
+        // 댓글 수 업데이트
+        const commentCountElements = document.querySelectorAll('span');
+        commentCountElements.forEach(el => {
+            if (el.textContent === '댓글' || el.textContent.includes('댓글')) {
+                el.textContent = videoData.commentCount || '0';
+            }
+        });
+
+        // 댓글 모달 헤더의 댓글 수 업데이트
+        const commentModalHeader = document.querySelector('#video-comment-size');
+        if (commentModalHeader) {
+            commentModalHeader.textContent = `댓글 ${videoData.commentCount || 0}개`;
+        }
+
+        // 댓글 모달의 댓글 목록 초기화
+        const commentList = document.querySelector('#comment-list-wawawawawa');
+        if (commentList) {
+            commentList.dataset.videoId = videoData.id;
+            commentList.innerHTML = ''; // 이전 댓글들 제거
+        }
+
+        // 댓글 텍스트 영역 업데이트
+        const commentTextarea = document.querySelector('#commentText');
+        if (commentTextarea) {
+            commentTextarea.dataset.videoId = videoData.id;
+            commentTextarea.value = ''; // 텍스트 영역 초기화
+        }
+
+        // 페이지 제목 업데이트
+        if (videoData.title) {
+            document.title = `${videoData.title} | FlipFlop`;
+        }
+
+        // URL 업데이트
+        const newUrl = `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`;
+        history.pushState({ videoId: videoData.id }, '', newUrl);
+
+        // 페이드 인 효과
+        mainVideo.style.opacity = '1';
+
+        console.log('영상 전환 완료:', videoData);
 
     } catch (error) {
-        console.error('페이지 전환 실패:', error);
+        console.error('영상 전환 실패:', error);
         throw error;
     }
 }
@@ -202,18 +317,13 @@ function showLoadingIndicator() {
 // 로딩 인디케이터 숨김
 function hideLoadingIndicator() {
     const loader = document.getElementById('video-loading');
-    if (loader) {
-        loader.remove();
-    }
+    if (loader) loader.remove();
 }
 
 // 에러 메시지 표시
 function showErrorMessage(message) {
-    // 기존 에러 메시지가 있으면 제거
     const existingError = document.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
-    }
+    if (existingError) existingError.remove();
 
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
@@ -222,9 +332,7 @@ function showErrorMessage(message) {
     document.body.appendChild(errorDiv);
 
     setTimeout(() => {
-        if (errorDiv.parentNode) {
-            errorDiv.remove();
-        }
+        if (errorDiv.parentNode) errorDiv.remove();
     }, 3000);
 }
 
@@ -232,46 +340,26 @@ function showErrorMessage(message) {
 document.addEventListener('keydown', function(e) {
     const tagName = e.target.tagName.toLowerCase();
     const isTyping = tagName === 'input' || tagName === 'textarea' || e.target.isContentEditable;
-
-    if (isTyping) return; // 입력창에서 누른 키는 무시
+    if (isTyping) return;
 
     switch(e.key) {
-        case 'ArrowDown':
-            e.preventDefault();
-            nextVideo();
-            break;
-        case 'ArrowUp':
-            e.preventDefault();
-            prevVideo();
-            break;
+        case 'ArrowDown': e.preventDefault(); nextVideo(); break;
+        case 'ArrowUp': e.preventDefault(); prevVideo(); break;
         case ' ': // 스페이스바
             e.preventDefault();
             const video = document.getElementById('main-video');
-            if (video) {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            }
+            if (video) video.paused ? video.play() : video.pause();
             break;
     }
 });
 
-// 브라우저 뒤로가기/앞으로가기 지원
-window.addEventListener('popstate', function(e) {
-    console.log('브라우저 네비게이션 감지');
-    // 필요하다면 여기서 현재 상태를 업데이트
-});
-
-// 디버깅용 함수들
+// 디버깅용
 window.debugVideoHistory = function() {
     console.log('현재 히스토리:', videoHistory);
     console.log('현재 인덱스:', currentVideoIndex);
     console.log('시청한 영상 개수:', watchedVideoIds.size);
 };
 
-// 페이지 언로드 시 정리
 window.addEventListener('beforeunload', function() {
     hideLoadingIndicator();
 });

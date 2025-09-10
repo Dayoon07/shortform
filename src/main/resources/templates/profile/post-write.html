@@ -61,26 +61,6 @@
                 </div>
                 <form id="post-submit-fuck" class="space-y-6">
                     <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
-                        <label for="title" class="block text-sm font-semibold text-gray-300 mb-3">제목</label>
-                        <input type="text" id="title" name="title" maxlength="100" placeholder="흥미로운 제목을 작성해보세요..." required
-                                class="w-full bg-black border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors" />
-                        <div class="text-right mt-2">
-                            <span id="titleCounter" class="text-xs text-gray-500 char-counter">0/100</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
-                        <label for="content" class="block text-sm font-semibold text-gray-300 mb-3">내용</label>
-                        <textarea id="content" name="content" rows="10" maxlength="2000" placeholder="당신의 이야기를 들려주세요..."
-                                class="w-full bg-black border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none"
-                                required
-                        ></textarea>
-                        <div class="text-right mt-2">
-                            <span id="contentCounter" class="text-xs text-gray-500 char-counter">0/2000</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
                         <label class="block text-sm font-semibold text-gray-300 mb-3">이미지 첨부</label>
 
                         <div id="dropArea" class="text-gray-400 drag-drop-area border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-gray-500 transition-colors">
@@ -96,6 +76,17 @@
 
                         <input type="file" id="imageInput" name="images" accept="image/*" multiple class="hidden" />
                         <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                        <label for="content" class="block text-sm font-semibold text-gray-300 mb-3">내용</label>
+                        <textarea id="content" name="content" rows="10" maxlength="2000"
+                                  placeholder="팔로워들을 위해 새로운 소식을 올려보세요. (글 또는 이미지만으로도 게시할 수 있어요)"
+                                  class="w-full bg-black border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none"
+                        ></textarea>
+                        <div class="text-right mt-2">
+                            <span id="contentCounter" class="text-xs text-gray-500 char-counter">0/2000</span>
+                        </div>
                     </div>
 
                     <div class="bg-gray-900 rounded-2xl p-6 border border-gray-700">

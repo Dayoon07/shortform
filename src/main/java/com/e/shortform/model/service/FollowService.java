@@ -206,4 +206,8 @@ public class FollowService {
         return followRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
+    public boolean existsByFollowUserAndFollowedUser(UserEntity followUser, UserEntity followedUser) {
+        return followRepo.existsByFollowUserAndFollowedUser(followUser, followedUser);
+    }
+
 }

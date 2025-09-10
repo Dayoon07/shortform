@@ -4,8 +4,6 @@
 
     <resultMap id="communityAdditionResultMap" type="com.e.shortform.model.vo.CommunityAdditionVo">
         <id property="id" column="id"/>
-        <result property="fileType" column="FILE_TYPE"/>
-        <result property="fileName" column="FILE_NAME"/>
         <result property="fileSrc" column="FILE_SRC"/>
         <result property="communityId" column="COMMUNITY_ID"/>
         <result property="uploadAt" column="UPLOAD_AT"/>

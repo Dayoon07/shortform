@@ -38,6 +38,8 @@ public class RestMainController {
     private final ViewStoryService viewStoryService;
     private final CommentLikeService commentLikeService;
     private final CommentReplyService commentReplyService;
+    private final CommunityService communityService;
+    private final CommunityAdditionService communityAdditionService;
 
     @Data
     @NoArgsConstructor
@@ -414,8 +416,13 @@ public class RestMainController {
     @PostMapping("/videos/random")
     public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
+
         try {
             List<Long> excludeIds = request.getExcludeIds();
+            excludeIds = excludeIds.stream()
+                    .filter(Objects::nonNull)
+                    .toList();
+
             if (excludeIds == null) {
                 excludeIds = new ArrayList<>();
             }
@@ -454,19 +461,22 @@ public class RestMainController {
                 }
             }
 
+            // ✅ randomVideo가 확실히 null이 아닌 상태에서 추가 데이터 조회
+            Long likeCnt = videoLikeService.countByVideo(randomVideo);
+            Long commentCnt = commentService.countByVideo(randomVideo);
+            boolean isLiked = user != null ? videoLikeService.existsByVideoAndUser(randomVideo, user) : false;
+            boolean isFollowing = user != null ? followService.existsByFollowUserAndFollowedUser(user, randomVideo.getUploader()) : false;
+
             log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
 
             if (user != null) viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
 
             return ResponseEntity.ok(Map.of(
-                    "id", randomVideo.getId(),
-                    "title", randomVideo.getVideoTitle(),
-                    "videoSrc", randomVideo.getVideoSrc(),
-                    "videoLoc", randomVideo.getVideoLoc(),
-                    "uploader", Map.of(
-                            "mention", randomVideo.getUploader().getMention(),
-                            "username", randomVideo.getUploader().getUsername()
-                    ),
+                    "video", randomVideo,
+                    "likeCnt", likeCnt,
+                    "commentCnt", commentCnt,
+                    "isLiked", isLiked,
+                    "isFollowing", isFollowing,
                     "hasMore", true
             ));
 
@@ -550,24 +560,125 @@ public class RestMainController {
     }
 
     @PostMapping("/post/write")
-    public ResponseEntity<?> createPost(
-            @RequestParam("title") String title,
-            @RequestParam("content") String content,
+    public ResponseEntity<Map<String, Object>> createPost(
+            @RequestParam(value = "content", required = false) String content,
             @RequestParam("visibility") String visibility,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             HttpSession session) {
 
-        System.out.println(title + "\n " + content + "\n " + visibility + "\n ");
+        Map<String, Object> response = new HashMap<>();
 
-        if (images == null || images.isEmpty()) {
-            System.out.println("이미지 없음");
-        } else {
-            for (MultipartFile file : images) {
-                System.out.println(file.getOriginalFilename());
+        try {
+            // 기본 입력 검증
+            boolean hasContent = content != null && !content.trim().isEmpty();
+            boolean hasImages = images != null && !images.isEmpty() &&
+                    images.stream().anyMatch(file -> !file.isEmpty());
+
+            // 내용과 이미지 중 하나라도 있어야 함
+            if (!hasContent && !hasImages) {
+                response.put("success", false);
+                response.put("message", "글 내용 또는 이미지 중 하나는 입력해주세요");
+                return ResponseEntity.badRequest().body(response);
             }
-        }
 
-        return ResponseEntity.ok("");
+            // 내용 길이 검증 (내용이 있을 경우만)
+            if (hasContent && content.trim().length() > 2000) {
+                response.put("success", false);
+                response.put("message", "내용은 2000자 이하로 작성해주세요");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 이미지 개수 검증
+            if (hasImages && images.size() > 5) {
+                response.put("success", false);
+                response.put("message", "이미지는 최대 5장까지 업로드 가능합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 파일 크기 및 타입 검증 (이미지가 있을 경우만)
+            if (hasImages) {
+                long maxSize = 5 * 1024 * 1024; // 5MB
+                for (MultipartFile file : images) {
+                    if (file.isEmpty()) continue;
+
+                    if (file.getSize() > maxSize) {
+                        response.put("success", false);
+                        response.put("message", "파일 크기는 5MB 이하여야 합니다");
+                        return ResponseEntity.badRequest().body(response);
+                    }
+
+                    if (!file.getContentType().startsWith("image/")) {
+                        response.put("success", false);
+                        response.put("message", "이미지 파일만 업로드 가능합니다");
+                        return ResponseEntity.badRequest().body(response);
+                    }
+                }
+            }
+
+            // 서비스 호출 - content가 null이어도 서비스에서 처리
+            String result = communityService.createPost(content, visibility, images, session);
+
+            response.put("success", true);
+            response.put("message", "게시글이 성공적으로 작성되었습니다");
+            response.put("data", result);
+
+            // 로깅도 업데이트
+            String postType = getPostTypeForLog(hasContent, hasImages);
+            log.info("게시글 작성 성공 - 사용자: {}, 유형: {}, 내용 길이: {}, 이미지 수: {}",
+                    session.getAttribute("user"), postType,
+                    hasContent ? content.length() : 0,
+                    hasImages ? images.size() : 0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("게시글 작성 실패 - 잘못된 입력: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+
+        } catch (SecurityException e) {
+            log.warn("게시글 작성 실패 - 권한 없음: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", "권한이 없습니다");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+
+        } catch (Exception e) {
+            log.error("게시글 작성 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 로깅용 게시글 유형 반환
+     */
+    private String getPostTypeForLog(boolean hasContent, boolean hasImages) {
+        if (hasContent && hasImages) {
+            return "텍스트+이미지";
+        } else if (hasContent) {
+            return "텍스트만";
+        } else if (hasImages) {
+            return "이미지만";
+        } else {
+            return "빈 게시글";
+        }
+    }
+
+    @GetMapping("/find/community/all")
+    public List<?> selectAllCommunity() {
+        return communityService.selectAllCommunity();
+    }
+
+    @GetMapping("/find/community/list")
+    public List<?> selectByCommunityBut(@RequestParam Long id) {
+        return communityService.selectByCommunityButWhereId(id);
+    }
+
+    @GetMapping("/find/community/addition/all")
+    public List<?> selectAllCommunityAddition() {
+        return communityAdditionService.findAll();
     }
 
 }

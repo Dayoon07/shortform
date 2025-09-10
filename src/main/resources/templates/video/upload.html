@@ -18,10 +18,9 @@
         <main class="flex-1">
             <section class="w-full md:h-full md:flex md:flex-col items-center justify-center px-4 py-6">
                 <div id="dropzone"
-                     class="w-full max-w-3xl border-2 border-dashed border-gray-300 bg-gray-100 hover:bg-gray-200 transition p-4 md:p-10 rounded-2xl max-md:mt-20 text-center cursor-pointer relative">
+                     class="w-full max-w-3xl border-2 border-dashed border-gray-300 bg-gray-100 hover:bg-gray-200 transition p-4 md:p-10 rounded-2xl max-md:mt-28 text-center cursor-pointer relative">
                     <input id="fileInput" type="file" accept="video/*" class="hidden" />
 
-                    <!-- 업로드 안내 영역 -->
                     <div id="upload-area" class="flex flex-col items-center">
                         <img src="/img/upload-icon.svg" alt="..." class="w-16 h-16 md:w-20 md:h-20" />
                         <p class="text-base md:text-lg font-semibold text-gray-800 mt-2">업로드할 동영상 선택</p>
@@ -32,13 +31,11 @@
                         </button>
                     </div>
 
-                    <!-- 미리보기 -->
                     <div id="preview-area" class="hidden mt-4">
                         <video id="video-preview" class="w-full max-w-md mx-auto rounded-lg mb-4" controls></video>
                         <p id="file-info" class="text-xs md:text-sm text-gray-600 mb-4"></p>
                     </div>
 
-                    <!-- 파일 처리 프로그레스 -->
                     <div id="file-progress" class="hidden w-full mt-4">
                         <div class="flex justify-between items-center mb-2 text-xs md:text-sm">
                             <span class="font-medium text-gray-700">파일 처리 중...</span>
@@ -49,7 +46,6 @@
                         </div>
                     </div>
 
-                    <!-- 업로드 프로그레스 -->
                     <div id="upload-progress" class="hidden w-full mt-4">
                         <div class="flex justify-between items-center mb-2 text-xs md:text-sm">
                             <span class="font-medium text-gray-700">서버 업로드 중...</span>
@@ -61,7 +57,6 @@
                     </div>
                 </div>
 
-                <!-- 안내 텍스트 -->
                 <div class="flex flex-col lg:flex-row lg:flex-wrap lg:justify-center lg:gap-8 text-xs md:text-sm text-gray-700 mt-6 space-y-4 lg:space-y-0">
                     <div class="text-white">
                         <div class="flex items-start gap-2">

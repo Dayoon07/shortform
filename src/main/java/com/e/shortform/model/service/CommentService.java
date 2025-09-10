@@ -62,4 +62,8 @@ public class CommentService {
         return commentRepo.findAll();
     }
 
+    public long countByVideo(VideoEntity video) {
+        return commentRepo.countByVideo(video);
+    }
+
 }

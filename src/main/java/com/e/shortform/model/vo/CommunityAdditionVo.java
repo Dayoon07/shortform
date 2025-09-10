@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 public class CommunityAdditionVo {
 
     private Long id;
-    private String fileType;
-    private String fileName;
     private String fileSrc;
     private Long communityId;
     private LocalDateTime uploadAt;

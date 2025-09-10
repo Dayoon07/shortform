@@ -23,7 +23,7 @@ public class CommunityEntity {
     private Long id;
 
     @Lob
-    @Column(name = "COMMUNITY_TEXT", nullable = false)
+    @Column(name = "COMMUNITY_TEXT")
     private String communityText;
 
     @ManyToOne
