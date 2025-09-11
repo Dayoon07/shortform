@@ -4,8 +4,8 @@ const videoWrapper = document.getElementById("video-container-fuck");
 let startY = 0;
 
 // 시청한 영상 ID들을 추적 (중복 방지용)
-let watchedVideoIds = new Set(); // Array 대신 Set 사용으로 중복 체크 성능 향상
-let videoHistory = []; // 이전 영상으로 돌아가기용
+let watchedVideoIds = new Set();
+let videoHistory = [];
 let currentVideoIndex = 0;
 
 // 페이지 로드시 현재 영상 ID를 추가
@@ -15,39 +15,53 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentVideoId = parseInt(currentVideo.dataset.videoId);
         watchedVideoIds.add(currentVideoId);
 
-        // 현재 영상을 히스토리의 첫 번째 항목으로 설정
-        videoHistory = [{
-            id: currentVideoId,
-            url: window.location.pathname,
-            videoData: {
-                id: currentVideoId,
-                videoSrc: currentVideo.src,
-                title: document.querySelector(".text-white.font-medium")?.textContent || "",
-                videoLoc: window.location.pathname,
-                uploader: {
-                    mention: "",
-                    username: document.querySelector(".text-sm.font-semibold")?.textContent || ""
-                }
-            }
-        }];
+        // 현재 영상 데이터 수집
+        const currentVideoData = collectCurrentVideoData();
+        videoHistory = [currentVideoData];
         currentVideoIndex = 0;
     }
 });
 
+// 현재 페이지의 영상 데이터를 수집하는 함수
+function collectCurrentVideoData() {
+    const currentVideo = document.getElementById('main-video');
+    const likeBtn = document.getElementById('like-btn');
+    const followBtn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
+
+    return {
+        id: parseInt(currentVideo.dataset.videoId),
+        videoSrc: currentVideo.src,
+        videoLoc: currentVideo.dataset.videoLoc,
+        title: document.getElementById("video-title").textContent || '',
+        description: document.getElementById("video-description").textContent || '',
+        videoTag: document.getElementById("main-video-info-tag-fuck")?.value || '',
+        uploader: {
+            id: document.getElementById("uploader-profile-img-src").dataset.userId,
+            mention: document.querySelector(".uploader-mention").textContent.replace('@', ''),
+            username: document.querySelector(".uploader-username").textContent || '',
+            profileImgSrc: document.getElementById("uploader-profile-img-src").src
+        },
+        likeCount: document.getElementById("like-count")?.textContent || document.querySelector(".like-count")?.textContent || '0',
+        commentCount: document.getElementById("comment-btn").nextElementSibling?.textContent || '0',
+        isLiked: likeBtn ? likeBtn.dataset.isLiked === "true" : false,
+        isFollowing: followBtn ? followBtn.id === 'user-following-btn' : false
+    };
+}
+
 // 모바일 터치 시작
-videoWrapper.addEventListener("touchstart", (e) => {
+window.addEventListener("touchstart", (e) => {
     startY = e.touches[0].clientY;
 });
 
 // 모바일 터치 끝
-videoWrapper.addEventListener("touchend", (e) => {
+window.addEventListener("touchend", (e) => {
     const endY = e.changedTouches[0].clientY;
     handleSwipe(startY - endY);
 });
 
 // PC 휠 이벤트
-videoWrapper.addEventListener("wheel", (e) => {
-    e.preventDefault(); // 기본 스크롤 방지
+window.addEventListener("wheel", (e) => {
+    e.preventDefault();
     handleSwipe(e.deltaY);
 });
 
@@ -67,9 +81,19 @@ async function nextVideo() {
     try {
         showLoadingIndicator();
 
-        const excludeIdsArray = Array.from(watchedVideoIds);
+        // 현재 히스토리에서 다음 영상이 있는지 확인
+        if (currentVideoIndex < videoHistory.length - 1) {
+            // 히스토리에서 다음 영상으로 이동
+            currentVideoIndex++;
+            const nextVideoData = videoHistory[currentVideoIndex];
+            console.log('히스토리에서 다음 영상으로 이동:', nextVideoData);
+            await transitionToVideo(nextVideoData);
+            return;
+        }
 
-        const response = await fetch('/api/videos/random', {
+        // 새로운 영상을 서버에서 가져오기
+        const excludeIdsArray = Array.from(watchedVideoIds);
+        const response = await fetch(`${location.origin}/api/videos/random`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,11 +103,17 @@ async function nextVideo() {
 
         if (!response.ok) throw new Error('영상을 불러올 수 없습니다.');
 
-        const videoData = await response.json();
+        const responseData = await response.json();
+        console.log('서버 응답:', responseData);
 
-        if (videoData.hasMore === false) {
+        if (responseData.hasMore === false) {
             showErrorMessage('더 이상 시청할 영상이 없습니다.');
             return;
+        }
+
+        const videoData = normalizeVideoData(responseData);
+        if (!videoData || !videoData.id) {
+            throw new Error('유효하지 않은 영상 데이터입니다.');
         }
 
         if (watchedVideoIds.has(videoData.id)) {
@@ -94,13 +124,14 @@ async function nextVideo() {
 
         watchedVideoIds.add(videoData.id);
 
+        // 메모리 관리
         if (watchedVideoIds.size > 1000) {
             const oldIds = Array.from(watchedVideoIds).slice(0, 500);
             oldIds.forEach(id => watchedVideoIds.delete(id));
         }
 
-        videoHistory = videoHistory.slice(0, currentVideoIndex + 1);
-        videoHistory.push({ id: videoData.id, url: `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`, videoData });
+        // 히스토리에 새 영상 추가
+        videoHistory.push(videoData);
         currentVideoIndex = videoHistory.length - 1;
 
         await transitionToVideo(videoData);
@@ -113,6 +144,39 @@ async function nextVideo() {
     }
 }
 
+// 서버 응답 데이터를 정규화하는 함수
+function normalizeVideoData(responseData) {
+    try {
+        const video = responseData.video;
+        if (!video) {
+            console.error('video 필드가 없습니다:', responseData);
+            return null;
+        }
+
+        return {
+            id: video.id,
+            videoSrc: video.videoSrc,
+            videoLoc: video.videoLoc || video.id,
+            title: video.videoTitle || '',
+            description: video.videoDescription || '',
+            videoTag: video.videoTag || '',
+            uploader: {
+                id: video.uploader?.id,
+                mention: video.uploader?.mention || '',
+                username: video.uploader?.username || '',
+                profileImgSrc: video.uploader?.profileImgSrc || '/images/default-profile.png'
+            },
+            likeCount: responseData.likeCnt || 0,
+            commentCount: responseData.commentCnt || 0,
+            isLiked: responseData.isLiked || false,
+            isFollowing: responseData.isFollowing || false
+        };
+    } catch (error) {
+        console.error('데이터 정규화 중 오류:', error);
+        return null;
+    }
+}
+
 // 이전 영상으로 돌아가기
 async function prevVideo() {
     if (currentVideoIndex <= 0) {
@@ -122,13 +186,10 @@ async function prevVideo() {
 
     try {
         showLoadingIndicator();
-
         currentVideoIndex--;
-        const prevVideoData = videoHistory[currentVideoIndex].videoData;
-
+        const prevVideoData = videoHistory[currentVideoIndex];
         console.log('이전 영상으로 이동:', prevVideoData);
         await transitionToVideo(prevVideoData);
-
     } catch (error) {
         console.error('이전 영상 로딩 실패:', error);
         showErrorMessage('이전 영상을 불러올 수 없습니다.');
@@ -138,69 +199,112 @@ async function prevVideo() {
     }
 }
 
-// 부드러운 페이지 전환 (SPA 스타일) - 모든 UI 요소 업데이트
+// 팔로우 버튼 업데이트 함수
+function updateFollowButton(videoData) {
+    const currentUser = document.querySelector('[th\\:if="${session.user != null}"]');
+    if (!currentUser) return; // 로그인하지 않은 경우
+
+    const followContainer = document.querySelector('#uploader-profile-data-info .max-sm\\:flex');
+    if (!followContainer) return;
+
+    const isCurrentUser = followContainer.querySelector('[th\\:if="${session.user != null and session.user.id != videoInfo.getUploader().getId()}"]');
+    if (!isCurrentUser) return; // 본인 영상인 경우
+
+    // 기존 버튼 제거
+    const existingBtn = followContainer.querySelector('button');
+    if (existingBtn) {
+        existingBtn.remove();
+    }
+
+    // 새 버튼 생성
+    const newButton = document.createElement('button');
+    newButton.type = 'button';
+    newButton.dataset.mention = videoData.uploader.id;
+    newButton.className = 'flex items-center space-x-2 px-8 py-2 rounded-md transition-all duration-200';
+
+    if (videoData.isFollowing) {
+        newButton.id = 'user-following-btn';
+        newButton.className += ' bg-gray-600 hover:bg-red-600';
+        newButton.innerHTML = `
+            <span>팔로잉</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        `;
+    } else {
+        newButton.id = 'user-follow-btn';
+        newButton.className += ' bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600';
+        newButton.innerHTML = `
+            <span>팔로우</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+        `;
+    }
+
+    followContainer.appendChild(newButton);
+
+    // 새 버튼에 이벤트 리스너 추가 (user-follow.js의 이벤트와 연동)
+    if (window.attachFollowListener) {
+        window.attachFollowListener(newButton);
+    }
+}
+
+// 부드러운 페이지 전환
 async function transitionToVideo(videoData) {
     try {
+        console.log('전환할 영상 데이터:', videoData);
+
         const mainVideo = document.getElementById('main-video');
         if (!mainVideo) return;
 
-        // 페이드 아웃 효과
+        if (!videoData.videoSrc || !videoData.uploader) {
+            throw new Error('필수 영상 데이터가 누락되었습니다.');
+        }
+
         mainVideo.style.transition = 'opacity 0.3s ease-in-out';
         mainVideo.style.opacity = '0';
 
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // 영상 소스 변경
         mainVideo.src = videoData.videoSrc;
         mainVideo.dataset.videoId = videoData.id;
+        mainVideo.dataset.videoLoc = videoData.videoLoc;
         mainVideo.load();
-        mainVideo.play();
 
-        // === 업로더 정보 업데이트 ===
-        // 프로필 이미지들 업데이트
-        const profileImages = document.querySelectorAll('img[alt="프로필"]');
-        profileImages.forEach(img => {
-            if (videoData.uploader.profileImgSrc) {
-                img.src = videoData.uploader.profileImgSrc;
-            }
-        });
+        mainVideo.onloadeddata = () => {
+            mainVideo.play().catch(e => console.log('자동재생 실패:', e));
+        };
 
-        // 업로더 이름과 링크 업데이트
-        const usernameElements = document.querySelectorAll('a[href*="/@"]');
+        // 업로더 정보 업데이트
+        document.getElementById("uploader-profile-img-src").src = videoData.uploader.profileImgSrc;
+        document.getElementById("uploader-profile-img-src").dataset.userId = videoData.uploader.id;
+
+        const usernameElements = document.querySelectorAll("#uploader-profile-data-info a");
         usernameElements.forEach(link => {
-            if (videoData.uploader.mention) {
-                link.href = `/@${videoData.uploader.mention}`;
+            if (videoData.uploader && videoData.uploader.mention) {
+                link.href = `${location.origin}/@${videoData.uploader.mention}`;
             }
         });
 
-        // 사용자 이름 텍스트 업데이트
-        const usernameSpans = document.querySelectorAll('.text-sm.font-semibold span, .text-lg.font-semibold span');
+        const usernameSpans = document.querySelectorAll(".uploader-username");
         usernameSpans.forEach(span => {
-            if (videoData.uploader.username) {
+            if (videoData.uploader && videoData.uploader.username) {
                 const username = videoData.uploader.username;
                 span.textContent = username.length > 10 ? username.substring(0, 10) + '...' : username;
             }
         });
 
-        // 멘션 텍스트 업데이트
-        const mentionSpans = document.querySelectorAll('.text-gray-300 span');
+        const mentionSpans = document.querySelectorAll(".uploader-mention");
         mentionSpans.forEach(span => {
-            if (videoData.uploader.mention) {
+            if (videoData.uploader && videoData.uploader.mention) {
                 const mention = videoData.uploader.mention;
                 span.textContent = mention.length > 10 ? `@${mention.substring(0, 10)}...` : `@${mention}`;
             }
         });
 
-        // === 영상 정보 업데이트 ===
-        // 제목 업데이트
-        const titleElements = document.querySelectorAll('.text-white.font-medium');
-        titleElements.forEach(el => {
-            if (videoData.title) {
-                el.textContent = videoData.title;
-            }
-        });
-
-        // 설명 업데이트
+        // 영상 정보 업데이트
+        document.getElementById("video-title").textContent = videoData.title;
         const descriptionElements = document.querySelectorAll('.text-gray-300.line-clamp-2');
         descriptionElements.forEach(el => {
             if (videoData.description) {
@@ -208,87 +312,103 @@ async function transitionToVideo(videoData) {
             }
         });
 
-        // === 태그 업데이트 ===
-        const tagContainer = document.querySelector('.flex.flex-wrap.gap-1');
-        if (tagContainer && videoData.videoTag) {
+        // 태그 업데이트
+        const tagContainer = document.getElementById("video-tags");
+        if (tagContainer) {
             tagContainer.innerHTML = '';
-            const tags = videoData.videoTag.split(' ').filter(tag => tag.trim());
-            tags.forEach(tag => {
-                const tagElement = document.createElement('a');
-                tagElement.href = `/hashtag/${tag}`;
-                tagElement.textContent = tag;
-                tagElement.className = 'text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200';
-                tagContainer.appendChild(tagElement);
-            });
-        } else if (tagContainer && !videoData.videoTag) {
-            tagContainer.innerHTML = ''; // 태그가 없으면 비우기
+            if (videoData.videoTag) {
+                const tags = videoData.videoTag.split(' ');
+                if (tags.length >= 1) {
+                    for (let i = 0; i < tags.length; i++) {
+                        const tagElement = document.createElement("a");
+                        tagElement.href = `${location.origin}/hashtag/${tags[i].trim()}`;
+                        tagElement.textContent = tags[i].trim();
+                        tagElement.className = 'text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200';
+                        tagContainer.appendChild(tagElement);
+                    }
+                }
+            }
+        } else {
+            const wtf = document.getElementById("main-video-tags-what");
+
+            const $tagCon = document.createElement("div");
+            $tagCon.id = "video-tags";
+            $tagCon.className = "flex flex-wrap gap-1 md:gap-2";
+
+            const t = videoData.videoTag.split(' ');
+            if (t.length >= 1) {
+                for (let j = 0; j < t.length; j++) {
+                    const $iDonTKnowThis = document.createElement("a");
+                    $iDonTKnowThis.href = `${location.origin}/hashtag/${t[j].trim()}`;
+                    $iDonTKnowThis.textContent = t[j].trim();
+                    $iDonTKnowThis.className = 'text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200 video-tag';
+                    $tagCon.appendChild($iDonTKnowThis);
+                }
+            }
+
+            wtf.appendChild($tagCon);
         }
 
-        // === 상호작용 요소 업데이트 ===
-        // 좋아요 버튼 업데이트
+        const hiddenTagInput = document.getElementById("main-video-info-tag-fuck");
+        if (hiddenTagInput) {
+            hiddenTagInput.value = videoData.videoTag || '';
+        }
+
+        // 상호작용 요소 업데이트
         const likeBtn = document.querySelector("#like-btn");
         if (likeBtn) {
             likeBtn.dataset.videoId = videoData.id;
-            likeBtn.dataset.isLiked = videoData.isLiked || 'false';
+            likeBtn.dataset.isLiked = videoData.isLiked;
 
-            const heartIcon = likeBtn.querySelector('svg');
-            if (heartIcon) {
-                if (videoData.isLiked) {
-                    heartIcon.classList.remove('heart-empty');
-                    heartIcon.classList.add('heart-filled');
-                } else {
-                    heartIcon.classList.remove('heart-filled');
-                    heartIcon.classList.add('heart-empty');
-                }
+            const heartIcon = document.getElementById("like-btn-svg");
+            if (videoData.isLiked === true || videoData.isLiked === 'true') {
+                heartIcon.classList.remove('heart-empty');
+                heartIcon.classList.add('heart-filled');
+            } else {
+                heartIcon.classList.remove('heart-filled');
+                heartIcon.classList.add('heart-empty');
             }
         }
 
-        // 좋아요 수 업데이트
-        const likeCountElements = document.querySelectorAll("#like-count");
-        likeCountElements.forEach(el => {
-            el.textContent = videoData.likeCount || '0';
-        });
+        const likeCountElement = document.querySelector("#like-count") || document.querySelector(".like-count");
+        if (likeCountElement) {
+            likeCountElement.textContent = videoData.likeCount || '0';
+        }
 
-        // 댓글 수 업데이트
-        const commentCountElements = document.querySelectorAll('span');
-        commentCountElements.forEach(el => {
-            if (el.textContent === '댓글' || el.textContent.includes('댓글')) {
-                el.textContent = videoData.commentCount || '0';
-            }
-        });
+        const commentBtn = document.querySelector("#comment-btn");
+        if (commentBtn && commentBtn.nextElementSibling) {
+            commentBtn.nextElementSibling.textContent = videoData.commentCount || '0';
+        }
 
-        // 댓글 모달 헤더의 댓글 수 업데이트
         const commentModalHeader = document.querySelector('#video-comment-size');
         if (commentModalHeader) {
             commentModalHeader.textContent = `댓글 ${videoData.commentCount || 0}개`;
         }
 
-        // 댓글 모달의 댓글 목록 초기화
         const commentList = document.querySelector('#comment-list-wawawawawa');
         if (commentList) {
             commentList.dataset.videoId = videoData.id;
-            commentList.innerHTML = ''; // 이전 댓글들 제거
+            commentList.innerHTML = '';
         }
 
-        // 댓글 텍스트 영역 업데이트
         const commentTextarea = document.querySelector('#commentText');
         if (commentTextarea) {
             commentTextarea.dataset.videoId = videoData.id;
-            commentTextarea.value = ''; // 텍스트 영역 초기화
+            commentTextarea.value = '';
         }
 
-        // 페이지 제목 업데이트
+        // 팔로우 버튼 업데이트
+        updateFollowButton(videoData);
+
+        // 페이지 제목 및 URL 업데이트
         if (videoData.title) {
             document.title = `${videoData.title} | FlipFlop`;
         }
 
-        // URL 업데이트
-        const newUrl = `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc}`;
+        const newUrl = `/@${videoData.uploader.mention}/swipe/video/${videoData.videoLoc || videoData.id}`;
         history.pushState({ videoId: videoData.id }, '', newUrl);
 
-        // 페이드 인 효과
         mainVideo.style.opacity = '1';
-
         console.log('영상 전환 완료:', videoData);
 
     } catch (error) {
@@ -345,7 +465,7 @@ document.addEventListener('keydown', function(e) {
     switch(e.key) {
         case 'ArrowDown': e.preventDefault(); nextVideo(); break;
         case 'ArrowUp': e.preventDefault(); prevVideo(); break;
-        case ' ': // 스페이스바
+        case ' ':
             e.preventDefault();
             const video = document.getElementById('main-video');
             if (video) video.paused ? video.play() : video.pause();

@@ -8,59 +8,91 @@
     <title th:text="${videoInfo.getVideoTitle() + ' | FlipFlop'}">FlipFlop</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <style>
-        #main-video-wrapper {
-            position: relative;
-        }
+        #main-video-wrapper { position: relative; }
         @keyframes heartBeat {
-            0%, 100% {
-                transform: scale(1);
-            }
-            25% {
-                transform: scale(1.3);
-            }
-            50% {
-                transform: scale(1.1);
-            }
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1.1); }
         }
-        .heart-animation {
-            animation: heartBeat 0.6s ease-in-out;
+        .heart-animation { animation: heartBeat 0.6s ease-in-out; }
+
+        /* 로딩 상태를 위한 스타일 */
+        .video-loading {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* 버튼 호버 효과 개선 */
+        .action-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.15));
+        }
+
+        /* 프로그레스 바 스타일 개선 */
+        .progress-container {
+            transition: height 0.2s ease;
+        }
+
+        .progress-container:hover {
+            height: 12px;
         }
     </style>
 </head>
 <body class="bg-black text-white">
-
     <div class="flex md:h-screen">
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 flex items-center justify-center relative">
-            <div id="video-container-fuck" class="relative w-full h-full flex items-center justify-center">
+            <!-- 비디오 컨테이너 -->
+            <div id="video-container" class="relative w-full h-full flex items-center justify-center">
                 <div id="main-video-wrapper" class="relative aspect-[9/16] h-[90vh] w-auto max-w-[90vw]">
+                    <!-- 메인 비디오 -->
                     <video id="main-video"
+                           th:data-video-loc="${videoInfo.getVideoLoc()}"
                            th:src="@{${videoInfo.getVideoSrc()}}"
+                           th:data-video-id="${videoInfo.getId()}"
                            class="max-w-full max-h-full object-contain mx-auto my-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                           autoplay loop playsinline th:data-video-id="${videoInfo.getId()}">
+                           autoplay loop playsinline muted>
                     </video>
 
-                    <div id="video-overlay" class="absolute top-0 left-0 right-0 bottom-0 cursor-pointer z-10"></div>
+                    <!-- 비디오 오버레이 (클릭 영역) -->
+                    <div id="video-overlay" class="absolute inset-0 cursor-pointer z-10"></div>
 
-                    <div class="absolute md:top-4 md:left-4 z-30 top-2 w-full">
-                        <button id="play-pause-btn" class="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition">
+                    <!-- 재생/일시정지 버튼 -->
+                    <div class="absolute md:top-4 md:left-4 top-2 left-2 z-30">
+                        <button id="play-pause-btn"
+                                class="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition action-button"
+                                aria-label="재생/일시정지">
                             ▶️
                         </button>
                     </div>
 
-                    <div class="absolute bottom-0 max-md:bottom-9 left-0 w-full h-2 bg-gray-600 z-20 hover:h-2.5 cursor-pointer">
+                    <!-- 프로그레스 바 -->
+                    <div class="absolute bottom-0 max-md:bottom-9 left-0 w-full progress-container h-2 bg-gray-600 z-20 cursor-pointer">
                         <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-pink-500 transition-all duration-100 w-0 cursor-pointer"></div>
                     </div>
                 </div>
 
+                <!-- 우측 액션 버튼들 -->
                 <div class="absolute right-2 md:right-6 bottom-20 md:bottom-32 flex flex-col items-center space-y-4 md:space-y-6 z-20">
+                    <!-- 좋아요 버튼 (로그인한 사용자) -->
                     <div th:if="${session.user != null}" class="flex flex-col items-center group">
                         <button id="like-btn"
                                 th:data-video-id="${videoInfo.getId()}"
                                 th:data-is-liked="${isLiked}"
-                                class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                                class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 action-button"
+                                aria-label="좋아요">
                             <svg class="h-7 w-7 transition-colors duration-200"
+                                 id="like-btn-svg"
                                  th:classappend="${isLiked} ? 'heart-filled' : 'heart-empty'"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -70,19 +102,24 @@
                         <span id="like-count" class="text-xs md:text-sm mt-1 text-white" th:text="${likeCount}">좋아요</span>
                     </div>
 
+                    <!-- 좋아요 버튼 (비로그인 사용자) -->
                     <div th:if="${session.user == null}" class="flex flex-col items-center group">
-                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <button class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 action-button"
+                                onclick="showLoginRequired()"
+                                aria-label="좋아요 (로그인 필요)">
                             <svg class="h-7 w-7 text-white transition-colors duration-200 heart-empty"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                         </button>
-                        <span class="text-xs md:text-sm mt-1 text-white" th:text="${likeCount}">좋아요</span>
+                        <span class="text-xs md:text-sm mt-1 text-white like-count" th:text="${likeCount}">좋아요</span>
                     </div>
 
+                    <!-- 댓글 버튼 -->
                     <div class="flex flex-col items-center group">
-                        <button id="comment-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <button id="comment-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 action-button"
+                                aria-label="댓글">
                             <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -91,8 +128,10 @@
                         <span th:text="${videoCommentSize}" class="text-xs md:text-sm mt-1 text-white">댓글</span>
                     </div>
 
+                    <!-- 공유 버튼 -->
                     <div class="flex flex-col items-center group">
-                        <button id="share-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 transition-all duration-300 transform hover:scale-110">
+                        <button id="share-btn" class="bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full p-2 md:p-3 action-button"
+                                aria-label="공유">
                             <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -102,59 +141,107 @@
                     </div>
                 </div>
 
+                <!-- 좌측 정보 영역 -->
                 <div class="absolute left-2 md:left-6 bottom-20 md:bottom-32 space-y-2 md:space-y-3 w-2/3 md:w-1/2 z-20">
-                    <div class="flex items-center space-x-2 md:space-x-3">
-                        <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" style="cursor: pointer;">
-                            <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}" alt="프로필" class="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white border-opacity-30">
+                    <!-- 업로더 정보 -->
+                    <div class="flex items-center space-x-2 md:space-x-3" id="uploader-info">
+                        <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block">
+                            <img th:src="@{${videoInfo.uploader.getProfileImgSrc()}}"
+                                 alt="프로필"
+                                 id="uploader-profile-img-src"
+                                 th:data-user-id="${videoInfo.uploader.getId()}"
+                                 class="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white border-opacity-30 transition-transform hover:scale-110">
                         </a>
-                        <div class="flex flex-col">
-                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" style="cursor: pointer;" class="text-sm md:text-lg font-semibold">
-                                <span th:if="${videoInfo.uploader.getUsername().length() < 11}" th:text="${videoInfo.uploader.getUsername()}">사용자이름</span>
-                                <span th:if="${videoInfo.uploader.getUsername().length() > 10}" th:text="${videoInfo.uploader.getUsername().substring(0, 10) + '...'}">사용자이름</span>
+                        <div style="max-width: 128px;">
+                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block truncate">
+                                    <span class="uploader-username text-sm md:text-lg font-semibold hover:text-blue-300 transition-colors"
+                                          th:text="${#strings.length(videoInfo.uploader.getUsername()) > 10 ? #strings.substring(videoInfo.uploader.getUsername(), 0, 10) + '...' : videoInfo.uploader.getUsername()}">사용자이름</span>
                             </a>
-                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" style="cursor: pointer;" class="text-xs text-gray-300">
-                                <span th:if="${videoInfo.getUploader().getMention().length() < 11}" th:text="'@' + ${videoInfo.getUploader().getMention()}">@mention</span>
-                                <span th:if="${videoInfo.getUploader().getMention().length() > 10}" th:text="'@' + ${videoInfo.getUploader().getMention().substring(0, 10) + '...'}">@mention</span>
+                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block">
+                                    <span class="uploader-mention text-xs text-gray-300 hover:text-gray-100 transition-colors"
+                                          th:text="${#strings.length(videoInfo.getUploader().getMention()) > 10 ? '@' + #strings.substring(videoInfo.getUploader().getMention(), 0, 10) + '...' : '@' + videoInfo.getUploader().getMention()}">@mention</span>
                             </a>
                         </div>
-                        <button class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium transition-all duration-200 transform hover:scale-105">
-                            팔로우
-                        </button>
+
+                        <!-- 팔로우 버튼 (개선된 구조) -->
+                        <div th:if="${session.user != null and session.user.id != videoInfo.getUploader().getId()}"
+                             id="follow-button-container"
+                             class="flex-shrink-0">
+                            <!-- 팔로잉 중일 때 -->
+                            <button type="button"
+                                    id="user-following-btn"
+                                    th:if="${isFollowing}"
+                                    th:data-mention="${videoInfo.getUploader().getId()}"
+                                    class="bg-gray-600 hover:bg-red-600 px-4 md:px-4 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2 text-xs md:text-sm">
+                                <span>팔로잉</span>
+                                <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- 팔로우 안 했을 때 -->
+                            <button type="button"
+                                    id="user-follow-btn"
+                                    th:unless="${isFollowing}"
+                                    th:data-mention="${videoInfo.getUploader().getMention()}"
+                                    class="bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-4 md:px-4 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 text-xs md:text-sm">
+                                <span>팔로우</span>
+                                <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="text-sm md:text-base font-medium text-white" th:text="${videoInfo.getVideoTitle()}">영상 제목</div>
+                    <!-- 영상 제목 -->
+                    <h1 class="text-sm md:text-base font-medium text-white line-clamp-2"
+                        id="video-title"
+                        th:text="${videoInfo.getVideoTitle()}">영상 제목</h1>
 
-                    <div th:if="${videoInfo.videoTag != null}" class="flex flex-wrap gap-1 md:gap-2">
-                        <a th:each="tag : ${#strings.arraySplit(videoInfo.videoTag, ' ')}"
-                           th:href="@{'/hashtag/' + ${tag}}"
-                           th:text="${tag}"
-                           class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200">
-                        </a>
+                    <!-- 태그들 -->
+                    <div id="main-video-tags-what">
+                        <div th:if="${videoInfo.videoTag != null}" class="flex flex-wrap gap-1 md:gap-2" id="video-tags">
+                            <a th:each="tag : ${#strings.arraySplit(videoInfo.videoTag, ' ')}"
+                               th:href="@{'/hashtag/' + ${tag}}"
+                               th:text="${tag}"
+                               class="text-xs bg-white bg-opacity-10 text-blue-300 px-2 py-1 rounded-full cursor-pointer hover:bg-opacity-20 transition-all duration-200 video-tag">
+                            </a>
+                            <input type="hidden" th:value="${videoInfo.getVideoTag()}" id="video-tag-data" />
+                        </div>
                     </div>
 
-                    <div class="text-xs md:text-sm text-gray-300 line-clamp-2" th:text="${videoInfo.getVideoDescription()}">영상 설명</div>
+                    <!-- 영상 설명 -->
+                    <p class="text-xs md:text-sm text-gray-300 line-clamp-2"
+                       id="video-description"
+                       th:text="${videoInfo.getVideoDescription()}">영상 설명</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="comment-modal" class="fixed inset-0 z-50 hidden">
+    <!-- 댓글 모달 (기존과 동일하지만 접근성 개선) -->
+    <div id="comment-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-labelledby="comment-modal-title" aria-modal="true">
         <div class="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-sm" id="modal-backdrop"></div>
-
         <div class="relative w-full h-full flex items-center justify-center p-4">
             <div class="bg-gray-900 rounded-2xl w-full max-w-2xl h-3/4 flex flex-col shadow-2xl">
                 <div class="flex items-center justify-between p-4 border-b border-gray-700">
-                    <h2 th:text="'댓글 ' + ${videoCommentSize} + '개'" id="video-comment-size" class="text-xl font-bold text-white">댓글</h2>
-                    <div style="display: flex;" class="space-x-4">
-                        <div style="display: flex;" class="space-x-2">
-                            <button id="popular-sort" class="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
+                    <h2 th:text="'댓글 ' + ${videoCommentSize} + '개'"
+                        id="comment-modal-title"
+                        class="text-xl font-bold text-white">댓글</h2>
+                    <div class="flex space-x-4">
+                        <div class="flex space-x-2">
+                            <button id="popular-sort"
+                                    class="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
                                 인기순
                             </button>
-                            <button id="recent-sort" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
+                            <button id="recent-sort"
+                                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200">
                                 최신순
                             </button>
                         </div>
-                        <button id="close-modal" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <button id="close-modal"
+                                class="text-gray-400 hover:text-white transition-colors duration-200"
+                                aria-label="댓글 모달 닫기">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -162,26 +249,50 @@
                     </div>
                 </div>
 
-                <div id="comment-list-wawawawawa" class="flex-1 overflow-y-auto p-4 space-y-4" th:data-video-id="${videoInfo.getId()}"></div>
+                <div id="comment-list"
+                     class="flex-1 overflow-y-auto p-4 space-y-4"
+                     th:data-video-id="${videoInfo.getId()}"
+                     role="list"
+                     aria-label="댓글 목록"></div>
 
+                <!-- 댓글 작성 (로그인한 사용자만) -->
                 <div th:if="${session.user != null}" class="p-4 border-t border-gray-700">
-                    <div class="flex items-center space-x-3">
-                        <img th:src="${session.user.getProfileImgSrc()}" alt="..."
-                             style="width: 36px; height: 36px; padding: 2px; border-radius: 9999px; object-fit: cover; background: linear-gradient(to right, #ec4899, #0ea5e9);">
-                        <div class="flex-1 flex space-x-2 w-full items-center">
-                                <textarea name="commentText" id="commentText" th:data-video-id="${videoInfo.getId()}" placeholder="댓글을 입력하세요..." style="resize: none;"
-                                          class="flex-1 bg-gray-800 text-white px-3 py-2 h-[40px] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required
-                                ></textarea>
-                            <button id="comment-submit-btn" class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white px-4 py-2
-                                    rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105"
-                            >전송</button>
+                    <form id="comment-form" class="flex items-center space-x-3">
+                        <img th:src="${session.user.getProfileImgSrc()}"
+                             alt="내 프로필"
+                             class="w-9 h-9 rounded-full object-cover border-2 border-gradient-to-r from-pink-500 to-sky-500">
+                        <div class="flex-1 flex space-x-2 items-center">
+                                <textarea name="commentText"
+                                          id="commentText"
+                                          th:data-video-id="${videoInfo.getId()}"
+                                          placeholder="댓글을 입력하세요..."
+                                          class="flex-1 bg-gray-800 text-white px-3 py-2 h-[40px] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                          rows="1"
+                                          maxlength="500"
+                                          required></textarea>
+                            <button type="submit"
+                                    id="comment-submit-btn"
+                                    class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105">
+                                전송
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 로그인 필요 알림 토스트 -->
+    <div id="login-required-toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden">
+        <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>로그인이 필요한 기능입니다.</span>
+        </div>
+    </div>
+
+    <!-- 기존 fragments -->
     <div th:replace="~{fragments/bottom-navbar.html :: bottom-navbar}"></div>
     <div th:replace="~{fragments/sidebar.html :: loginModal}"></div>
     <div th:replace="~{fragments/sidebar.html :: signupModal}"></div>
@@ -189,34 +300,58 @@
     <script src="/js/user-session.js"></script>
     <script src="/js/video-ui.js"></script>
     <script src="/js/swipe-video-ui.js"></script>
+    <script src="/js/user-follow.js"></script>
+
     <script>
+        // 로그인 필요 알림 함수
+        function showLoginRequired() {
+            const toast = document.getElementById('login-required-toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 공유 버튼 기능
         document.getElementById("share-btn").addEventListener("click", async (e) => {
             const loc = location.href;
             try {
                 await navigator.clipboard.writeText(loc);
-
-                const $div = document.createElement("div");
-                $div.style.position = "fixed";
-                $div.style.left = "50%";
-                $div.style.top = "20px";
-                $div.style.translate = "-50%, 0px";
-                $div.style.backgroundColor = "gray";
-                $div.className = "text-white px-10 py-2 rounded shadow-md z-50";
-                $div.innerText = "링크가 복사되었습니다!";
-                document.body.appendChild($div);
-
-                setTimeout(() => {
-                    $div.remove();
-                }, 2000);
-
+                showNotification('링크가 복사되었습니다!', 'success');
             } catch (err) {
                 console.error('클립보드 복사 실패:', err);
+                showNotification('링크 복사에 실패했습니다.', 'error');
             }
         });
 
+        // 알림 함수
+        function showNotification(message, type) {
+            const notification = document.createElement("div");
+            notification.style.position = "fixed";
+            notification.style.left = "50%";
+            notification.style.top = "20px";
+            notification.style.transform = "translate(-50%, 0px)";
+            notification.className = `text-white px-6 py-3 rounded-lg shadow-md z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">${type === 'success' ? '✓' : '✕'}</span>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = "translate(-50%, -100px)";
+                setTimeout(() => notification.remove(), 300);
+            }, 2500);
+        }
+
+        // 보안 관련 콘솔 경고
         console.log('%c🚫 콘솔 사용 주의!', 'color: crimson; font-size: 30px; font-weight: bold;');
         console.log('%c콘솔에 코드를 붙여넣지 마세요. 해킹 위험이 있습니다.', 'font-size: 18px; color: black;');
     </script>
-
 </body>
 </html>

@@ -1,20 +1,15 @@
 package com.e.shortform.controller;
 
-import com.e.shortform.model.dto.ApiResponse;
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.dto.VideoRequestDto;
-import com.e.shortform.model.dto.VideoResponseDto;
 import com.e.shortform.model.entity.*;
 import com.e.shortform.model.service.*;
 import com.e.shortform.model.vo.SearchListVo;
-import com.e.shortform.model.vo.VideoVo;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -419,19 +414,17 @@ public class RestMainController {
 
         try {
             List<Long> excludeIds = request.getExcludeIds();
-            excludeIds = excludeIds.stream()
-                    .filter(Objects::nonNull)
-                    .toList();
-
             if (excludeIds == null) {
                 excludeIds = new ArrayList<>();
+            } else {
+                excludeIds = excludeIds.stream()
+                        .filter(Objects::nonNull)
+                        .toList();
             }
 
             log.info("제외할 영상 ID 개수: {}", excludeIds.size());
 
-            // 중복 제거를 위해 Set 사용
             Set<Long> excludeIdSet = new HashSet<>(excludeIds);
-
             VideoEntity randomVideo = videoService.selectRandomVideo(new ArrayList<>(excludeIdSet));
 
             if (randomVideo == null) {
@@ -444,7 +437,6 @@ public class RestMainController {
             // 중복 체크 - 혹시 반환된 영상이 제외 목록에 있는지 확인
             if (excludeIdSet.contains(randomVideo.getId())) {
                 log.warn("중복 영상이 반환됨: {}", randomVideo.getId());
-                // 재시도 (최대 3번)
                 for (int i = 0; i < 3; i++) {
                     randomVideo = videoService.selectRandomVideo(new ArrayList<>(excludeIdSet));
                     if (randomVideo != null && !excludeIdSet.contains(randomVideo.getId())) {
@@ -452,7 +444,6 @@ public class RestMainController {
                     }
                 }
 
-                // 여전히 중복이거나 null이면 더 이상 영상이 없다고 처리
                 if (randomVideo == null || excludeIdSet.contains(randomVideo.getId())) {
                     return ResponseEntity.ok(Map.of(
                             "message", "더 이상 시청할 영상이 없습니다.",
@@ -461,24 +452,29 @@ public class RestMainController {
                 }
             }
 
-            // ✅ randomVideo가 확실히 null이 아닌 상태에서 추가 데이터 조회
             Long likeCnt = videoLikeService.countByVideo(randomVideo);
             Long commentCnt = commentService.countByVideo(randomVideo);
+            UserEntity uploader = userService.findByMention(randomVideo.getUploader().getMention());
             boolean isLiked = user != null ? videoLikeService.existsByVideoAndUser(randomVideo, user) : false;
             boolean isFollowing = user != null ? followService.existsByFollowUserAndFollowedUser(user, randomVideo.getUploader()) : false;
 
             log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
 
-            if (user != null) viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+            if (user != null) {
+                viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+            }
 
-            return ResponseEntity.ok(Map.of(
-                    "video", randomVideo,
-                    "likeCnt", likeCnt,
-                    "commentCnt", commentCnt,
-                    "isLiked", isLiked,
-                    "isFollowing", isFollowing,
-                    "hasMore", true
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("video", randomVideo);
+            response.put("uploader", uploader);
+            response.put("likeCnt", likeCnt);
+            response.put("commentCnt", commentCnt);
+            response.put("isLiked", isLiked);
+            response.put("isFollowing", isFollowing);
+            response.put("hasMore", true);
+            response.put("id", randomVideo.getId());
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("영상 로딩 중 오류 발생", e);

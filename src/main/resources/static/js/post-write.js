@@ -246,7 +246,7 @@ class PostWriter {
         this.removeValidationMessage();
 
         if (!hasContent && !hasImages) {
-            this.showValidationMessage('글 또는 이미지 중 하나는 입력해주세요.', 'warning');
+            this.showValidationMessage('글 또는 이미지 중 하나를 입력해주세요.', 'warning');
         } else if (contentTooLong) {
             this.showValidationMessage('내용이 너무 깁니다. 2000자 이하로 작성해주세요.', 'error');
         }
@@ -263,7 +263,7 @@ class PostWriter {
 
         const messageElement = document.createElement('div');
         messageElement.className = `validation-message text-sm mt-2 ${
-            type === 'error' ? 'text-red-400' : 'text-yellow-400'
+            type === 'error' ? 'text-red-400' : 'text-yellow-500'
         }`;
         messageElement.textContent = message;
 

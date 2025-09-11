@@ -187,6 +187,92 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 팔로우 버튼 이벤트 리스너를 특정 버튼에 추가하는 함수
+    function attachFollowListener(button) {
+        if (!button) return;
+
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleFollowClick(this);
+        });
+    }
+
+    // 팔로우 클릭 처리 함수
+    function handleFollowClick(button) {
+        const currentTime = Date.now();
+
+        if (isProcessing || (currentTime - lastClickTime) < CLICK_DELAY) {
+            console.log('요청이 이미 처리 중이거나 너무 빠른 클릭입니다.');
+            return;
+        }
+
+        lastClickTime = currentTime;
+        isProcessing = true;
+
+        const mention = button.getAttribute('data-mention');
+        const originalText = button.querySelector('span').textContent;
+        const originalClasses = button.className;
+
+        // 버튼 상태를 "처리 중"으로 변경
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        button.style.cursor = 'not-allowed';
+        button.querySelector('span').textContent = '처리 중...';
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        fetch(`${location.origin}/api/follow/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `mention=${encodeURIComponent(mention)}`,
+            signal: controller.signal
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    updateFollowButton(data.isFollowing, button);
+                    updateFollowCounts(data.followerCount, data.followingCount);
+                    showNotification(data.message, 'success');
+                } else {
+                    restoreButtonState(originalText, originalClasses, button);
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                console.error('Error:', error);
+                restoreButtonState(originalText, originalClasses, button);
+
+                if (error.name === 'AbortError') {
+                    showNotification('요청 시간이 초과되었습니다.', 'error');
+                } else {
+                    showNotification('네트워크 오류가 발생했습니다.', 'error');
+                }
+            })
+            .finally(() => {
+                isProcessing = false;
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            });
+    }
+
+    // 초기 팔로우 버튼에 이벤트 리스너 추가
+    const initialFollowBtn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
+    if (initialFollowBtn) {
+        attachFollowListener(initialFollowBtn);
+    }
+
     // 프로필 화면 업데이트 함수 (선택사항)
     function updateProfileDisplay(userData) {
         const usernameEl = document.getElementById("h1-but-username");
@@ -289,40 +375,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 버튼 상태 복구 함수
-    function restoreButtonState(originalText, originalClasses) {
-        const btn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
-        if (btn) {
-            btn.className = originalClasses;
-            btn.querySelector('span').textContent = originalText;
+    function restoreButtonState(originalText, originalClasses, button) {
+        if (button) {
+            button.className = originalClasses;
+            button.querySelector('span').textContent = originalText;
         }
     }
 
-    // 팔로우 버튼 UI 업데이트 (개선됨)
-    function updateFollowButton(isFollowing) {
-        const btn = document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
+    // 팔로우 버튼 UI 업데이트
+    function updateFollowButton(isFollowing, button = null) {
+        const btn = button || document.getElementById('user-follow-btn') || document.getElementById('user-following-btn');
         if (!btn) return;
 
         const span = btn.querySelector('span');
         const svg = btn.querySelector('svg');
 
-        // 애니메이션 효과 추가
         btn.style.transform = 'scale(0.95)';
         setTimeout(() => {
             btn.style.transform = 'scale(1)';
         }, 150);
 
         if (isFollowing) {
-            // 팔로잉 상태
             btn.id = 'user-following-btn';
             btn.className = 'bg-gray-600 hover:bg-red-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2';
             span.textContent = '팔로잉';
             if (svg) {
-                svg.setAttribute('fill', 'none');
-                svg.setAttribute('stroke', 'currentColor');
                 svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
             }
 
-            // 호버 시 "언팔로우" 텍스트 표시
             btn.addEventListener('mouseenter', function() {
                 span.textContent = '언팔로우';
             });
@@ -331,38 +411,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         } else {
-            // 팔로우 안함 상태
             btn.id = 'user-follow-btn';
             btn.className = 'bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-8 py-2 rounded-md transition-all duration-200 flex items-center space-x-2';
             span.textContent = '팔로우';
             if (svg) {
-                svg.setAttribute('fill', 'none');
-                svg.setAttribute('stroke', 'currentColor');
                 svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>';
             }
 
-            // 호버 이벤트 제거
             btn.removeEventListener('mouseenter', function() {});
             btn.removeEventListener('mouseleave', function() {});
         }
+
+        // 새 버튼에 이벤트 리스너 다시 추가
+        attachFollowListener(btn);
     }
 
-    // 팔로워/팔로잉 수 업데이트 (애니메이션 효과 추가)
+    // 팔로워/팔로잉 수 업데이트
     function updateFollowCounts(followerCount, followingCount) {
         const followerCountElement = document.getElementById('follower-count');
         const followingCountElement = document.getElementById('following-count');
 
-        // 카운트 애니메이션 효과
         function animateCount(element, newValue) {
             if (!element) return;
 
             element.style.transform = 'scale(1.2)';
-            element.style.color = '#3b82f6'; // 파란색으로 강조
+            element.style.color = '#3b82f6';
 
             setTimeout(() => {
                 element.textContent = newValue;
                 element.style.transform = 'scale(1)';
-                element.style.color = ''; // 원래 색상으로 복구
+                element.style.color = '';
             }, 200);
         }
 
@@ -374,27 +452,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 개선된 알림 메시지 표시
+    // 알림 메시지 표시
     function showNotification(message, type) {
-        // 기존 알림이 있으면 제거
         const existingNotification = document.querySelector('.notification-toast');
         if (existingNotification) {
             existingNotification.remove();
         }
 
         const notification = document.createElement('div');
-        notification.style.position = "absolute";
+        notification.style.position = "fixed";
         notification.style.left = "50%";
         notification.style.top = "50px";
         notification.style.transform = 'translate(-50%, -20px)';
-        notification.className = `notification-toast w-[300px] text-center px-6 py-3 rounded-lg text-white z-50 transform translate-x-full transition-transform duration-300 ${
+        notification.className = `notification-toast w-[300px] text-center px-6 py-3 rounded-lg text-white z-50 transition-transform duration-300 ${
             type === 'success' ? 'bg-green-500' : 'bg-red-500'
         }`;
 
-        // 아이콘 추가
         const icon = type === 'success' ? '✓' : '✕';
         notification.innerHTML = `
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 justify-center">
                 <span class="text-lg">${icon}</span>
                 <span>${message}</span>
             </div>
@@ -402,14 +478,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(notification);
 
-        // 슬라이드 인 애니메이션
         setTimeout(() => {
-            notification.style.transform = 'translate-x-0';
+            notification.style.transform = 'translate(-50%, -20px)';
         }, 100);
 
-        // 3초 후 슬라이드 아웃 후 제거
         setTimeout(() => {
-            notification.style.transform = 'translate-x-full';
+            notification.style.transform = 'translate(-50%, -100px)';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
@@ -418,25 +492,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // 기존 비디오 호버 기능 (변경 없음)
+    // 기존 비디오 호버 기능
     const videoCards = document.querySelectorAll('.relative.group.cursor-pointer');
-
     videoCards.forEach(card => {
         const video = card.querySelector('video');
-
         if (video) {
             card.addEventListener("mouseover", function() {
                 video.currentTime = 0;
-                video.play().catch(e => {
-                    console.log('Video play failed:', e);
-                });
+                video.play().catch(e => console.log('Video play failed:', e));
             });
-
             card.addEventListener('mouseout', function() {
                 video.pause();
                 video.currentTime = 0;
             });
-
             video.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (video.paused) {
@@ -448,9 +516,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 팔로잉/팔로워 목록 모달 기능
     const findFollowingUserBtn = document.getElementById("find-following-user-btn");
     const findFollowUserBtn = document.getElementById("find-follow-user-btn");
-
     const followModal = document.getElementById("follow-modal");
     const followModalTitle = document.getElementById("follow-modal-title");
     const followModalList = document.getElementById("follow-modal-list");
@@ -458,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function openFollowModal(title, data) {
         followModalTitle.textContent = title;
-        followModalList.innerHTML = ""; // 기존 목록 초기화
+        followModalList.innerHTML = "";
 
         data.forEach(user => {
             const li = document.createElement("li");
@@ -491,15 +559,16 @@ document.addEventListener('DOMContentLoaded', function() {
         followModal.classList.remove("hidden");
     }
 
-    followModalClose.addEventListener("click", () => {
-        followModal.classList.add("hidden");
-    });
+    if (followModalClose) {
+        followModalClose.addEventListener("click", () => {
+            followModal.classList.add("hidden");
+        });
+    }
 
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") followModal.classList.add("hidden");
     });
 
-    // 팔로잉 목록 버튼 이벤트
     if (findFollowingUserBtn) {
         findFollowingUserBtn.addEventListener("click", async () => {
             const id = findFollowingUserBtn.dataset.followingId;
@@ -515,7 +584,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 팔로워 목록 버튼 이벤트
     if (findFollowUserBtn) {
         findFollowUserBtn.addEventListener("click", async () => {
             const id = findFollowUserBtn.dataset.followId;

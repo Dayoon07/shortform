@@ -141,7 +141,12 @@ public class VideoService {
 
     public VideoEntity selectRandomVideo(List<Long> excludeIds) {
         VideoVo vo = videoMapper.selectRandomVideo(excludeIds);
-        Optional<VideoEntity> entity = videoRepo.findById(vo.getUploaderUserId());
+        if (vo == null) {
+            return null;
+        }
+
+        // VideoVo의 ID를 사용해서 VideoEntity를 조회
+        Optional<VideoEntity> entity = videoRepo.findById(vo.getId()); // uploaderUserId가 아니라 video의 ID를 사용
 
         return entity.orElse(null);
     }
