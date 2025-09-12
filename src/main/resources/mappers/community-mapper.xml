@@ -23,6 +23,20 @@
         <result property="files" column="FILES" />
     </resultMap>
 
+    <resultMap id="profilePageAllCommunityResultMap" type="com.e.shortform.model.dto.UserProfilePostAllLikeCntDto">
+        <id property="id" column="ID" />
+        <result property="username" column="USERNAME" />
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC" />
+        <result property="mention" column="MENTION" />
+        <result property="communityUuid" column="COMMUNITY_UUID" />
+        <result property="communityWriterId" column="COMMUNITY_WRITER_ID" />
+        <result property="communityText" column="COMMUNITY_TEXT" />
+        <result property="createAt" column="CREATE_AT" />
+        <result property="files" column="FILES" />
+        <result property="likeCnt" column="LIKE_CNT" />
+        <result property="commentCnt" column="COMMENT_CNT" />
+    </resultMap>
+
     <select id="selectByCommunityButWhereId" parameterType="Long" resultMap="profilePageCommunityResultMap">
         WITH FILES AS (
             SELECT COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
@@ -49,30 +63,97 @@
         ORDER BY c.CREATE_AT DESC
     </select>
 
-    <select id="findByCommunityBoardFuck" parameterType="String" resultMap="profilePageCommunityResultMap">
+    <select id="findByCommunityBoardFuck" parameterType="String" resultMap="profilePageAllCommunityResultMap">
         WITH FILES AS (
-            SELECT COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
-                   LISTAGG(FILE_SRC, ',') WITHIN GROUP (ORDER BY UPLOAD_AT) AS FILES
+            SELECT
+                COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
+                LISTAGG(FILE_SRC, ',') WITHIN GROUP (ORDER BY UPLOAD_AT) AS FILES
+            FROM SHORTFORM_COMMUNITY_ADDITIONS
+            GROUP BY COMMUNITY_ID
+            ),
+            LIKES AS (
+            SELECT
+                COMMUNITY_ID,
+                COUNT(*) AS LIKE_CNT
+            FROM SHORTFORM_COMMUNITY_LIKES
+            GROUP BY COMMUNITY_ID
+            ),
+            COMMENTS AS (
+            SELECT
+                COMMUNITY_ID,
+                COUNT(*) AS COMMENT_CNT
+            FROM SHORTFORM_COMMUNITY_COMMENTS
+            GROUP BY COMMUNITY_ID
+            )
+            SELECT
+                c.ID,
+                u.USERNAME,
+                u.PROFILE_IMG_SRC,
+                u.MENTION,
+                c.COMMUNITY_UUID,
+                c.COMMUNITY_WRITER_ID,
+                c.COMMUNITY_TEXT,
+                c.CREATE_AT,
+                f.FILES,
+                NVL(l.LIKE_CNT, 0)    AS LIKE_CNT,
+                NVL(cm.COMMENT_CNT, 0) AS COMMENT_CNT
+            FROM SHORTFORM_COMMUNITYS c
+            LEFT JOIN FILES f
+                ON c.ID = f.ADDITIONS_COMMUNITY_ID
+            LEFT JOIN LIKES l
+                ON c.ID = l.COMMUNITY_ID
+            LEFT JOIN COMMENTS cm
+                ON c.ID = cm.COMMUNITY_ID
+            INNER JOIN SHORTFORM_USERS u
+                ON u.ID = c.COMMUNITY_WRITER_ID
+            WHERE c.COMMUNITY_UUID = #{mention}
+            ORDER BY c.CREATE_AT DESC
+    </select>
+
+    <select id="selectByCommunityButWhereIdAsdf" parameterType="Long" resultMap="profilePageAllCommunityResultMap">
+        WITH FILES AS (
+            SELECT
+                COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
+                LISTAGG(FILE_SRC, ',') WITHIN GROUP (ORDER BY UPLOAD_AT) AS FILES
         FROM SHORTFORM_COMMUNITY_ADDITIONS
+        GROUP BY COMMUNITY_ID
+            ),
+            LIKES AS (
+        SELECT
+            COMMUNITY_ID,
+            COUNT(*) AS LIKE_CNT
+        FROM SHORTFORM_COMMUNITY_LIKES
+        GROUP BY COMMUNITY_ID
+            ),
+            COMMENTS AS (
+        SELECT
+            COMMUNITY_ID,
+            COUNT(*) AS COMMENT_CNT
+        FROM SHORTFORM_COMMUNITY_COMMENTS
         GROUP BY COMMUNITY_ID
             )
         SELECT
             c.ID,
-            c.COMMUNITY_UUID,
-            c.COMMUNITY_WRITER_ID,
-            c.COMMUNITY_TEXT,  -- CLOB 그대로 출력 가능
-            f.FILES,
             u.USERNAME,
-            u.MAIL,
             u.PROFILE_IMG_SRC,
             u.MENTION,
-            c.CREATE_AT
+            c.COMMUNITY_UUID,
+            c.COMMUNITY_WRITER_ID,
+            c.COMMUNITY_TEXT,
+            c.CREATE_AT,
+            f.FILES,
+            NVL(l.LIKE_CNT, 0)    AS LIKE_CNT,
+            NVL(cm.COMMENT_CNT, 0) AS COMMENT_CNT
         FROM SHORTFORM_COMMUNITYS c
                  LEFT JOIN FILES f
                            ON c.ID = f.ADDITIONS_COMMUNITY_ID
+                 LEFT JOIN LIKES l
+                           ON c.ID = l.COMMUNITY_ID
+                 LEFT JOIN COMMENTS cm
+                           ON c.ID = cm.COMMUNITY_ID
                  INNER JOIN SHORTFORM_USERS u
                             ON u.ID = c.COMMUNITY_WRITER_ID
-        WHERE c.COMMUNITY_UUID = #{uuid}
+        WHERE c.COMMUNITY_WRITER_ID = #{id}
         ORDER BY c.CREATE_AT DESC
     </select>
 

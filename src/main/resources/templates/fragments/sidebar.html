@@ -104,7 +104,7 @@
         <div>
             <div th:if="${session.user != null}">
                 <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="w-full p-3 border border-gray-600 rounded-xl font-semibold hover:border-gray-400 hover:bg-gray-300/10 transition-all">로그아웃</button>
+                    <button type="submit" id="logout" class="w-full p-3 border border-gray-600 rounded-xl font-semibold hover:border-gray-400 hover:bg-gray-300/10 transition-all">로그아웃</button>
                 </form>
             </div>
             <div class="space-y-3" th:if="${session.user == null}">

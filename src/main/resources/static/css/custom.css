@@ -24,6 +24,19 @@ main::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
 }
 
+#community-additions-files::-webkit-scrollbar {
+    width: 1px;
+    height: 2px;
+    z-index: 60;
+}
+#community-additions-files::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+#community-additions-files::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+}
+
 /* 답글 입력창 애니메이션 */
 .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;

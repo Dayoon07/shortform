@@ -28,6 +28,7 @@ public class MainController {
     private final ViewStoryService viewStoryService;
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
+    private final CommunityLikeService communityLikeService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -123,8 +124,7 @@ public class MainController {
                 m.addAttribute("isFollowing", false);
             }
 
-            m.addAttribute("posts", communityService.selectByCommunityButWhereId(profileUser.getId()));
-
+            m.addAttribute("posts", communityService.selectByCommunityButWhereIdAsdf(profileUser.getId()));
             return "profile/profile-post";
         } else {
             return "profile/void-user";
@@ -142,7 +142,7 @@ public class MainController {
 
     @GetMapping("/explore")
     public String explorePage(Model m) {
-        m.addAttribute("videos",  videoService.selectIndexPageAllVideos());
+        m.addAttribute("videos", videoService.selectIndexPageAllVideos());
         return "explore/explore";
     }
 
@@ -218,10 +218,7 @@ public class MainController {
             throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
         }
 
-        m.addAttribute("communityWriterInfo", user);
-        m.addAttribute("posts", communityService.selectByCommunityButWhereId(user.getId()));
         m.addAttribute("cat", communityService.findByCommunityBoardFuck(communityUuid));
-
         return "profile/post-detail";
     }
 

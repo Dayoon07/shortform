@@ -1,5 +1,7 @@
 package com.e.shortform.config.custom;
 
+import java.util.Locale;
+
 public class LongTypeNumberFormat {
 
     public String formatViewCount(Long value) {
@@ -12,6 +14,10 @@ public class LongTypeNumberFormat {
         } else {
             return value.toString().concat("회");
         }
+    }
+
+    public String formatComma(Long value) {
+        return String.format(Locale.KOREA, "%,d", value);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.e.shortform.model.mapper;
 
 import com.e.shortform.model.dto.CommunityWithUserProfileDto;
+import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 public interface CommunityMapper {
 
     List<CommunityWithUserProfileDto> selectByCommunityButWhereId(Long id);
-    List<CommunityWithUserProfileDto> findByCommunityBoardFuck(String uuid);
+    UserProfilePostAllLikeCntDto findByCommunityBoardFuck(String uuid);
+    List<UserProfilePostAllLikeCntDto> selectByCommunityButWhereIdAsdf(Long id);
 
 }

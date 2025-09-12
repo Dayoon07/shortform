@@ -1,6 +1,7 @@
 package com.e.shortform.model.service;
 
 import com.e.shortform.model.dto.CommunityWithUserProfileDto;
+import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
 import com.e.shortform.model.entity.CommunityAdditionEntity;
 import com.e.shortform.model.entity.CommunityEntity;
 import com.e.shortform.model.entity.UserEntity;
@@ -344,9 +345,12 @@ public class CommunityService {
         return communityRepo.findByCommunityUuid(communityUuid);
     }
 
-    public CommunityWithUserProfileDto findByCommunityBoardFuck(String uuid) {
-        return communityMapper.findByCommunityBoardFuck(uuid).getFirst();
+    public UserProfilePostAllLikeCntDto findByCommunityBoardFuck(String uuid) {
+        return communityMapper.findByCommunityBoardFuck(uuid);
     }
 
+    public List<UserProfilePostAllLikeCntDto> selectByCommunityButWhereIdAsdf(Long id) {
+        return communityMapper.selectByCommunityButWhereIdAsdf(id);
+    }
 
 }

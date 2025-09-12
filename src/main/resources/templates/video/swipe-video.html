@@ -249,7 +249,7 @@
                     </div>
                 </div>
 
-                <div id="comment-list"
+                <div id="comment-list-wawawawawa"
                      class="flex-1 overflow-y-auto p-4 space-y-4"
                      th:data-video-id="${videoInfo.getId()}"
                      role="list"
@@ -258,9 +258,8 @@
                 <!-- 댓글 작성 (로그인한 사용자만) -->
                 <div th:if="${session.user != null}" class="p-4 border-t border-gray-700">
                     <form id="comment-form" class="flex items-center space-x-3">
-                        <img th:src="${session.user.getProfileImgSrc()}"
-                             alt="내 프로필"
-                             class="w-9 h-9 rounded-full object-cover border-2 border-gradient-to-r from-pink-500 to-sky-500">
+                        <img th:src="${session.user.getProfileImgSrc()}" alt="내 프로필"
+                             class="w-9 h-9 rounded-full object-cover p-0.5 bg-gradient-to-r from-pink-500 to-sky-500">
                         <div class="flex-1 flex space-x-2 items-center">
                                 <textarea name="commentText"
                                           id="commentText"
@@ -335,11 +334,11 @@
                 type === 'success' ? 'bg-green-500' : 'bg-red-500'
             }`;
             notification.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">${type === 'success' ? '✓' : '✕'}</span>
-                        <span>${message}</span>
-                    </div>
-                `;
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">${type === 'success' ? '✓' : '✕'}</span>
+                    <span>${message}</span>
+                </div>
+            `;
 
             document.body.appendChild(notification);
 
@@ -350,8 +349,8 @@
         }
 
         // 보안 관련 콘솔 경고
-        console.log('%c🚫 콘솔 사용 주의!', 'color: crimson; font-size: 30px; font-weight: bold;');
-        console.log('%c콘솔에 코드를 붙여넣지 마세요. 해킹 위험이 있습니다.', 'font-size: 18px; color: black;');
+        // console.log('%c🚫 콘솔 사용 주의!', 'color: crimson; font-size: 30px; font-weight: bold;');
+        // console.log('%c콘솔에 코드를 붙여넣지 마세요. 해킹 위험이 있습니다.', 'font-size: 18px; color: black;');
     </script>
 </body>
 </html>

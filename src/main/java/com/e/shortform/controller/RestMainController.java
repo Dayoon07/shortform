@@ -35,6 +35,7 @@ public class RestMainController {
     private final CommentReplyService commentReplyService;
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
+    private final CommunityLikeService communityLikeService;
 
     @Data
     @NoArgsConstructor
@@ -676,5 +677,18 @@ public class RestMainController {
     public List<?> selectAllCommunityAddition() {
         return communityAdditionService.findAll();
     }
+
+    @PostMapping("/post/like")
+    public ResponseEntity<Map<String, Object>> postLike(@RequestParam String communityUuid, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("status", "fail", "message", "로그인 필요"));
+        }
+
+        Map<String, Object> map = communityLikeService.postLike(communityUuid, session);
+        return ResponseEntity.ok(map);
+    }
+
 
 }

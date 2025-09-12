@@ -61,7 +61,6 @@ window.addEventListener("touchend", (e) => {
 
 // PC 휠 이벤트
 window.addEventListener("wheel", (e) => {
-    e.preventDefault();
     handleSwipe(e.deltaY);
 });
 
@@ -201,52 +200,44 @@ async function prevVideo() {
 
 // 팔로우 버튼 업데이트 함수
 function updateFollowButton(videoData) {
-    const currentUser = document.querySelector('[th\\:if="${session.user != null}"]');
-    if (!currentUser) return; // 로그인하지 않은 경우
-
-    const followContainer = document.querySelector('#uploader-profile-data-info .max-sm\\:flex');
+    const followContainer = document.getElementById("follow-button-container");
     if (!followContainer) return;
 
-    const isCurrentUser = followContainer.querySelector('[th\\:if="${session.user != null and session.user.id != videoInfo.getUploader().getId()}"]');
-    if (!isCurrentUser) return; // 본인 영상인 경우
+    const realFollowBtn = document.querySelector("#follow-button-container > *");
+    const user = JSON.parse(localStorage.getItem("user"));
 
-    // 기존 버튼 제거
-    const existingBtn = followContainer.querySelector('button');
-    if (existingBtn) {
-        existingBtn.remove();
+    if (user.id !== videoData.uploader.id) {
+        realFollowBtn.type = "button";
+        realFollowBtn.dataset.mention = videoData.uploader.mention;
+        realFollowBtn.id = videoData.isFollowing === true ? "user-following-btn" : "user-follow-btn";
+        realFollowBtn.className = videoData.isFollowing === true
+            ? "bg-gray-600 hover:bg-red-600 px-4 md:px-4 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2 text-xs md:text-sm"
+            : "bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600 px-4 md:px-4 py-2 rounded-md transition-all duration-200 flex items-center space-x-2 text-xs md:text-sm"
+        realFollowBtn.classList.remove("hidden");
+    } else {
+        console.log("업로더와 현재 사용자가 같습니다. 자기 자신은 팔로우 할 수 없습니다.");
+        realFollowBtn.classList.add("hidden");
     }
 
-    // 새 버튼 생성
-    const newButton = document.createElement('button');
-    newButton.type = 'button';
-    newButton.dataset.mention = videoData.uploader.id;
-    newButton.className = 'flex items-center space-x-2 px-8 py-2 rounded-md transition-all duration-200';
-
-    if (videoData.isFollowing) {
-        newButton.id = 'user-following-btn';
-        newButton.className += ' bg-gray-600 hover:bg-red-600';
-        newButton.innerHTML = `
+    if (videoData.isFollowing === true) {
+        realFollowBtn.innerHTML = `
             <span>팔로잉</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
         `;
     } else {
-        newButton.id = 'user-follow-btn';
-        newButton.className += ' bg-gradient-to-r from-pink-500 to-sky-500 hover:from-pink-600 hover:to-sky-600';
-        newButton.innerHTML = `
+        realFollowBtn.innerHTML = `
             <span>팔로우</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
         `;
     }
 
-    followContainer.appendChild(newButton);
-
     // 새 버튼에 이벤트 리스너 추가 (user-follow.js의 이벤트와 연동)
     if (window.attachFollowListener) {
-        window.attachFollowListener(newButton);
+        window.attachFollowListener(realFollowBtn);
     }
 }
 
@@ -354,23 +345,30 @@ async function transitionToVideo(videoData) {
             hiddenTagInput.value = videoData.videoTag || '';
         }
 
+        const commentModalTitle = document.getElementById("comment-modal-title");
+        if (commentModalTitle) {
+            commentModalTitle.textContent = `댓글 ${videoData.commentCount}개`;
+        }
+
         // 상호작용 요소 업데이트
-        const likeBtn = document.querySelector("#like-btn");
+        const likeBtn = document.getElementById("like-btn");
         if (likeBtn) {
             likeBtn.dataset.videoId = videoData.id;
             likeBtn.dataset.isLiked = videoData.isLiked;
 
             const heartIcon = document.getElementById("like-btn-svg");
-            if (videoData.isLiked === true || videoData.isLiked === 'true') {
-                heartIcon.classList.remove('heart-empty');
-                heartIcon.classList.add('heart-filled');
+            if (videoData.isLiked === true) {
+                heartIcon.style.fill = "rgb(239, 68, 68)";
+                heartIcon.style.stroke = "rgb(239, 68, 68)";
+                heartIcon.style.color = "rgb(239, 68, 68)";
             } else {
-                heartIcon.classList.remove('heart-filled');
-                heartIcon.classList.add('heart-empty');
+                heartIcon.style.fill = "";
+                heartIcon.style.stroke = "";
+                heartIcon.style.color = "";
             }
         }
 
-        const likeCountElement = document.querySelector("#like-count") || document.querySelector(".like-count");
+        const likeCountElement = document.getElementById("like-count") || document.querySelector(".like-count");
         if (likeCountElement) {
             likeCountElement.textContent = videoData.likeCount || '0';
         }
