@@ -16,9 +16,9 @@
         <div th:replace="~{fragments/sidebar.html :: sidebar}"></div>
 
         <main class="flex-1 overflow-y-auto">
-            <section>
+            <section class="max-md:pb-40">
 
-                <div class="p-4 md:pl-4 md:pr-20 max-md:pb-40">
+                <div class="p-4 md:pl-4 md:pr-20">
                     <div th:if="${cat == null}"
                          class="flex flex-col items-center justify-center py-10 text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -106,6 +106,40 @@
                                     <span class="text-sm max-md:hidden">공유</span>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${session.user != null}"
+                     class="p-4 md:pl-4 md:pr-20 max-md:pb-40">
+                    <div class="flex space-x-4">
+                        <div>
+                            <img th:src="${session.user.getProfileImgSrc()}" alt="profile" class="w-10 h-10 rounded-full object-cover cursor-pointer" />
+                        </div>
+
+                        <div class="flex-1">
+                            <div id="community-comment-form" th:data-community-uuid="${cat.getCommunityUuid()}">
+                                <textarea name="commentText" placeholder="댓글을 작성해주세요" id="commentText" class="w-full h-20 px-4 py-2 border-gray-700 border-b bg-black
+                                    focus:outline-none focus:border-2 resize-none text-white"></textarea>
+
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" id="comment-submit-btn" class="px-4 py-2 border-gray-700 border rounded
+                                        hover:bg-gray-700 hover:text-white transition">
+                                        작성
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-4" id="comment-list">
+                        <div th:each="comment : ${comments}" class="border-b border-gray-800 pb-2">
+                            <div class="flex items-center space-x-2">
+                                <img th:src="${comment.getUser().getProfileImgSrc()}" alt="profile" class="w-8 h-8 rounded-full object-cover" />
+                                <span class="font-semibold text-sm text-gray-200" th:text="${comment.getUser().getUsername()}"></span>
+                                <span class="text-xs text-gray-500" th:text="${@timestampDateFormat.format(comment.getCreateAt())}"></span>
+                            </div>
+                            <p class="ml-10 text-gray-300" th:text="${comment.getCommentText()}"></p>
                         </div>
                     </div>
                 </div>

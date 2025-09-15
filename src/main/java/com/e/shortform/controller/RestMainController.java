@@ -1,5 +1,6 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.config.JwtUtil;
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.dto.VideoRequestDto;
 import com.e.shortform.model.entity.*;
@@ -36,6 +37,7 @@ public class RestMainController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final JwtUtil jwtUtil;
 
     @Data
     @NoArgsConstructor
@@ -88,14 +90,13 @@ public class RestMainController {
     @PostMapping("/user/login")
     public ResponseEntity<Map<String, Object>> login(
             @RequestBody UserEntity loginRequest,
-            HttpSession session) {
+            HttpSession session,
+            @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
             UserEntity user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-
-            session.setAttribute("user", user); // 또는 최소한의 정보만 저장
 
             response.put("success", true);
             response.put("message", "로그인 성공");
@@ -107,6 +108,16 @@ public class RestMainController {
                     "mention", user.getMention(),
                     "createAt", user.getCreateAt()
             ));
+
+            if ("mobile".equals(clientType)) {
+                // 모바일/네이티브 앱: JWT 토큰 발행
+                String token = jwtUtil.generateToken(user);
+                response.put("token", token);
+                response.put("tokenType", "Bearer");
+            } else {
+                // 웹 애플리케이션: 세션 사용
+                session.setAttribute("user", user);
+            }
 
             return ResponseEntity.ok(response);
 
@@ -683,12 +694,13 @@ public class RestMainController {
         UserEntity user = (UserEntity) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("status", "fail", "message", "로그인 필요"));
+                    .body(Map.of("like", "fail", "message", "로그인 필요"));
         }
 
         Map<String, Object> map = communityLikeService.postLike(communityUuid, session);
         return ResponseEntity.ok(map);
     }
+
 
 
 }

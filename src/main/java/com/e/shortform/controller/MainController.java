@@ -29,6 +29,7 @@ public class MainController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final CommunityCommentService communityCommentService;
 
     @GetMapping("/")
     public String index(Model m) {
@@ -219,6 +220,7 @@ public class MainController {
         }
 
         m.addAttribute("cat", communityService.findByCommunityBoardFuck(communityUuid));
+        m.addAttribute("comments", communityCommentService.findByCommunity(community));
         return "profile/post-detail";
     }
 

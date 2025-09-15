@@ -244,7 +244,7 @@
                                     <span class="text-sm max-md:hidden" th:text="'댓글 ' + ${item.getCommentCnt()}">댓글</span>
                                 </button>
 
-                                <button class="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors group ml-auto community-this-is-fuck" th:data-community-uuid="${item.getCommunityUuid()}">
+                                <button class="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors group ml-auto community-link-btn-wtf" th:data-community-uuid="${item.getCommunityUuid()}" th:data-community-writer-mention="${item.getMention()}">
                                     <div class="p-2 rounded-full group-hover:bg-gray-700 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
@@ -362,20 +362,36 @@
                 });
             });
 
-            document.querySelectorAll(".community-this-is-fuck").forEach(el => {
+            document.querySelectorAll(".community-link-btn-wtf").forEach(el => {
                 el.addEventListener("click", async (e) => {
-                    e.preventDefault(); // 혹시 링크가 있으면 기본 동작 방지
-                    const uuid = el.dataset.communityUuid; // 버튼 element에서 가져오기
-                    const loc = `${location.origin}/community/${uuid}`; // 원하는 URL 형태로 수정
+                    e.preventDefault();
+
+                    const m = el.dataset.communityWriterMention;
+                    const uuid = el.dataset.communityUuid;
+                    const loc = `${location.origin}/@${m}/post/${uuid}`;
 
                     try {
                         await navigator.clipboard.writeText(loc);
-                        console.log("링크 복사 성공: " + loc);
+                        showMessage("링크가 복사되었습니다!");
                     } catch (error) {
-                        console.error("링크 복사 실패 : " + error);
+                        showMessage("링크 복사에 실패했습니다.");
+                        console.log(error);
                     }
                 });
             });
+
+            function showMessage(message) {
+                const $div = document.createElement("div");
+                $div.style.position = "absolute";
+                $div.style.left = "50%";
+                $div.style.top = "50px";
+                $div.style.transform = 'translate(-50%, 20px)';
+                $div.style.backgroundColor = "rgb(22, 163, 74)";
+                $div.className = "text-white px-10 py-2 rounded shadow-md z-50";
+                $div.innerText = message;
+                document.body.appendChild($div);
+                setTimeout(() => $div.remove(), 2000);
+            }
 
         });
     </script>

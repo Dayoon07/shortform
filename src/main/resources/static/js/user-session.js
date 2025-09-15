@@ -395,12 +395,34 @@ class LoginManager {
         }
 
         try {
+            // // 로그인
+            // fetch('/user/login', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'X-Client-Type': 'mobile'
+            //     },
+            //     body: JSON.stringify({
+            //         username: 'user',
+            //         password: 'pass'
+            //     })
+            // })
+            //
+            // // 이후 API 요청시
+            // fetch('/api/someEndpoint', {
+            //     headers: {
+            //         'Authorization': 'Bearer ' + token
+            //     }
+            // })
             const response = await fetch(`${location.origin}/api/user/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({
+                    username,
+                    password
+                })
             });
 
             const data = await response.json();
@@ -774,4 +796,9 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // document.getElementById("google-login-btn")?.addEventListener("click", () => {
+    //     location.href = `${location.origin}/oauth2/authorization/google`;
+    // });
+
+    
 });

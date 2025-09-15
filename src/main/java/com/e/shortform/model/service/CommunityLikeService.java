@@ -55,7 +55,6 @@ public class CommunityLikeService {
             like = true;
         }
 
-        // 실제 DB에서 카운트 가져오기
         long count = communityLikeRepo.countByCommunity(c);
 
         return Map.of(
