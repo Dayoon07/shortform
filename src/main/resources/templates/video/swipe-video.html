@@ -61,7 +61,7 @@
                            th:src="@{${videoInfo.getVideoSrc()}}"
                            th:data-video-id="${videoInfo.getId()}"
                            class="max-w-full max-h-full object-contain mx-auto my-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                           autoplay loop playsinline muted>
+                           autoplay loop playsinline>
                     </video>
 
                     <!-- 비디오 오버레이 (클릭 영역) -->
@@ -153,12 +153,12 @@
                                  class="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white border-opacity-30 transition-transform hover:scale-110">
                         </a>
                         <div style="max-width: 128px;">
-                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block truncate">
-                                    <span class="uploader-username text-sm md:text-lg font-semibold hover:text-blue-300 transition-colors"
+                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block truncate uploader-username">
+                                    <span class="text-sm md:text-lg font-semibold hover:text-blue-300 transition-colors"
                                           th:text="${#strings.length(videoInfo.uploader.getUsername()) > 10 ? #strings.substring(videoInfo.uploader.getUsername(), 0, 10) + '...' : videoInfo.uploader.getUsername()}">사용자이름</span>
                             </a>
-                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block">
-                                    <span class="uploader-mention text-xs text-gray-300 hover:text-gray-100 transition-colors"
+                            <a th:href="@{'/@' + ${videoInfo.uploader.getMention()}}" class="block uploader-mention">
+                                    <span class="text-xs text-gray-300 hover:text-gray-100 transition-colors"
                                           th:text="${#strings.length(videoInfo.getUploader().getMention()) > 10 ? '@' + #strings.substring(videoInfo.getUploader().getMention(), 0, 10) + '...' : '@' + videoInfo.getUploader().getMention()}">@mention</span>
                             </a>
                         </div>

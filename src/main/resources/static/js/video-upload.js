@@ -63,6 +63,13 @@ function handleFiles() {
         return;
     }
 
+    const allowedExt = ['mp4', 'mov', 'avi', 'wmv'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowedExt.includes(ext)) {
+        alert('허용되지 않은 동영상 형식입니다. (mp4, mov, avi, wmv만 가능)');
+        return;
+    }
+
     // 파일 크기 검사 (150MB)
     const maxSize = 1024 * 1024 * 150;
     if (file.size > maxSize) {

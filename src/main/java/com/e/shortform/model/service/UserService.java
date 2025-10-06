@@ -1,5 +1,6 @@
 package com.e.shortform.model.service;
 
+import com.e.shortform.config.JwtUtil;
 import com.e.shortform.model.dto.UserProfileDto;
 import com.e.shortform.model.dto.UserProfileUpdateDto;
 import com.e.shortform.model.entity.UserEntity;
@@ -8,11 +9,15 @@ import com.e.shortform.model.repository.UserRepo;
 import com.e.shortform.model.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -23,18 +28,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final BCryptPasswordEncoder passwordEncoder;
 
     private final UserMapper userMapper;
     private final UserRepo userRepo;
+    private final JwtUtil jwtUtil;
 
     public List<UserVo> selectAll() {
         return userMapper.selectAll();
@@ -93,11 +101,13 @@ public class UserService {
         return userRepo.findByUsername(username);
     }
 
-    public UserEntity login(String username, String password) {
+    public ResponseEntity<Map<String, Object>> login(String username, String password, HttpSession session,
+        @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
+        Map<String, Object> response = new HashMap<>();
+
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("사용자명을 입력해주세요.");
         }
-
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("비밀번호를 입력해주세요.");
         }
@@ -105,10 +115,49 @@ public class UserService {
         UserEntity user = userRepo.findByUsername(username);
 
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            response.put("success", false);
+            response.put("message", "사용자명 또는 비밀번호가 올바르지 않습니다.");
             throw new SecurityException("사용자명 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        return user;
+        try {
+            response.put("success", true);
+            response.put("message", "로그인 성공");
+            response.put("user", Map.of(
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "mail", user.getMail(),
+                    "profileImgSrc", user.getProfileImgSrc(),
+                    "mention", user.getMention(),
+                    "createAt", user.getCreateAt()
+            ));
+
+            if ("mobile".equals(clientType)) {
+                // 모바일/네이티브 앱: JWT 토큰 발행
+                String token = jwtUtil.generateToken(user);
+                response.put("token", token);
+                response.put("tokenType", "Bearer");
+            } else {
+                // 웹 애플리케이션: 세션 사용
+                session.setAttribute("user", user);
+            }
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+
+        } catch (SecurityException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+        } catch (Exception e) {
+            log.error("로그인 오류: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "로그인 처리 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        return ResponseEntity.ok(response);
     }
 
     public UserEntity findByMention(String mention) {

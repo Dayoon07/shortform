@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             modal.innerHTML = `
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
-                    <h2 class="text-xl font-bold mb-4">프로필 수정</h2>
+                    <h2 class="text-xl font-bold mb-4 text-black">프로필 수정</h2>
                     
                     <form id="profile-edit-form" class="space-y-4 text-black">
                         <!-- 프로필 이미지 -->

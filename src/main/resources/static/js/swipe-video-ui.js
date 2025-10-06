@@ -37,8 +37,8 @@ function collectCurrentVideoData() {
         videoTag: document.getElementById("main-video-info-tag-fuck")?.value || '',
         uploader: {
             id: document.getElementById("uploader-profile-img-src").dataset.userId,
-            mention: document.querySelector(".uploader-mention").textContent.replace('@', ''),
-            username: document.querySelector(".uploader-username").textContent || '',
+            mention: document.querySelector(".uploader-mention > *").textContent.replace('@', ''),
+            username: document.querySelector(".uploader-username > *").textContent || '',
             profileImgSrc: document.getElementById("uploader-profile-img-src").src
         },
         likeCount: document.getElementById("like-count")?.textContent || document.querySelector(".like-count")?.textContent || '0',
@@ -278,21 +278,16 @@ async function transitionToVideo(videoData) {
             }
         });
 
-        const usernameSpans = document.querySelectorAll(".uploader-username");
-        usernameSpans.forEach(span => {
-            if (videoData.uploader && videoData.uploader.username) {
-                const username = videoData.uploader.username;
-                span.textContent = username.length > 10 ? username.substring(0, 10) + '...' : username;
-            }
-        });
+        const username = videoData.uploader.username;
+        const mention = videoData.uploader.mention;
 
-        const mentionSpans = document.querySelectorAll(".uploader-mention");
-        mentionSpans.forEach(span => {
-            if (videoData.uploader && videoData.uploader.mention) {
-                const mention = videoData.uploader.mention;
-                span.textContent = mention.length > 10 ? `@${mention.substring(0, 10)}...` : `@${mention}`;
-            }
-        });
+        const usernameSpans = document.querySelector(".uploader-username");
+        usernameSpans.href = `${location.origin}/@${mention}`;
+        document.querySelector(".uploader-username > span").textContent = username.length > 10 ? username.substring(0, 10) + '...' : username;
+
+        const mentionSpans = document.querySelector(".uploader-mention");
+        mentionSpans.href = `${location.origin}/@${mention}`;
+        document.querySelector(".uploader-mention > span").textContent = mention.length > 10 ? `@${mention.substring(0, 10)}...` : `@${mention}`;
 
         // 영상 정보 업데이트
         document.getElementById("video-title").textContent = videoData.title;

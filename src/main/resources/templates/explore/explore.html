@@ -39,7 +39,7 @@
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="food">음식</div>
                 <div class="tag px-4 py-2 bg-gray-800 hover:bg-gray-900 transition duration-300 cursor-pointer text-white rounded-xl" data-tag="animal">동물</div>
             </div>
-            <div id="video-con" class="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[150px] pb-36">
+            <div id="video-con" class="md:max-w-5xl md:mx-auto grid md:min-[480px] grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 max-md:pb-[200px]">
                 <div th:each="item : ${videos}">
                     <a th:href="@{/{username}/swipe/video/{videoLoc}(username='@' + ${item.getMention()}, videoLoc=${item.getVideoLoc()})}" class="relative group cursor-pointer">
                         <div class="relative aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden">
