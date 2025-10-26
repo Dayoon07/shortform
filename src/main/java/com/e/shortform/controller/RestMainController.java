@@ -385,6 +385,11 @@ public class RestMainController {
         return searchListService.selectMySearchList(Long.parseLong(id));
     }
 
+    @GetMapping("/user/search/all")
+    public List<SearchListEntity> getAllSearchLists() {
+        return searchListService.getAllSearchList();
+    }
+
     @PostMapping("/videos/random")
     public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
