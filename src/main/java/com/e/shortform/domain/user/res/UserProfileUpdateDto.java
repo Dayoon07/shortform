@@ -1,4 +1,4 @@
-package com.e.shortform.model.dto;
+package com.e.shortform.domain.user.res;
 
 public record UserProfileUpdateDto(
         Long id,

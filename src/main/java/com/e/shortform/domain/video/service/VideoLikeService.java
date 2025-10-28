@@ -1,12 +1,11 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.video.service;
 
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.entity.VideoLikeEntity;
-import com.e.shortform.model.mapper.VideoLikeMapper;
-import com.e.shortform.model.repository.UserRepo;
-import com.e.shortform.model.repository.VideoLikeRepo;
-import com.e.shortform.model.repository.VideoRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.mapper.VideoLikeMapper;
+import com.e.shortform.domain.video.repository.VideoLikeRepo;
+import com.e.shortform.domain.video.repository.VideoRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
-package com.e.shortform.model.repository;
+package com.e.shortform.domain.video.repository;
 
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoLikeEntity;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.entity.VideoLikeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

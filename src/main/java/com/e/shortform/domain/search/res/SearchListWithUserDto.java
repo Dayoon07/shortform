@@ -1,10 +1,7 @@
-package com.e.shortform.model.dto;
+package com.e.shortform.domain.search.res;
 
-import com.e.shortform.model.vo.UserVo;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.e.shortform.domain.user.vo.UserVo;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

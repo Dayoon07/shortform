@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.e.shortform.model.mapper.FollowMapper">
+<mapper namespace="com.e.shortform.domain.user.mapper.FollowMapper">
 
-    <resultMap id="followResultMap" type="com.e.shortform.model.vo.FollowVo">
+    <resultMap id="followResultMap" type="com.e.shortform.domain.user.vo.FollowVo">
         <id property="id" column="id"/>
         <result property="followUserId" column="follow_user_id"/>
         <result property="followedUserId" column="followed_user_id"/>
         <result property="createAt" column="create_at"/>
     </resultMap>
 
-    <resultMap id="followWithUsersResultMap" type="com.e.shortform.model.dto.FollowWithUserDto">
+    <resultMap id="followWithUsersResultMap" type="com.e.shortform.domain.user.res.FollowWithUserDto">
         <id property="id" column="id"/>
         <result property="followUserId" column="follow_user_id"/>
         <result property="followedUserId" column="followed_user_id"/>
         <result property="createAt" column="create_at"/>
-        <association property="followUser" javaType="com.e.shortform.model.vo.UserVo" />
-        <association property="followedUser" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="followUser" javaType="com.e.shortform.domain.user.vo.UserVo" />
+        <association property="followedUser" javaType="com.e.shortform.domain.user.vo.UserVo" />
     </resultMap>
 
     <select id="followExsits" parameterType="Long" resultType="Long">

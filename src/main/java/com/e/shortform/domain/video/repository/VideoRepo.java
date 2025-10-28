@@ -1,12 +1,9 @@
-package com.e.shortform.model.repository;
+package com.e.shortform.domain.video.repository;
 
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import org.springframework.data.domain.Sort;
+
+import com.e.shortform.domain.video.entity.VideoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface VideoRepo extends JpaRepository<VideoEntity, Long> {

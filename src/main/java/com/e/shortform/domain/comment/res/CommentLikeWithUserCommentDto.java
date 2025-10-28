@@ -1,7 +1,7 @@
-package com.e.shortform.model.dto;
+package com.e.shortform.domain.comment.res;
 
-import com.e.shortform.model.vo.CommentVo;
-import com.e.shortform.model.vo.UserVo;
+import com.e.shortform.domain.comment.vo.CommentVo;
+import com.e.shortform.domain.user.vo.UserVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

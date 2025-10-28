@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.e.shortform.model.mapper.CommentMapper">
+<mapper namespace="com.e.shortform.domain.comment.mapper.CommentMapper">
 
-    <resultMap id="commentResultMap" type="com.e.shortform.model.vo.CommentVo">
+    <resultMap id="commentResultMap" type="com.e.shortform.domain.comment.vo.CommentVo">
         <id property="id" column="ID"/>
         <result property="commentText" column="COMMENT_TEXT"/>
         <result property="userId" column="COMMENT_USER_ID"/>
@@ -10,18 +10,18 @@
         <result property="createAt" column="CREATE_AT"/>
     </resultMap>
 
-    <resultMap id="commentWithUserVideoResultMap" type="com.e.shortform.model.dto.CommentWithUserVideoDto">
+    <resultMap id="commentWithUserVideoResultMap" type="com.e.shortform.domain.comment.res.CommentWithUserVideoDto">
         <id property="id" column="ID"/>
         <result property="commentText" column="COMMENT_TEXT"/>
         <result property="commentUserId" column="COMMENT_USER_ID"/>
         <result property="commentVideoId" column="COMMENT_VIDEO_ID"/>
         <result property="createAt" column="CREATE_AT"/>
 
-        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
-        <association property="videoVo" javaType="com.e.shortform.model.vo.VideoVo" />
+        <association property="userVo" javaType="com.e.shortform.domain.user.vo.UserVo" />
+        <association property="videoVo" javaType="com.e.shortform.domain.video.vo.VideoVo" />
     </resultMap>
 
-    <resultMap id="commentWithUserVideoFfuucckkResultMap" type="com.e.shortform.model.dto.CommentUserFindWhatTheFuckDto">
+    <resultMap id="commentWithUserVideoFfuucckkResultMap" type="com.e.shortform.domain.comment.res.CommentUserFindWhatTheFuckDto">
         <id property="id" column="COMMENT_ID"/>
         <result property="commentText" column="COMMENT_TEXT"/>
         <result property="commentUserId" column="COMMENT_USER_ID"/>

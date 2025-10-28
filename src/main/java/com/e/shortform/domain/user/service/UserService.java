@@ -1,22 +1,20 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.user.service;
 
 import com.e.shortform.config.JwtUtil;
-import com.e.shortform.model.dto.UserProfileDto;
-import com.e.shortform.model.dto.UserProfileUpdateDto;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.mapper.UserMapper;
-import com.e.shortform.model.repository.UserRepo;
-import com.e.shortform.model.vo.UserVo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.mapper.UserMapper;
+import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.user.res.UserProfileDto;
+import com.e.shortform.domain.user.res.UserProfileUpdateDto;
+import com.e.shortform.domain.user.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 

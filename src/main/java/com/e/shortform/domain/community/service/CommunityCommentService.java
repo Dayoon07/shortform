@@ -1,9 +1,8 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.community.service;
 
-import com.e.shortform.model.entity.CommunityCommentEntity;
-import com.e.shortform.model.entity.CommunityEntity;
-import com.e.shortform.model.repository.CommunityCommentRepo;
-import com.e.shortform.model.repository.CommunityRepo;
+import com.e.shortform.domain.community.entity.CommunityCommentEntity;
+import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.repository.CommunityCommentRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

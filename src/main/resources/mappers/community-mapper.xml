@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.e.shortform.model.mapper.CommunityMapper">
+<mapper namespace="com.e.shortform.domain.community.mapper.CommunityMapper">
 
-    <resultMap id="communityResultMap" type="com.e.shortform.model.vo.CommunityVo">
+    <resultMap id="communityResultMap" type="com.e.shortform.domain.community.vo.CommunityVo">
         <id property="id" column="id"/>
         <result property="communityText" column="COMMUNITY_TEXT"/>
         <result property="communityWriterId" column="COMMUNITY_WRITER_ID"/>
@@ -11,7 +11,7 @@
         <result property="createAt" column="CREATE_AT"/>
     </resultMap>
 
-    <resultMap id="profilePageCommunityResultMap" type="com.e.shortform.model.dto.CommunityWithUserProfileDto">
+    <resultMap id="profilePageCommunityResultMap" type="com.e.shortform.domain.community.res.CommunityWithUserProfileDto">
         <id property="id" column="ID" />
         <result property="username" column="USERNAME" />
         <result property="profileImgSrc" column="PROFILE_IMG_SRC" />
@@ -23,7 +23,7 @@
         <result property="files" column="FILES" />
     </resultMap>
 
-    <resultMap id="profilePageAllCommunityResultMap" type="com.e.shortform.model.dto.UserProfilePostAllLikeCntDto">
+    <resultMap id="profilePageAllCommunityResultMap" type="com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto">
         <id property="id" column="ID" />
         <result property="username" column="USERNAME" />
         <result property="profileImgSrc" column="PROFILE_IMG_SRC" />

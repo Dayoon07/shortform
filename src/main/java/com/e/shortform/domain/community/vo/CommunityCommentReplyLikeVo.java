@@ -1,4 +1,4 @@
-package com.e.shortform.model.vo;
+package com.e.shortform.domain.community.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,12 @@
-package com.e.shortform.model.entity;
+package com.e.shortform.domain.comment.entity;
 
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.video.entity.VideoEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

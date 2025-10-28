@@ -1,7 +1,7 @@
-package com.e.shortform.model.dto;
+package com.e.shortform.domain.video.res;
 
-import com.e.shortform.model.vo.UserVo;
-import com.e.shortform.model.vo.VideoVo;
+import com.e.shortform.domain.user.vo.UserVo;
+import com.e.shortform.domain.video.vo.VideoVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

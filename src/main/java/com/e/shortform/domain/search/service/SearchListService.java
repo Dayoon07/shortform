@@ -1,11 +1,11 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.search.service;
 
-import com.e.shortform.model.entity.SearchListEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.mapper.SearchListMapper;
-import com.e.shortform.model.repository.SearchListRepo;
-import com.e.shortform.model.repository.UserRepo;
-import com.e.shortform.model.vo.SearchListVo;
+import com.e.shortform.domain.search.entity.SearchListEntity;
+import com.e.shortform.domain.search.mapper.SearchListMapper;
+import com.e.shortform.domain.search.repository.SearchListRepo;
+import com.e.shortform.domain.search.vo.SearchListVo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

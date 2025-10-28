@@ -1,14 +1,14 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.community.service;
 
-import com.e.shortform.model.dto.CommunityWithUserProfileDto;
+import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
+import com.e.shortform.domain.community.entity.CommunityAdditionEntity;
+import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.mapper.CommunityMapper;
+import com.e.shortform.domain.community.repository.CommunityAdditionRepo;
+import com.e.shortform.domain.community.repository.CommunityRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
-import com.e.shortform.model.entity.CommunityAdditionEntity;
-import com.e.shortform.model.entity.CommunityEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.mapper.CommunityMapper;
-import com.e.shortform.model.repository.CommunityAdditionRepo;
-import com.e.shortform.model.repository.CommunityRepo;
-import com.e.shortform.model.repository.UserRepo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

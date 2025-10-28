@@ -1,6 +1,6 @@
 package com.e.shortform.config;
 
-import com.e.shortform.model.entity.UserEntity;
+import com.e.shortform.domain.user.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

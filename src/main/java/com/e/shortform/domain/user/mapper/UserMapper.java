@@ -1,7 +1,7 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.user.mapper;
 
-import com.e.shortform.model.dto.UserProfileDto;
-import com.e.shortform.model.vo.UserVo;
+import com.e.shortform.domain.user.res.UserProfileDto;
+import com.e.shortform.domain.user.vo.UserVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,9 +1,8 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.video.mapper;
 
-import com.e.shortform.model.dto.IndexPageAllVideosDto;
-import com.e.shortform.model.dto.VideoWithUserDto;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.vo.VideoVo;
+import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
+import com.e.shortform.domain.video.res.VideoWithUserDto;
+import com.e.shortform.domain.video.vo.VideoVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

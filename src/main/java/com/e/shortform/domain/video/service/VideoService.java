@@ -1,11 +1,13 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.video.service;
 
-import com.e.shortform.model.dto.IndexPageAllVideosDto;
-import com.e.shortform.model.dto.VideoWithUserDto;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.mapper.VideoMapper;
-import com.e.shortform.model.repository.UserRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.mapper.VideoMapper;
+import com.e.shortform.domain.video.repository.VideoRepo;
+import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
+import com.e.shortform.domain.video.res.VideoWithUserDto;
+import com.e.shortform.domain.video.vo.VideoVo;
 import com.e.shortform.model.repository.VideoRepo;
 import com.e.shortform.model.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;

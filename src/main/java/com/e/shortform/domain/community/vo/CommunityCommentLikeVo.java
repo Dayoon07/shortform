@@ -1,10 +1,6 @@
-package com.e.shortform.model.vo;
+package com.e.shortform.domain.community.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Data

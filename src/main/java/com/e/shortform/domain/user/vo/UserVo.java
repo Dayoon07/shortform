@@ -1,4 +1,4 @@
-package com.e.shortform.model.vo;
+package com.e.shortform.domain.user.vo;
 
 import lombok.*;
 

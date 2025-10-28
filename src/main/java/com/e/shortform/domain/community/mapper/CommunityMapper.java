@@ -1,6 +1,6 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.community.mapper;
 
-import com.e.shortform.model.dto.CommunityWithUserProfileDto;
+import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
 import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
 import org.apache.ibatis.annotations.Mapper;
 

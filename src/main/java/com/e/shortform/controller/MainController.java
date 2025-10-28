@@ -1,9 +1,19 @@
 package com.e.shortform.controller;
 
-import com.e.shortform.model.entity.CommunityEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.service.*;
+import com.e.shortform.domain.comment.service.CommentService;
+import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.service.CommunityAdditionService;
+import com.e.shortform.domain.community.service.CommunityCommentService;
+import com.e.shortform.domain.community.service.CommunityLikeService;
+import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.search.service.SearchListService;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.service.FollowService;
+import com.e.shortform.domain.user.service.UserService;
+import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.service.VideoLikeService;
+import com.e.shortform.domain.video.service.VideoService;
+import com.e.shortform.domain.viewstory.service.ViewStoryService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

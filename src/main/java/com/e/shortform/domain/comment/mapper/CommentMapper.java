@@ -1,6 +1,6 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.comment.mapper;
 
-import com.e.shortform.model.dto.CommentWithUserVideoDto;
+import com.e.shortform.domain.comment.res.CommentWithUserVideoDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

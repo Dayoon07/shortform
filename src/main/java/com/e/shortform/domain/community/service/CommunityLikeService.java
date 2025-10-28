@@ -1,13 +1,13 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.community.service;
 
+import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.entity.CommunityLikeEntity;
+import com.e.shortform.domain.community.mapper.CommunityLikeMapper;
+import com.e.shortform.domain.community.repository.CommunityLikeRepo;
+import com.e.shortform.domain.community.repository.CommunityRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
-import com.e.shortform.model.entity.CommunityEntity;
-import com.e.shortform.model.entity.CommunityLikeEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.mapper.CommunityLikeMapper;
-import com.e.shortform.model.repository.CommunityLikeRepo;
-import com.e.shortform.model.repository.CommunityRepo;
-import com.e.shortform.model.repository.UserRepo;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

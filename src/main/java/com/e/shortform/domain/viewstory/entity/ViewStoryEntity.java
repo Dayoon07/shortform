@@ -1,5 +1,7 @@
-package com.e.shortform.model.entity;
+package com.e.shortform.domain.viewstory.entity;
 
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.video.entity.VideoEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

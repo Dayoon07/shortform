@@ -1,7 +1,7 @@
 package com.e.shortform.config;
 
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.service.UserService;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

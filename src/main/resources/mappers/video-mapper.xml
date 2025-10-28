@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.e.shortform.model.mapper.VideoMapper">
+<mapper namespace="com.e.shortform.domain.video.mapper.VideoMapper">
 
-    <resultMap id="videoResultMap" type="com.e.shortform.model.vo.VideoVo">
+    <resultMap id="videoResultMap" type="com.e.shortform.domain.video.vo.VideoVo">
         <id property="id" column="ID"/>
         <result property="videoTitle" column="VIDEO_TITLE"/>
         <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
@@ -17,7 +17,7 @@
         <result property="uploadAt" column="UPLOAD_AT"/>
     </resultMap>
 
-    <resultMap id="videoWithUserResultMap" type="com.e.shortform.model.dto.VideoWithUserDto">
+    <resultMap id="videoWithUserResultMap" type="com.e.shortform.domain.video.res.VideoWithUserDto">
         <id property="id" column="ID"/>
         <result property="videoTitle" column="VIDEO_TITLE"/>
         <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
@@ -31,10 +31,10 @@
         <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
         <result property="uploadAt" column="UPLOAD_AT"/>
 
-        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="userVo" javaType="com.e.shortform.domain.user.vo.UserVo" />
     </resultMap>
 
-    <resultMap id="IndexPageAllVideosResultMap" type="com.e.shortform.model.dto.IndexPageAllVideosDto">
+    <resultMap id="IndexPageAllVideosResultMap" type="com.e.shortform.domain.video.res.IndexPageAllVideosDto">
         <result property="videoId" column="VIDEO_ID"/>
         <result property="videoTitle" column="VIDEO_TITLE"/>
         <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
@@ -57,7 +57,7 @@
         <result property="likeCount" column="LIKE_COUNT"/>
     </resultMap>
     
-    <resultMap id="videoWithUserFuckingResultMap" type="com.e.shortform.model.dto.VideoWithUserFuckingDto">
+    <resultMap id="videoWithUserFuckingResultMap" type="com.e.shortform.domain.video.res.VideoWithUserFuckingDto">
         <result property="videoId" column="VIDEO_ID"/>
         <result property="videoTitle" column="VIDEO_TITLE"/>
         <result property="videoDescription" column="VIDEO_DESCRIPTION"/>

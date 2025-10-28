@@ -1,11 +1,11 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.viewstory.service;
 
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.entity.VideoEntity;
-import com.e.shortform.model.entity.ViewStoryEntity;
-import com.e.shortform.model.repository.UserRepo;
-import com.e.shortform.model.repository.VideoRepo;
-import com.e.shortform.model.repository.ViewStoryRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.repository.VideoRepo;
+import com.e.shortform.domain.viewstory.entity.ViewStoryEntity;
+import com.e.shortform.domain.viewstory.repository.ViewStoryRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;

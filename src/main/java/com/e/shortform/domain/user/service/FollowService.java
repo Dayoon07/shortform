@@ -1,11 +1,10 @@
-package com.e.shortform.model.service;
+package com.e.shortform.domain.user.service;
 
-import com.e.shortform.model.entity.FollowEntity;
-import com.e.shortform.model.entity.UserEntity;
-import com.e.shortform.model.mapper.FollowMapper;
-import com.e.shortform.model.repository.FollowRepo;
-import com.e.shortform.model.repository.UserRepo;
-import jakarta.servlet.http.HttpSession;
+import com.e.shortform.domain.user.entity.FollowEntity;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.mapper.FollowMapper;
+import com.e.shortform.domain.user.repository.FollowRepo;
+import com.e.shortform.domain.user.repository.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

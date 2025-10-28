@@ -1,4 +1,4 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.community.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 

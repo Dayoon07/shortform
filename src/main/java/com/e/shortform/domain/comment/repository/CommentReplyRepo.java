@@ -1,7 +1,7 @@
-package com.e.shortform.model.repository;
+package com.e.shortform.domain.comment.repository;
 
-import com.e.shortform.model.entity.CommentEntity;
-import com.e.shortform.model.entity.CommentReplyEntity;
+import com.e.shortform.domain.comment.entity.CommentEntity;
+import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

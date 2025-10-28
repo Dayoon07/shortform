@@ -1,7 +1,6 @@
 package com.e.shortform.config;
 
-import com.e.shortform.model.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.e.shortform.domain.user.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

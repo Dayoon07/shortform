@@ -1,4 +1,4 @@
-package com.e.shortform.model.entity;
+package com.e.shortform.domain.community.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

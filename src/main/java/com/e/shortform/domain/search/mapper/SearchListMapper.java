@@ -1,6 +1,7 @@
-package com.e.shortform.model.mapper;
+package com.e.shortform.domain.search.mapper;
 
-import com.e.shortform.model.vo.SearchListVo;
+
+import com.e.shortform.domain.search.vo.SearchListVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

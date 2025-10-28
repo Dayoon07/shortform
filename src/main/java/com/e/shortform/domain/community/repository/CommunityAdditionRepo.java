@@ -1,7 +1,7 @@
-package com.e.shortform.model.repository;
+package com.e.shortform.domain.community.repository;
 
-import com.e.shortform.model.entity.CommunityAdditionEntity;
-import com.e.shortform.model.entity.CommunityEntity;
+import com.e.shortform.domain.community.entity.CommunityAdditionEntity;
+import com.e.shortform.domain.community.entity.CommunityEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.e.shortform.config.custom;
+package com.e.shortform.common;
 
 import java.util.Locale;
 
