@@ -8,8 +8,6 @@ import com.e.shortform.domain.video.repository.VideoRepo;
 import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
 import com.e.shortform.domain.video.res.VideoWithUserDto;
 import com.e.shortform.domain.video.vo.VideoVo;
-import com.e.shortform.model.repository.VideoRepo;
-import com.e.shortform.model.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

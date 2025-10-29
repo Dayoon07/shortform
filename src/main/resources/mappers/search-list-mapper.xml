@@ -15,7 +15,7 @@
         <result property="searchedWord" column="searched_word"/>
         <result property="createAt" column="create_at"/>
 
-        <association property="userVo" javaType="com.e.shortform.model.vo.UserVo" />
+        <association property="userVo" javaType="com.e.shortform.domain.user.vo.UserVo" />
     </resultMap>
 
     <select id="selectMySearchList" parameterType="Long" resultMap="searchListResultMap">

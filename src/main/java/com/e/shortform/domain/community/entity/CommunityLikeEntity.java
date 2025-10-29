@@ -1,5 +1,6 @@
 package com.e.shortform.domain.community.entity;
 
+import com.e.shortform.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

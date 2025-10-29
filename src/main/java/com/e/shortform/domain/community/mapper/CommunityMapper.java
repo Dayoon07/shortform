@@ -1,7 +1,7 @@
 package com.e.shortform.domain.community.mapper;
 
 import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
-import com.e.shortform.model.dto.UserProfilePostAllLikeCntDto;
+import com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
