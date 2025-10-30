@@ -48,6 +48,9 @@ dependencies {
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
     annotationProcessor("org.projectlombok:lombok")
 
+    // DevTools
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4")
     testImplementation("org.springframework.security:spring-security-test")
