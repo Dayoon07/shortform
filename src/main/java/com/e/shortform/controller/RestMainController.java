@@ -1,5 +1,6 @@
 package com.e.shortform.controller;
 
+import com.e.shortform.common.annotation.CheckSession;
 import com.e.shortform.config.JwtUtil;
 import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import com.e.shortform.domain.comment.service.CommentLikeService;
@@ -34,10 +35,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-@RestController
+@RestController()
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
 public class RestMainController {
 
     private final UserService userService;
@@ -101,6 +102,14 @@ public class RestMainController {
         return ResponseEntity.ok("회원가입 완료");
     }
 
+    @PostMapping("/user/login")
+    public ResponseEntity<Map<String, Object>> login(
+            @RequestBody UserEntity loginRequest,
+            HttpSession session,
+            @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
+        return userService.login(loginRequest.getUsername(), loginRequest.getPassword(), session, clientType);
+    }
+
     @GetMapping("/user/chk/username")
     public boolean chkUsername(@RequestParam String username) {
         return userService.selectChkUsername(username) == null;
@@ -111,14 +120,7 @@ public class RestMainController {
         return userService.selectChkUserMail(mail) == null;
     }
 
-    @PostMapping("/user/login")
-    public ResponseEntity<Map<String, Object>> login(
-            @RequestBody UserEntity loginRequest,
-            HttpSession session,
-            @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
-        return userService.login(loginRequest.getUsername(), loginRequest.getPassword(), session, clientType);
-    }
-
+    @CheckSession
     @PostMapping("/upload/video")
     public ResponseEntity<Map<String, Object>> uploadVidefoComplete(
             @RequestParam("video") MultipartFile file,

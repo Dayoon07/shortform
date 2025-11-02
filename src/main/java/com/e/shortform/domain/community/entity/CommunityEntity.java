@@ -2,10 +2,7 @@ package com.e.shortform.domain.community.entity;
 
 import com.e.shortform.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -23,7 +20,6 @@ public class CommunityEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Lob
     @Column(name = "COMMUNITY_TEXT")
     private String communityText;
 
