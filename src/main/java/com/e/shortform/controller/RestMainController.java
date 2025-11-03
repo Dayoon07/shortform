@@ -18,6 +18,7 @@ import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.entity.VideoEntity;
 import com.e.shortform.domain.video.req.VideoRequestDto;
+import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
 import com.e.shortform.domain.viewstory.entity.ViewStoryEntity;
@@ -77,8 +78,8 @@ public class RestMainController {
     }
 
     @GetMapping("/video/all")
-    public List<VideoEntity> selectAllVideos() {
-        return videoService.selectAllVideos();
+    public List<IndexPageAllVideosDto> selectAllVideos() {
+        return videoService.selectIndexPageAllVideos();
     }
 
     @GetMapping("/find/community/all")
@@ -108,6 +109,12 @@ public class RestMainController {
             HttpSession session,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
         return userService.login(loginRequest.getUsername(), loginRequest.getPassword(), session, clientType);
+    }
+
+    @PostMapping("/user/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "로그아웃 되었습니다.";
     }
 
     @GetMapping("/user/chk/username")
@@ -393,7 +400,12 @@ public class RestMainController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String q) {
+    public ResponseEntity<?> search(@RequestParam String q, @RequestParam(required = false) String mention) {
+        if (mention != null && !mention.isBlank()) {
+            searchListService.searchWordRecord(q, mention);
+        } else {
+            searchListService.searchWordRecord(q);
+        }
         return ResponseEntity.ok(videoService.searchLogic(q));
     }
 

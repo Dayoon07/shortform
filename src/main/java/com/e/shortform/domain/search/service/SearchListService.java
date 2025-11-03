@@ -30,7 +30,25 @@ public class SearchListService {
         searchListRepo.save(et);
     }
 
-    public void searchWordRecord(String q, HttpSession session) {
+    public void searchWordRecord(String q, String mention) {
+        UserEntity user = userRepo.findByMention(mention);
+        if (user != null) throw new RuntimeException("해당 멘션의 사용자를 찾을 수 없습니다: " + mention);
+
+        SearchListEntity et = SearchListEntity.builder()
+                .user(user)
+                .searchedWord(q)
+                .build();
+        searchListRepo.save(et);
+    }
+
+    public void searchWordRecordSessionVer(String q) {
+        SearchListEntity et = SearchListEntity.builder()
+                .searchedWord(q)
+                .build();
+        searchListRepo.save(et);
+    }
+
+    public void searchWordRecordSessionVer(String q, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
 
         SearchListEntity et = SearchListEntity.builder()

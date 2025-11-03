@@ -20,6 +20,7 @@ public class CommunityEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
 
+    @Lob
     @Column(name = "COMMUNITY_TEXT")
     private String communityText;
 

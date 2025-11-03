@@ -50,9 +50,9 @@ public class MainController {
     @GetMapping("/search")
     public String searchPage(@RequestParam String q, HttpSession session, Model m) {
         if (session.getAttribute("user") != null) {
-            searchListService.searchWordRecord(q, session);
+            searchListService.searchWordRecordSessionVer(q, session);
         } else {
-            searchListService.searchWordRecord(q);
+            searchListService.searchWordRecordSessionVer(q);
         }
 
         m.addAttribute("videos", videoService.searchLogic(q));
