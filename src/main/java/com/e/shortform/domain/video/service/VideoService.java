@@ -175,4 +175,8 @@ public class VideoService {
         return videoMapper.selectExploreVideoListByTagsButVideoViewsDescFuck(hashtag);
     }
 
+    public List<VideoEntity> findAll() {
+        return videoRepo.findAll();
+    }
+
 }
