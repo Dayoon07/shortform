@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController()
+@RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
@@ -29,12 +29,10 @@ public class RestUserController {
         return ResponseEntity.ok(videoService.selectUserProfilePageAllVideos(mention));
     }
 
-    @GetMapping("/user/info/{mention}/post")
-    public ResponseEntity<?> getUserPosts(@PathVariable String mention) {
+    @GetMapping("/user/post/info")
+    public ResponseEntity<?> getUserPosts(@RequestParam String mention) {
         UserEntity user = userService.findByMention(mention);
         return ResponseEntity.ok(communityService.selectByCommunityButWhereIdAsdf(user.getId()));
     }
-
-
 
 }
