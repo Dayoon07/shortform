@@ -32,7 +32,7 @@ public class SearchListService {
 
     public void searchWordRecord(String q, String mention) {
         UserEntity user = userRepo.findByMention(mention);
-        if (user != null) throw new RuntimeException("해당 멘션의 사용자를 찾을 수 없습니다: " + mention);
+        if (user == null) throw new RuntimeException("해당 멘션의 사용자를 찾을 수 없습니다: " + mention);
 
         SearchListEntity et = SearchListEntity.builder()
                 .user(user)

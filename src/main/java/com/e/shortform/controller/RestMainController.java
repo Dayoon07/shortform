@@ -318,7 +318,8 @@ public class RestMainController {
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "프로필이 업데이트되었습니다.",
-                "profileImgPath", finalProfileImgPath
+                "profileImgPath", finalProfileImgPath,
+                "user", user    // <- 리액트에서 로컬 스토리지에 다시 사용자 데이터 넣어야 되서
         ));
     }
 
@@ -401,7 +402,7 @@ public class RestMainController {
 
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String q, @RequestParam(required = false) String mention) {
-        if (mention != null && !mention.isBlank()) {
+        if (mention != null && !mention.isEmpty()) {
             searchListService.searchWordRecord(q, mention);
         } else {
             searchListService.searchWordRecord(q);
