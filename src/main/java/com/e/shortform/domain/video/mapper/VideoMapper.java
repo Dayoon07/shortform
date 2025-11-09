@@ -15,6 +15,7 @@ public interface VideoMapper {
     List<IndexPageAllVideosDto> selectUserProfilePageAllVideos(String mention);
     List<IndexPageAllVideosDto> searchLogic(String searchWordParam);
     VideoVo selectRandomVideo(@Param("excludeIds") List<Long> excludeIds);
+    VideoVo getSwipeVideo(@Param("videoLoc") String videoLoc);
     List<IndexPageAllVideosDto> myLikeVideos(Long id);
     List<IndexPageAllVideosDto> selectExploreVideoListByTags(String hashtag);
     List<IndexPageAllVideosDto> selectExploreVideoListByTagsButVideoViewsDescFuck(String hashtag);

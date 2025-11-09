@@ -339,4 +339,8 @@
         ORDER BY v.VIDEO_VIEWS DESC
     </select>
 
+    <select id="getSwipeVideo" resultMap="videoResultMap" parameterType="String">
+        SELECT * FROM shortform_videos WHERE video_loc = #{videoLoc}
+    </select>
+
 </mapper>

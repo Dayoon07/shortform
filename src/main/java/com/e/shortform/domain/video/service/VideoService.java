@@ -151,6 +151,16 @@ public class VideoService {
         return entity.orElse(null);
     }
 
+    public VideoEntity getSwipeVideo(String videoLoc) {
+        VideoVo vo = videoMapper.getSwipeVideo(videoLoc);
+        if (vo == null) {
+            return null;
+        }
+        Optional<VideoEntity> entity = videoRepo.findById(vo.getId()); // uploaderUserId가 아니라 video의 ID를 사용
+
+        return entity.orElse(null);
+    }
+
     public List<VideoEntity> explorePageVideo() {
         return videoRepo.findAll(Sort.by(Sort.Direction.DESC, "uploadAt"));
     }

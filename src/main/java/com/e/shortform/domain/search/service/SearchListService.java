@@ -62,6 +62,7 @@ public class SearchListService {
         return searchListMapper.selectMySearchList(id);
     }
 
+    /** id를 기준으로 내림차순 정렬해서 모든 검색 기록을 가져오는 함수 */
     public List<SearchListEntity> selectAllSearchList() {
         return searchListRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
@@ -77,6 +78,7 @@ public class SearchListService {
         }
     }
 
+    /** 정렬 없이 모든 검색 기록을 가져오는 함수 */
     public List<SearchListEntity> getAllSearchList() {
         return searchListRepo.findAll();
     }

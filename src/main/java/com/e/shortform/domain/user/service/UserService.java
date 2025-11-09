@@ -26,10 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -212,6 +209,10 @@ public class UserService {
             int index = fullUrl.indexOf("/resources/");
             return (index != -1) ? fullUrl.substring(index) : fullUrl;
         }
+    }
+
+    public UserEntity findById(Long id) {
+        return userRepo.findById(id).orElseThrow();
     }
 
 }
