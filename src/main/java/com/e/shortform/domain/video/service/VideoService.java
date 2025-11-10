@@ -11,6 +11,7 @@ import com.e.shortform.domain.video.vo.VideoVo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -127,6 +128,7 @@ public class VideoService {
         return video;
     }
 
+    /** 기존 메서드 (하휘 호환성 유지) */
     public List<IndexPageAllVideosDto> selectIndexPageAllVideos() {
         return videoMapper.selectIndexPageAllVideos();
     }
@@ -187,6 +189,38 @@ public class VideoService {
 
     public List<VideoEntity> findAll() {
         return videoRepo.findAll();
+    }
+
+    /**
+     * 페이징된 비디오 목록 조회 (신규)
+     */
+    public Map<String, Object> selectIndexPageAllVideosPaginated(PageRequest pageRequest) {
+        int page = pageRequest.getPageNumber();
+        int size = pageRequest.getPageSize();
+        int offset = page * size;
+
+        // 전체 개수 조회
+        int totalElements = videoMapper.countPublicVideos();
+
+        // 페이징된 데이터 조회
+        List<IndexPageAllVideosDto> content = videoMapper.selectIndexPageAllVideosPaginated(offset, size);
+
+        // 총 페이지 수 계산
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // 응답 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", content);
+        response.put("totalElements", totalElements);
+        response.put("totalPages", totalPages);
+        response.put("number", page);
+        response.put("size", size);
+        response.put("numberOfElements", content.size());
+        response.put("first", page == 0);
+        response.put("last", page >= totalPages - 1);
+        response.put("empty", content.isEmpty());
+
+        return response;
     }
 
 }

@@ -20,6 +20,7 @@ import com.e.shortform.domain.viewstory.service.ViewStoryService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,8 +47,28 @@ public class RestVideoController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
 
+    /**
+     * 페이징된 비디오 목록 조회 (신규)
+     */
     @GetMapping("/video/all")
-    public List<IndexPageAllVideosDto> selectAllVideos() {
+    public Map<String, Object> selectAllVideos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        // 페이지 요청 객체 생성
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        // 페이징된 데이터 조회
+        Map<String, Object> result = videoService.selectIndexPageAllVideosPaginated(pageRequest);
+
+        return result;
+    }
+
+    /**
+     * 전체 비디오 조회 (기존 API 유지 - 하위 호환성)
+     */
+    @GetMapping("/video/all/legacy")
+    public List<IndexPageAllVideosDto> selectAllVideosLegacy() {
         return videoService.selectIndexPageAllVideos();
     }
 
@@ -56,7 +77,6 @@ public class RestVideoController {
         return videoService.findAll();
     }
 
-    @CheckSession
     @PostMapping("/upload/video")
     public ResponseEntity<Map<String, Object>> uploadVideoComplete(
             @RequestParam("video") MultipartFile file,
@@ -65,8 +85,8 @@ public class RestVideoController {
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam("visibility") String visibility,
             @RequestParam("commentsAllowed") String commentsAllowed,
-            HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
+            @RequestParam  String mention) {
+        UserEntity user = userService.findByMention(mention);
         Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, user);
         HttpStatus status = (Boolean) response.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(response, status);
@@ -227,41 +247,37 @@ public class RestVideoController {
     @PostMapping("/video/swipe/find")
     public ResponseEntity<?> getSwipeVideo(@RequestParam String videoLoc, @RequestParam String mention) {
         UserEntity user = userService.findByMention(mention);
+        Map<String, Object> response = new HashMap<>();
 
         try {
             VideoEntity randomVideo = videoService.getSwipeVideo(videoLoc);
 
             if (randomVideo == null) {
-                return ResponseEntity.ok(Map.of(
-                        "message", "더 이상 시청할 영상이 없습니다.",
-                        "hasMore", false
-                ));
+                return ResponseEntity.ok(Map.of("message", "더 이상 시청할 영상이 없습니다.", "hasMore", false));
             }
 
             Long likeCnt = videoLikeService.countByVideo(randomVideo);
             Long commentCnt = commentService.countByVideo(randomVideo);
             UserEntity uploader = userService.findByMention(randomVideo.getUploader().getMention());
-            boolean isLiked = user != null && videoLikeService.existsByVideoAndUser(randomVideo, user);
-            boolean isFollowing = user != null && followService.existsByFollowUserAndFollowedUser(user, randomVideo.getUploader());
-
-            log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
 
             if (user != null) {
                 viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+                boolean isLiked = videoLikeService.existsByVideoAndUser(randomVideo, user);
+                boolean isFollowing = followService.existsByFollowUserAndFollowedUser(user, randomVideo.getUploader());
+
+                response.put("isLiked", isLiked);
+                response.put("isFollowing", isFollowing);
             }
 
-            Map<String, Object> response = new HashMap<>();
             response.put("video", randomVideo);
             response.put("uploader", uploader);
             response.put("likeCnt", likeCnt);
             response.put("commentCnt", commentCnt);
-            response.put("isLiked", isLiked);
-            response.put("isFollowing", isFollowing);
             response.put("hasMore", true);
             response.put("id", randomVideo.getId());
 
+            log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("영상 로딩 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -274,7 +290,11 @@ public class RestVideoController {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(hashtag));
     }
 
-
+    @GetMapping("/like/video")
+    public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@RequestParam String mention) {
+        UserEntity user = userService.findByMention(mention);
+        return ResponseEntity.ok(videoService.myLikeVideos(user.getId()));
+    }
 
 
 

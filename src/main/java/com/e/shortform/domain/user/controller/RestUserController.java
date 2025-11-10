@@ -77,6 +77,19 @@ public class RestUserController {
         return ResponseEntity.ok(communityService.selectByCommunityButWhereIdAsdf(user.getId()));
     }
 
+    @GetMapping("/user/profile/info")
+    public ResponseEntity<Map<String, Object>> getProfileUserInfo(@RequestParam String mention) {
+        UserEntity user = userService.findByMention(mention);
+        Map<String, Object> map = new HashMap<>();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "해당 멘션의 사용자를 찾을 수 없습니다."));
+        }
+        map.put("profileInfo", userService.getUserProfilePageInfo(user.getId()));
+        map.put("profileVideosInfo", videoService.selectUserProfilePageAllVideos(mention));
+        return ResponseEntity.ok(map);
+    }
+
     @PostMapping("/user/signup")
     public ResponseEntity<String> signup(
             @RequestParam("email") String email,
@@ -99,7 +112,7 @@ public class RestUserController {
     @PostMapping("/user/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "로그아웃 되었습니다.";
+        return "로그아웃 되었습니다";
     }
 
     @GetMapping("/user/chk/username")

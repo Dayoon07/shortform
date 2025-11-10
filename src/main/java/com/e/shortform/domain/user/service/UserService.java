@@ -117,7 +117,7 @@ public class UserService {
 
         try {
             response.put("success", true);
-            response.put("message", "로그인 성공");
+            response.put("message", "로그인 되었습니다");
             response.put("user", Map.of(
                     "id", user.getId(),
                     "username", user.getUsername(),

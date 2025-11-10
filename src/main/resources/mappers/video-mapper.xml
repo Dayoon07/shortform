@@ -78,25 +78,9 @@
         <result property="mention" column="MENTION"/>
         <result property="createAt" column="CREATE_AT"/>
     </resultMap>
-    
-    <select id="selectByVideo" parameterType="String" resultMap="videoWithUserResultMap">
-        SELECT v.ID AS VIDEO_ID, v.VIDEO_TITLE,
-               v.VIDEO_DESCRIPTION, v.VIDEO_SRC,
-               v.VIDEO_TAG, v.VIDEO_VIEWS,
-               v.VIDEO_LOC, v.UPLOADER_USER_ID,
-               v.VIDEO_WATCH_AVAILABILITY, v.COMMENT_AVAILABILITY,
-               v.UPLOAD_AT, u.ID AS USER_ID,
-               u.USERNAME, u.MAIL, u.PROFILE_IMG,
-               u.PROFILE_IMG_SRC, u.BIO, u.MENTION,
-               u.PROFILE_IMG_SRC,
-               u.CREATE_AT
-        FROM SHORTFORM_VIDEOS v
-            JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
-        WHERE u.mention = #{mention}
-            AND v.VIDEO_WATCH_AVAILABILITY = 'public'
-    </select>
 
-    <select id="selectIndexPageAllVideos" resultMap="IndexPageAllVideosResultMap">
+    <!-- 공통 쿼리 부분을 SQL Fragment로 분리 -->
+    <sql id="videoSelectColumns">
         SELECT
             v.ID AS VIDEO_ID,
             v.VIDEO_TITLE,
@@ -120,7 +104,7 @@
             u.CREATE_AT AS UPLOADER_CREATE_AT,
             -- 통계 정보
             COALESCE(like_counts.LIKE_COUNT, 0) AS LIKE_COUNT
-            FROM SHORTFORM_VIDEOS v
+        FROM SHORTFORM_VIDEOS v
                  LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
                  LEFT JOIN (
             SELECT
@@ -130,7 +114,43 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+    </sql>
+    
+    <select id="selectByVideo" parameterType="String" resultMap="videoWithUserResultMap">
+        SELECT v.ID AS VIDEO_ID, v.VIDEO_TITLE,
+               v.VIDEO_DESCRIPTION, v.VIDEO_SRC,
+               v.VIDEO_TAG, v.VIDEO_VIEWS,
+               v.VIDEO_LOC, v.UPLOADER_USER_ID,
+               v.VIDEO_WATCH_AVAILABILITY, v.COMMENT_AVAILABILITY,
+               v.UPLOAD_AT, u.ID AS USER_ID,
+               u.USERNAME, u.MAIL, u.PROFILE_IMG,
+               u.PROFILE_IMG_SRC, u.BIO, u.MENTION,
+               u.PROFILE_IMG_SRC,
+               u.CREATE_AT
+        FROM SHORTFORM_VIDEOS v
+            JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
+        WHERE u.mention = #{mention}
+            AND v.VIDEO_WATCH_AVAILABILITY = 'public'
+    </select>
+
+    <!-- 기존 메서드 (하위 호환성 유지) -->
+    <select id="selectIndexPageAllVideos" resultMap="IndexPageAllVideosResultMap">
+        <include refid="videoSelectColumns"/>
         ORDER BY v.UPLOAD_AT DESC
+    </select>
+
+    <!-- 페이징된 비디오 목록 조회 (Oracle 12c+ 문법) -->
+    <select id="selectIndexPageAllVideosPaginated" resultMap="IndexPageAllVideosResultMap">
+        <include refid="videoSelectColumns"/>
+        ORDER BY v.UPLOAD_AT DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <!-- public 비디오 총 개수 조회 -->
+    <select id="countPublicVideos" resultType="int">
+        SELECT COUNT(*)
+        FROM SHORTFORM_VIDEOS
+        WHERE VIDEO_WATCH_AVAILABILITY = 'public'
     </select>
 
     <select id="searchLogic" resultMap="IndexPageAllVideosResultMap" parameterType="String">
