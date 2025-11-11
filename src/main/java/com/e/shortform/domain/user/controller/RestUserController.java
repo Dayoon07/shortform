@@ -218,7 +218,6 @@ public class RestUserController {
 
     // 팔로우 상태 확인
     @GetMapping("/follow/status")
-    @ResponseBody
     public ResponseEntity<Map<String, Object>> getFollowStatus(
             @RequestParam String mention,
             HttpSession session) {
@@ -307,5 +306,115 @@ public class RestUserController {
     public List<?> selectAllFollow() {
         return followService.selectAllFollow();
     }
+
+    // upgrade는 리액트 화면에서 사용하기 위한 일종의 커스텀 엔드포인트 함수
+    // 기존에 있던 follow/toggle의 엔드포인트는 템플릿에서 사용힐 수 있게 남긴 것
+    @PostMapping("/follow/toggle/upgrade")
+    public ResponseEntity<Map<String, Object>> upgradeToggleFollow(
+            @RequestParam String reqMention,
+            @RequestParam String resMention) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        UserEntity currentUser = null;
+        try {
+            currentUser = userService.findByMention(reqMention);
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // 중복 요청 방지 (1초 내 동일한 요청 차단)
+            String requestKey = currentUser.getId() + ":" + resMention;
+            Long lastRequestTime = lastRequestTimes.get(requestKey);
+            long currentTime = System.currentTimeMillis();
+
+            if (lastRequestTime != null && (currentTime - lastRequestTime) < 1000) {
+                response.put("success", false);
+                response.put("message", "너무 빠른 요청입니다. 잠시 후 다시 시도해주세요.");
+                return ResponseEntity.status(429).body(response);
+            }
+
+            lastRequestTimes.put(requestKey, currentTime);
+
+            UserEntity targetUser = userService.findByMention(resMention);
+            if (targetUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            // 자기 자신을 팔로우하려는 경우
+            if (currentUser.getId().equals(targetUser.getId())) {
+                response.put("success", false);
+                response.put("message", "자기 자신을 팔로우할 수 없습니다.");
+                return ResponseEntity.status(400).body(response);
+            }
+
+            // 팔로우 상태 토글
+            FollowService.FollowToggleResult result = followService.toggleFollow(currentUser, targetUser);
+
+            response.put("success", result.isSuccess());
+            response.put("isFollowing", result.isFollowing());
+            response.put("message", result.getMessage());
+
+            // 업데이트된 팔로워/팔로잉 수 반환
+            if (result.isSuccess()) {
+                response.put("followerCount", followService.getFollowerCount(targetUser.getId()));
+                response.put("followingCount", followService.getFollowingCount(targetUser.getId()));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 로그 확인용
+            response.put("success", false);
+            response.put("message", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            return ResponseEntity.status(500).body(response);
+        } finally {
+            // 요청 완료 후 일정 시간 후 캐시에서 제거 (메모리 누수 방지)
+            String requestKey = currentUser != null ?
+                    currentUser.getId() + ":" + resMention : "";
+            if (!requestKey.isEmpty()) {
+                // 5초 후 캐시에서 제거
+                CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
+                    lastRequestTimes.remove(requestKey);
+                });
+            }
+        }
+
+        return ResponseEntity.ok(response);
+    }
+    // 팔로우 상태 확인
+    @GetMapping("/follow/status/upgrade")
+    public ResponseEntity<Map<String, Object>> getUpgradeFollowStatus(
+            @RequestParam String reqMention,
+            @RequestParam String resMention) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            UserEntity currentUser = userService.findByMention(reqMention);
+            if (currentUser == null) {
+                response.put("isFollowing", false);
+                return ResponseEntity.ok(response);
+            }
+
+            UserEntity targetUser = userService.findByMention(resMention);
+            if (targetUser == null) {
+                response.put("isFollowing", false);
+                return ResponseEntity.ok(response);
+            }
+
+            boolean isFollowing = followService.isFollowing(currentUser.getId(), targetUser.getId());
+            response.put("isFollowing", isFollowing);
+
+        } catch (Exception e) {
+            response.put("isFollowing", false);
+            response.put("error", e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }
