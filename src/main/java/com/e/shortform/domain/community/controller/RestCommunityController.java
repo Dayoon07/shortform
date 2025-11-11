@@ -58,8 +58,8 @@ public class RestCommunityController {
             @RequestParam(value = "content", required = false) String content,
             @RequestParam("visibility") String visibility,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            HttpSession session) {
-        return communityService.realCreatePost(content, visibility, images, session);
+            String mention) {
+        return communityService.realCreatePost(content, visibility, images, mention);
     }
 
     @GetMapping("/find/community/list")

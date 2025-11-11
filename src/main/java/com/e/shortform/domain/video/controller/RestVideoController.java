@@ -1,6 +1,5 @@
 package com.e.shortform.domain.video.controller;
 
-import com.e.shortform.common.annotation.CheckSession;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -222,7 +221,8 @@ public class RestVideoController {
             log.info("반환된 영상: ID={}, 제목={}", randomVideo.getId(), randomVideo.getVideoTitle());
 
             if (user != null) {
-                viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+                // viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+                videoService.incrementVideoViews(randomVideo.getVideoLoc(), user.getMention());
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -261,7 +261,8 @@ public class RestVideoController {
             UserEntity uploader = userService.findByMention(randomVideo.getUploader().getMention());
 
             if (user != null) {
-                viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+                // viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
+                videoService.incrementVideoViews(videoLoc, mention);
                 boolean isLiked = videoLikeService.existsByVideoAndUser(randomVideo, user);
                 boolean isFollowing = followService.existsByFollowUserAndFollowedUser(user, randomVideo.getUploader());
 
@@ -296,7 +297,10 @@ public class RestVideoController {
         return ResponseEntity.ok(videoService.myLikeVideos(user.getId()));
     }
 
-
+    @GetMapping("/hashtag")
+    public ResponseEntity<?> getTagVideo(@RequestParam String videoTag) {
+        return ResponseEntity.ok(videoService.selectExploreVideoListButTag(videoTag));
+    }
 
 
 

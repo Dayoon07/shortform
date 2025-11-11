@@ -8,6 +8,8 @@ import com.e.shortform.domain.video.repository.VideoRepo;
 import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
 import com.e.shortform.domain.video.res.VideoWithUserDto;
 import com.e.shortform.domain.video.vo.VideoVo;
+import com.e.shortform.domain.viewstory.entity.ViewStoryEntity;
+import com.e.shortform.domain.viewstory.repository.ViewStoryRepo;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class VideoService {
     private final UserRepo userRepo;
     private final VideoRepo videoRepo;
     private final VideoMapper videoMapper;
+    private final ViewStoryRepo viewStoryRepo;
 
     public Map<String, Object> uploadVideo(
             MultipartFile file,
@@ -126,6 +129,64 @@ public class VideoService {
         }
 
         return video;
+    }
+
+    public VideoEntity findByVideoLoc(String videoLoc, String currentUserMention) {
+        UserEntity user = userRepo.findByMention(currentUserMention);
+        VideoEntity video = videoRepo.findByVideoLoc(videoLoc);
+
+        if (user != null) {
+            // 이 비디오를 본 적이 있는지 확인
+            boolean alreadyViewed = viewStoryRepo
+                    .existsByUserAndVideo(user, video);
+
+            if (!alreadyViewed) {
+                // 조회수 증가
+                video.setVideoViews(video.getVideoViews() + 1);
+                videoRepo.save(video);
+
+                // 시청 기록 저장
+                ViewStoryEntity viewStory = new ViewStoryEntity();
+                viewStory.setUser(user);
+                viewStory.setVideo(video);
+                viewStoryRepo.save(viewStory);
+            }
+        }
+
+        return video;
+    }
+
+    public void incrementVideoViews(String videoLoc, String currentUserMention) {
+        log.info("=== incrementVideoViews 호출 ===");
+        log.info("videoLoc: {}, mention: {}", videoLoc, currentUserMention);
+
+        UserEntity user = userRepo.findByMention(currentUserMention);
+        VideoEntity video = videoRepo.findByVideoLoc(videoLoc);
+
+        log.info("user: {}, video: {}", user != null ? user.getId() : "null",
+                video != null ? video.getId() : "null");
+
+        if (user != null && video != null) {
+            boolean alreadyViewed = viewStoryRepo.existsByUserAndVideo(user, video);
+            log.info("이미 본 영상? {}", alreadyViewed);
+
+            if (!alreadyViewed) {
+                video.setVideoViews(video.getVideoViews() + 1);
+                videoRepo.save(video);
+                log.info("✅ 조회수 증가: 비디오 ID={}, 조회수={}", video.getId(), video.getVideoViews());
+
+                // 시청 기록 저장
+                ViewStoryEntity viewStory = new ViewStoryEntity();
+                viewStory.setUser(user);
+                viewStory.setVideo(video);
+                viewStoryRepo.save(viewStory);
+                log.info("✅ 시청 기록 저장 완료");
+            } else {
+                log.info("⚠️ 이미 본 영상이므로 조회수 증가 안 함");
+            }
+        } else {
+            log.warn("❌ user 또는 video가 null입니다!");
+        }
     }
 
     /** 기존 메서드 (하휘 호환성 유지) */

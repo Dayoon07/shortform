@@ -137,6 +137,92 @@ public class CommunityService {
         }
     }
 
+    public ResponseEntity<Map<String, Object>> realCreatePost(String content, String visibility,
+                                                              List<MultipartFile> images, String mention) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 기본 입력 검증
+            boolean hasContent = content != null && !content.trim().isEmpty();
+            boolean hasImages = images != null && !images.isEmpty() &&
+                    images.stream().anyMatch(file -> !file.isEmpty());
+
+            // 내용과 이미지 중 하나라도 있어야 함
+            if (!hasContent && !hasImages) {
+                response.put("success", false);
+                response.put("message", "글 내용 또는 이미지 중 하나는 입력해주세요");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 내용 길이 검증 (내용이 있을 경우만)
+            if (hasContent && content.trim().length() > 2000) {
+                response.put("success", false);
+                response.put("message", "내용은 2000자 이하로 작성해주세요");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 이미지 개수 검증
+            if (hasImages && images.size() > 5) {
+                response.put("success", false);
+                response.put("message", "이미지는 최대 5장까지 업로드 가능합니다");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 파일 크기 및 타입 검증 (이미지가 있을 경우만)
+            if (hasImages) {
+                long maxSize = 5 * 1024 * 1024; // 5MB
+                for (MultipartFile file : images) {
+                    if (file.isEmpty()) continue;
+
+                    if (file.getSize() > maxSize) {
+                        response.put("success", false);
+                        response.put("message", "파일 크기는 5MB 이하여야 합니다");
+                        return ResponseEntity.badRequest().body(response);
+                    }
+
+                    if (!file.getContentType().startsWith("image/")) {
+                        response.put("success", false);
+                        response.put("message", "이미지 파일만 업로드 가능합니다");
+                        return ResponseEntity.badRequest().body(response);
+                    }
+                }
+            }
+
+            // 서비스 호출 - content가 null이어도 서비스에서 처리
+            String result = createPost(content, visibility, images, mention);
+
+            response.put("success", true);
+            response.put("message", "게시글이 성공적으로 작성되었습니다");
+            response.put("data", result);
+
+            // 로깅도 업데이트
+            String postType = getPostTypeForLog(hasContent, hasImages);
+            log.info("게시글 작성 성공 - 사용자: {}, 유형: {}, 내용 길이: {}, 이미지 수: {}",
+                    userRepo.findByMention(mention), postType,
+                    hasContent ? content.length() : 0,
+                    hasImages ? images.size() : 0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("게시글 작성 실패 - 잘못된 입력: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+
+        } catch (SecurityException e) {
+            log.warn("게시글 작성 실패 - 권한 없음: {}", e.getMessage());
+            response.put("success", false);
+            response.put("message", "권한이 없습니다");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+
+        } catch (Exception e) {
+            log.error("게시글 작성 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     /**
      * 로깅용 게시글 유형 반환
      */
@@ -171,6 +257,48 @@ public class CommunityService {
 
         // 사용자 검증
         UserEntity user = validateAndGetUser(session);
+
+        try {
+            // 게시글 생성 및 저장 - 내용이 없을 수도 있음을 고려
+            CommunityEntity savedPost = createAndSavePost(content, visibility, user);
+
+            // 이미지 처리
+            if (hasImages(images)) {
+                processImages(images, savedPost);
+            }
+
+            // 로그 메시지도 업데이트
+            String postType = getPostType(content, images);
+            log.info("커뮤니티 게시글 생성 완료 - ID: {}, 사용자: {}, 유형: {}, 이미지 수: {}",
+                    savedPost.getId(), user.getId(), postType, getImageCount(images));
+
+            return "커뮤니티 글이 성공적으로 작성되었습니다";
+
+        } catch (Exception e) {
+            log.error("커뮤니티 게시글 생성 중 오류 발생 - 사용자: {}", user.getId(), e);
+            throw new RuntimeException("게시글 작성 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 커뮤니티 게시글을 생성합니다.
+     *
+     * @param content 게시글 내용
+     * @param visibility 공개 범위
+     * @param images 첨부 이미지들
+     * @param mention 현재 세션에 로그인한 유저 데이터
+     * @return 생성 결과 메시지
+     * @throws IllegalArgumentException 잘못된 입력이 있을 경우
+     * @throws SecurityException 권한이 없을 경우
+     */
+    public String createPost(String content, String visibility,
+                             List<MultipartFile> images, String mention) {
+
+        // 입력 검증 (글만, 이미지만, 글+이미지 모든 케이스 지원)
+        validateInput(content, visibility, images);
+
+        // 사용자 검증
+        UserEntity user = validateAndGetUser(mention);
 
         try {
             // 게시글 생성 및 저장 - 내용이 없을 수도 있음을 고려
@@ -296,6 +424,21 @@ public class CommunityService {
      */
     private UserEntity validateAndGetUser(HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
+
+        if (user == null) {
+            throw new SecurityException("로그인이 필요합니다");
+        }
+
+        // 사용자 존재 여부 확인
+        return userRepo.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
+    }
+
+    /**
+     * 사용자를 검증하고 반환합니다.
+     */
+    private UserEntity validateAndGetUser(String mention) {
+        UserEntity user = userRepo.findByMention(mention);
 
         if (user == null) {
             throw new SecurityException("로그인이 필요합니다");
