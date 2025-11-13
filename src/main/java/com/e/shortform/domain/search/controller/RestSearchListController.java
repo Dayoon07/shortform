@@ -46,12 +46,16 @@ public class RestSearchListController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String q, @RequestParam(required = false) String mention) {
-        if (mention != null && !mention.isEmpty()) {
-            searchListService.searchWordRecord(q, mention);
-        } else {
+    public ResponseEntity<?> search(
+            @RequestParam String q,
+            @RequestParam(required = false) String mention
+    ) {
+        if (mention == null || mention.isEmpty()) {
             searchListService.searchWordRecord(q);
+        } else {
+            searchListService.searchWordRecordPlusMention(q, mention);
         }
+
         return ResponseEntity.ok(videoService.searchLogic(q));
     }
 

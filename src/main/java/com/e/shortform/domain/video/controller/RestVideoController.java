@@ -52,7 +52,7 @@ public class RestVideoController {
     @GetMapping("/video/all")
     public Map<String, Object> selectAllVideos(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         // 페이지 요청 객체 생성
         PageRequest pageRequest = PageRequest.of(page, size);

@@ -30,7 +30,7 @@ public class SearchListService {
         searchListRepo.save(et);
     }
 
-    public void searchWordRecord(String q, String mention) {
+    public void searchWordRecordPlusMention(String q, String mention) {
         UserEntity user = userRepo.findByMention(mention);
         if (user == null) throw new RuntimeException("해당 멘션의 사용자를 찾을 수 없습니다: " + mention);
 
