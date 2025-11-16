@@ -52,6 +52,9 @@ public class VideoEntity {
     @Column(name = "comment_availability", nullable = false)
     private String commentAvailability;
 
+    @Column(name = "PREVIEW_IMG", nullable = false)
+    private String previewImg;
+
     @CreationTimestamp
     @Column(name = "upload_at", updatable = false)
     private LocalDateTime uploadAt;

@@ -29,6 +29,7 @@ public class IndexPageAllVideosDto {
     private String uploaderMail;
     private String profileImg;
     private String profileImgSrc;
+    private String previewImg;
     private String bio;
     private String mention;
     private LocalDateTime uploaderCreateAt;

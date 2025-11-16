@@ -21,6 +21,7 @@ public class VideoVo {
     private Long uploaderUserId;
     private String videoWatchAvailability;
     private String commentAvailability;
+    private String previewImg;
     private LocalDateTime uploadAt;
 
 }

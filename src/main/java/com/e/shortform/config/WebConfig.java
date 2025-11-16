@@ -18,12 +18,15 @@ public class WebConfig implements WebMvcConfigurer {
         String userHome = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server";
         String imagePath = "file:///" + userHome + "/shortform-user-profile-img/";
         String videoPath = "file:///" + userHome + "/shortform-user-video/";
+        String videoPreviewImgPath = "file:///" + userHome + "/shortform-user-video-preview-img/";
         String communityPostImgPath = "file:///" + userHome + "/shortform-community-post-img/";
 
         registry.addResourceHandler("/resources/shortform-user-profile-img/**")
             .addResourceLocations(imagePath);
         registry.addResourceHandler("/resources/shortform-user-video/**")
             .addResourceLocations(videoPath);
+        registry.addResourceHandler("/resources/shortform-user-video-preview-img/**")
+                .addResourceLocations(videoPreviewImgPath);
         registry.addResourceHandler("/resources/shortform-community-post-img/**")
             .addResourceLocations(communityPostImgPath);
     }

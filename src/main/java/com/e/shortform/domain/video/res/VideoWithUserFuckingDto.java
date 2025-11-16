@@ -30,6 +30,7 @@ public class VideoWithUserFuckingDto {
     private String mail;
     private String profileImg;
     private String profileImgSrc;
+    private String previewImg;
     private String bio;
     private String mention;
     private LocalDateTime createAt;

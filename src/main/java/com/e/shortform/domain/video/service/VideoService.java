@@ -39,56 +39,79 @@ public class VideoService {
             String hashtags,
             String visibility,
             String commentsAllowed,
+            MultipartFile thumbnail,
             UserEntity user) {
-
         Map<String, Object> response = new HashMap<>();
 
         try {
-            String uploadPath = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-user-video/";
+            String uploadPath = System.getProperty("user.home").replace("\\", "/")
+                    + "/Desktop/shortform-server/shortform-user-video/";
+            String previewImgUploadPath = System.getProperty("user.home").replace("\\", "/")
+                    + "/Desktop/shortform-server/shortform-user-video-preview-img/";
+
             // 1. 디렉토리 생성
             File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            File previewImgUploadDir = new File(previewImgUploadPath);
+
+            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!previewImgUploadDir.exists()) previewImgUploadDir.mkdirs();
+
+            // 2. 비디오 저장
+            String videoExt = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
+            String savedVideoName = UUID.randomUUID().toString() + videoExt;
+            String videoFilePath = uploadPath + savedVideoName;
+
+            File destinationVideo = new File(videoFilePath);
+            file.transferTo(destinationVideo);
+
+            log.info("비디오 저장 완료: {}", videoFilePath);
+
+            // 3. 썸네일 저장
+            String thumbnailSavedName = null;
+            if (thumbnail != null && !thumbnail.isEmpty()) {
+                String thumbExt = getFileExtension(Objects.requireNonNull(thumbnail.getOriginalFilename()));
+                thumbnailSavedName = UUID.randomUUID().toString() + thumbExt;
+
+                String thumbnailFilePath = previewImgUploadPath + thumbnailSavedName;
+                File thumbnailFile = new File(thumbnailFilePath);
+
+                thumbnail.transferTo(thumbnailFile);
+                log.info("썸네일 저장 완료: {}", thumbnailFilePath);
+            } else {
+                log.warn("썸네일 파일이 비어있습니다.");
             }
 
-            // 2. 파일 저장
-            String fileExtension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-            String savedFileName = UUID.randomUUID().toString() + fileExtension;
-            String filePath = uploadPath + savedFileName;
-
-            File destinationFile = new File(filePath);
-            file.transferTo(destinationFile);
-
-            log.info("파일 저장 완료: {}", filePath);
-
-            // 3. 사용자 확인
+            // 4. 사용자 확인
             UserEntity uploader = userRepo.findById(user.getId())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-            // 4. 비디오 엔티티 생성 및 저장
+            // 5. 비디오 엔티티 생성 및 저장
             VideoEntity videoEntity = VideoEntity.builder()
                     .videoTitle(title)
                     .videoDescription(description)
-                    .videoName(savedFileName)
-                    .videoSrc("/resources/shortform-user-video/" + savedFileName)
+                    .videoName(savedVideoName)
+                    .videoSrc("/resources/shortform-user-video/" + savedVideoName)
                     .videoTag(hashtags)
                     .videoViews(0L)
                     .videoLoc(UUID.randomUUID().toString())
                     .uploader(uploader)
                     .videoWatchAvailability(visibility)
                     .commentAvailability(commentsAllowed)
+                    .previewImg(thumbnailSavedName != null
+                            ? "/resources/shortform-user-video-preview-img/" + thumbnailSavedName
+                            : null)
                     .build();
 
             VideoEntity savedVideo = videoRepo.save(videoEntity);
 
-            log.info("비디오 정보 DB 저장 완료: ID={}", savedVideo.getId());
-            System.out.println("저장 경로 : " + destinationFile.getAbsolutePath());
+            log.info("비디오 + 썸네일 DB 저장 완료: videoID={}", savedVideo.getId());
 
-            // 5. 응답 구성
+            // 6. 응답 구성
             response.put("success", true);
             response.put("message", "비디오 업로드가 완료되었습니다.");
             response.put("videoId", savedVideo.getId());
-            response.put("fileName", savedFileName);
+            response.put("fileName", savedVideoName);
+            response.put("thumbnail", thumbnailSavedName);
 
         } catch (IOException e) {
             log.error("파일 저장 중 오류 발생", e);

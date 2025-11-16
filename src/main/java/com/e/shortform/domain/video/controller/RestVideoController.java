@@ -52,7 +52,7 @@ public class RestVideoController {
     @GetMapping("/video/all")
     public Map<String, Object> selectAllVideos(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "6") int size
     ) {
         // 페이지 요청 객체 생성
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -84,9 +84,10 @@ public class RestVideoController {
             @RequestParam(value = "hashtags", required = false) String hashtags,
             @RequestParam("visibility") String visibility,
             @RequestParam("commentsAllowed") String commentsAllowed,
-            @RequestParam  String mention) {
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @RequestParam("mention") String mention) {
         UserEntity user = userService.findByMention(mention);
-        Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, user);
+        Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, thumbnail, user);
         HttpStatus status = (Boolean) response.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(response, status);
     }
