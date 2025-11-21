@@ -110,6 +110,24 @@ public class RestVideoController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/video/insert/comment/by/mention")
+    public ResponseEntity<?> swipeVideoInsertComment(
+            @RequestParam("commentText") String commentText,
+            @RequestParam("commentVideoId") Long commentVideoId,
+            @RequestParam("resUserMention") String resUserMention
+    ) {
+        UserEntity user =  userService.findByMention(resUserMention);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", "사용자가 존재하지 않습니다."
+            ));
+        }
+
+        Map<String, Object> response = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/video/find/comment/popular")
     public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
         return ResponseEntity.ok(commentService.selectByCommentId(id));
