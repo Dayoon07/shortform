@@ -187,6 +187,53 @@ public class RestVideoController {
         }
     }
 
+    /**
+     * 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능)
+     */
+    @PostMapping("/video/like/by/mention")
+    public ResponseEntity<?> videoLikeToggleByMention(@RequestParam Long videoId, @RequestParam String reqUserMention) {
+        UserEntity user = userService.findByMention(reqUserMention);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "success", false,
+                    "message", "세션이 없습니다"
+            ));
+        }
+
+        try {
+            // MyBatis 방식 사용 (성능상 유리)
+            VideoLikeService.LikeToggleResult result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
+
+            if (result.isSuccess()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "isLiked", result.isLiked(),
+                        "totalLikes", result.getTotalLikes(),
+                        "message", result.getMessage()
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                        "success", false,
+                        "message", result.getMessage()
+                ));
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "잘못된 비디오 ID입니다"
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "success", false,
+                    "message", "서버 오류가 발생했습니다"
+            ));
+        }
+    }
+
     @PostMapping("/videos/random")
     public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
