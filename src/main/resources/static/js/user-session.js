@@ -796,9 +796,9 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // document.getElementById("google-login-btn")?.addEventListener("click", () => {
-    //     location.href = `${location.origin}/oauth2/authorization/google`;
-    // });
+    document.getElementById("google-login-btn")?.addEventListener("click", () => {
+        location.href = `${location.origin}/oauth2/authorization/google`;
+    });
 
     
 });

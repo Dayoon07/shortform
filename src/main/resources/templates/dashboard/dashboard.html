@@ -26,6 +26,8 @@
         <p><strong>이메일:</strong> <span th:text="${email}">Email</span></p>
     </div>
 
+    <div th:text="${roleUser}"></div>
+
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="btn">로그아웃</button>
     </form>

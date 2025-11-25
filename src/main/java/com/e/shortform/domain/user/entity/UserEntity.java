@@ -49,4 +49,10 @@ public class UserEntity {
     @CreationTimestamp
     private LocalDateTime createAt;
 
+    @Column(name = "is_social", nullable = false)
+    private boolean isSocial;
+
+    @Column(name = "provider", nullable = false)
+    private String provider;
+
 }

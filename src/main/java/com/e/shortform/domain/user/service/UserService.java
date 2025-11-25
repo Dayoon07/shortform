@@ -215,4 +215,8 @@ public class UserService {
         return userRepo.findById(id).orElseThrow();
     }
 
+    public UserEntity findByMail(String mail) {
+        return userRepo.findByMail(mail);
+    }
+
 }

@@ -29,9 +29,11 @@ public class JwtUtil {
      */
     public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
+        claims.put("id", user.getId());
         claims.put("username", user.getUsername());
         claims.put("mail", user.getMail());
+        claims.put("profileImgSrc", user.getProfileImgSrc());
+        claims.put("mention", user.getMention());
 
         return createToken(claims, user.getUsername());
     }

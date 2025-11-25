@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<UserEntity, Long> {
     UserEntity findByUsername(String username);
     UserEntity findByMention(String mention);
+    UserEntity findByMail(String mail);
 }
