@@ -22,10 +22,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
 
+        // OAuth2 제공자 정보 추출 (registrationId)
+        String provider = req.getClientRegistration().getRegistrationId(); // "google", "naver", etc.
+
         UserEntity user = userService.findByMail(email);
 
         if (user == null) {
-            user = userService.createSocialUser(email, name, picture, "google");
+            // 새로운 소셜 사용자 생성
+            user = userService.createSocialUser(email, name, picture, provider);
+        } else {
+            // 기존 사용자의 경우, provider 정보 업데이트 (이미 계정이 있는 경우)
+            if (!user.isSocial()) {
+                // 로컬 계정에 소셜 계정 연동하는 경우
+                user.setSocial(true);
+                user.setProvider(provider);
+                userService.updateUser(user);
+            }
         }
 
         return new CustomOAuth2User(user, oAuth2User.getAttributes());

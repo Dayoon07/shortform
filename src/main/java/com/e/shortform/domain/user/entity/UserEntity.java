@@ -52,7 +52,7 @@ public class UserEntity {
     @Column(name = "is_social", nullable = false)
     private boolean isSocial;
 
-    @Column(name = "provider", nullable = false)
+    @Column(name = "provider", nullable = false, length = 50)
     private String provider;
 
 }

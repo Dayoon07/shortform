@@ -34,6 +34,8 @@ public class JwtUtil {
         claims.put("mail", user.getMail());
         claims.put("profileImgSrc", user.getProfileImgSrc());
         claims.put("mention", user.getMention());
+        claims.put("isSocial", user.isSocial());
+        claims.put("provider", user.getProvider());
 
         return createToken(claims, user.getUsername());
     }
@@ -182,6 +184,22 @@ public class JwtUtil {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    /**
+     * 토큰에서 소셜 여부 추출하는 메서드
+     */
+    public Boolean getIsSocialFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("isSocial", Boolean.class);
+    }
+
+    /**
+     * 토큰에서 제공자 정보 추출하는 메서드
+     */
+    public String getProviderFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("provider", String.class);
     }
 
 }

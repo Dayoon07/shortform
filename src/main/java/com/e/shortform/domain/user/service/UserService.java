@@ -2,6 +2,7 @@ package com.e.shortform.domain.user.service;
 
 import com.e.shortform.config.JwtUtil;
 import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.enumeration.ProviderStatus;
 import com.e.shortform.domain.user.mapper.UserMapper;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.res.UserProfileDto;
@@ -82,6 +83,8 @@ public class UserService {
                     .profileImg(fileName)
                     .profileImgSrc("/resources/shortform-user-profile-img/" + fileName)
                     .mention(mentionUuid)
+                    .isSocial(false)
+                    .provider(ProviderStatus.LOCAL.name())
                     .build();
 
             userRepo.save(userEntity);
@@ -96,16 +99,19 @@ public class UserService {
         return userRepo.findByUsername(username);
     }
 
-    public ResponseEntity<Map<String, Object>> login(String username, String password, HttpSession session,
-        @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
+    public ResponseEntity<Map<String, Object>> login(
+            String username,
+            String password,
+            HttpSession session,
+            @RequestHeader(value = "X-Client-Type", required = false) String clientType
+    ) {
         Map<String, Object> response = new HashMap<>();
 
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.trim().isEmpty())
             throw new IllegalArgumentException("사용자명을 입력해주세요.");
-        }
-        if (password == null || password.trim().isEmpty()) {
+
+        if (password == null || password.trim().isEmpty())
             throw new IllegalArgumentException("비밀번호를 입력해주세요.");
-        }
 
         UserEntity user = userRepo.findByUsername(username);
 
@@ -119,12 +125,14 @@ public class UserService {
             response.put("success", true);
             response.put("message", "로그인 되었습니다");
             response.put("user", Map.of(
-                    "id", user.getId(),
-                    "username", user.getUsername(),
-                    "mail", user.getMail(),
-                    "profileImgSrc", user.getProfileImgSrc(),
-                    "mention", user.getMention(),
-                    "createAt", user.getCreateAt()
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "mail", user.getMail(),
+                "profileImgSrc", user.getProfileImgSrc(),
+                "mention", user.getMention(),
+                "createAt", user.getCreateAt(),
+                "isSocial", user.isSocial(),
+                "provider", user.getProvider()
             ));
 
             if ("mobile".equals(clientType)) {
@@ -217,6 +225,63 @@ public class UserService {
 
     public UserEntity findByMail(String mail) {
         return userRepo.findByMail(mail);
+    }
+
+    /**
+     * 구글 로그인 시 호출하는 회원가입 기능입니다
+     */
+    public UserEntity createSocialUser(String email, String name, String picture, String provider) {
+        String mentionUuid = "user-" + UUID.randomUUID().toString().substring(0, 28);
+
+        UserEntity userEntity = UserEntity.builder()
+                .username(name)
+                .mail(email)
+                .password("")  // 소셜 로그인은 비밀번호 없음
+                .profileImg(picture != null ? picture : "default.jpg")
+                .profileImgSrc(picture != null ? picture : "/resources/shortform-user-profile-img/default.jpg")
+                .mention(mentionUuid)
+                .isSocial(true)            // 소셜 회원
+                .provider(provider)        // google, naver, kakao 등
+                .build();
+
+        return userRepo.save(userEntity);
+    }
+
+    /**
+     * 사용자 정보 업데이트 (주로 소셜 연동시 사용)
+     */
+    public void updateUser(UserEntity user) {
+        userRepo.save(user);
+    }
+
+    /**
+     * 로컬 계정에서 소셜 계정 연동
+     */
+    public void linkSocialAccount(Long userId, String provider) {
+        UserEntity user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.setSocial(true);
+        user.setProvider(provider);
+        userRepo.save(user);
+    }
+
+    /**
+     * 소셜 계정 여부 확인
+     */
+    public boolean isSocialUser(Long userId) {
+        UserEntity user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return user.isSocial();
+    }
+
+    /**
+     * 제공자 정보 조회
+     */
+    public String getUserProvider(Long userId) {
+        UserEntity user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return user.getProvider();
     }
 
 }

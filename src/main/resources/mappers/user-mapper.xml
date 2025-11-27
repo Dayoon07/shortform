@@ -12,6 +12,8 @@
         <result property="bio" column="BIO"/>
         <result property="mention" column="MENTION"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="isSocial" column="IS_SOCIAL"/>
+        <result property="provider" column="PROVIDER"/>
     </resultMap>
 
     <resultMap id="getUserProfilePageInfoResultMap" type="com.e.shortform.domain.user.res.UserProfileDto">
@@ -24,6 +26,8 @@
         <result property="bio" column="BIO"/>
         <result property="mention" column="MENTION"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="isSocial" column="IS_SOCIAL"/>
+        <result property="provider" column="PROVIDER"/>
         <result property="followerCount" column="FOLLOWER_COUNT"/>
         <result property="followingCount" column="FOLLOWING_COUNT"/>
         <result property="totalViews" column="TOTAL_VIEWS"/>
@@ -52,6 +56,8 @@
             u.BIO,
             u.MENTION,
             u.CREATE_AT,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             (SELECT COUNT(*)
              FROM SHORTFORM_USERS_FOLLOWS
              WHERE FOLLOWED_USER_ID = u.ID) AS FOLLOWER_COUNT,
@@ -63,12 +69,12 @@
              WHERE UPLOADER_USER_ID = u.ID) AS TOTAL_VIEWS,
             (SELECT COUNT(*)
              FROM SHORTFORM_VIDEO_LIKES vl
-                      JOIN SHORTFORM_VIDEOS v ON v.ID = vl.LIKE_VIDEO_ID
-             WHERE v.UPLOADER_USER_ID = u.ID) AS TOTAL_LIKES
+                 JOIN SHORTFORM_VIDEOS v ON v.ID = vl.LIKE_VIDEO_ID
+            WHERE v.UPLOADER_USER_ID = u.ID) AS TOTAL_LIKES
         FROM SHORTFORM_USERS u
         WHERE u.ID = #{id}
     </select>
-    
+
     <select id="selectProfileUserFollowList" parameterType="Long" resultMap="userResultMap">
         SELECT
             u.ID,
@@ -76,30 +82,34 @@
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
             u.MENTION,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             f.CREATE_AT as FOLLOWED_AT
         FROM SHORTFORM_USERS_FOLLOWS f
-                 JOIN SHORTFORM_USERS u ON f.FOLLOW_USER_ID = u.ID
+            JOIN SHORTFORM_USERS u ON f.FOLLOW_USER_ID = u.ID
         WHERE f.FOLLOWED_USER_ID = #{id}
         ORDER BY f.CREATE_AT DESC
     </select>
-    
+
     <select id="selectProfileUserFollowingList" parameterType="Long" resultMap="userResultMap">
         SELECT
             u.ID,
             u.USERNAME,
             u.PROFILE_IMG_SRC,
             u.MENTION,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             f.CREATE_AT as FOLLOWED_AT
         FROM SHORTFORM_USERS_FOLLOWS f
-                 JOIN SHORTFORM_USERS u ON f.FOLLOWED_USER_ID = u.ID
+            JOIN SHORTFORM_USERS u ON f.FOLLOWED_USER_ID = u.ID
         WHERE f.FOLLOW_USER_ID = #{id}
         ORDER BY f.CREATE_AT DESC
     </select>
 
     <update id="updateUserInfo">
         UPDATE SHORTFORM_USERS SET USERNAME = #{username},
-           MAIL = #{mail}, MENTION = #{mention}, BIO = #{bio},
-           PROFILE_IMG = #{profileImg}, PROFILE_IMG_SRC = #{profileImgSrc}
+            MAIL = #{mail}, MENTION = #{mention}, BIO = #{bio},
+            PROFILE_IMG = #{profileImg}, PROFILE_IMG_SRC = #{profileImgSrc}
         WHERE ID = #{id}
     </update>
 

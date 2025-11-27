@@ -1,5 +1,7 @@
 package com.e.shortform.config;
 
+import com.e.shortform.config.oauth.CustomOAuth2UserService;
+import com.e.shortform.config.oauth.OAuth2SuccessHandler;
 import com.e.shortform.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final UserService userService;
-    private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler successHandler;
 
     @Bean

@@ -21,6 +21,8 @@ public class UserProfileDto {
     private String bio;
     private String mention;
     private Timestamp createAt;
+    private boolean isSocial;
+    private String provider;
 
     private Long followerCount;
     private Long followingCount;
