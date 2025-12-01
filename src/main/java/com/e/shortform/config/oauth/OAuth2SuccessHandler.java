@@ -26,8 +26,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtil.generateToken(user);
 
-        String redirectUrl = "http://localhost:3000/shortform-client/social-login?token=" + token;
+        // 쿠키에 저장 (httpOnly, secure)
+        Cookie cookie = new Cookie("access_token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // HTTPS 환경에서만
+        cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60); // 24시간
+        res.addCookie(cookie);
 
+        // 프론트엔드로 리다이렉트 (토큰은 쿠키에 있음)
+        String redirectUrl = "http://localhost:3000/shortform-client/oauth/callback";
         getRedirectStrategy().sendRedirect(req, res, redirectUrl);
     }
+
 }

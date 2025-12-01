@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -98,7 +100,8 @@ public class RestVideoController {
             @RequestParam("commentVideoId") Long commentVideoId,
             HttpSession session
     ) {
-        UserEntity user =  (UserEntity) session.getAttribute("user");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
 
         if (user == null) {
             return ResponseEntity.badRequest().body(Map.of(

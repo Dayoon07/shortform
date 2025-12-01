@@ -63,6 +63,11 @@ public class JwtUtil {
         return claims.get("mail", String.class);
     }
 
+    public String getMentionFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("mention", String.class);
+    }
+
     /**
      * 토큰 만료일 추출
      */

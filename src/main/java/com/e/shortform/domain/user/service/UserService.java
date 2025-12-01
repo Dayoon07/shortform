@@ -102,7 +102,7 @@ public class UserService {
     public ResponseEntity<Map<String, Object>> login(
             String username,
             String password,
-            HttpSession session,
+            HttpSession session,    // 제거 예정
             @RequestHeader(value = "X-Client-Type", required = false) String clientType
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -122,23 +122,27 @@ public class UserService {
         }
 
         try {
+            String token = jwtUtil.generateToken(user);
+
             response.put("success", true);
             response.put("message", "로그인 되었습니다");
+            response.put("token", token);
+            response.put("tokenType", "Bearer");
             response.put("user", Map.of(
-                "id", user.getId(),
-                "username", user.getUsername(),
-                "mail", user.getMail(),
-                "profileImgSrc", user.getProfileImgSrc(),
-                "mention", user.getMention(),
-                "createAt", user.getCreateAt(),
-                "isSocial", user.isSocial(),
-                "provider", user.getProvider()
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "mail", user.getMail(),
+                    "profileImgSrc", user.getProfileImgSrc(),
+                    "mention", user.getMention(),
+                    "createAt", user.getCreateAt(),
+                    "isSocial", user.isSocial(),
+                    "provider", user.getProvider()
             ));
 
             if ("mobile".equals(clientType)) {
                 // 모바일/네이티브 앱: JWT 토큰 발행
-                String token = jwtUtil.generateToken(user);
-                response.put("token", token);
+                String token2 = jwtUtil.generateToken(user);
+                response.put("token", token2);
                 response.put("tokenType", "Bearer");
             } else {
                 // 웹 애플리케이션: 세션 사용
