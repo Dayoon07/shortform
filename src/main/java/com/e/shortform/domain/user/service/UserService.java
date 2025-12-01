@@ -236,7 +236,7 @@ public class UserService {
         UserEntity userEntity = UserEntity.builder()
                 .username(name)
                 .mail(email)
-                .password("")  // 소셜 로그인은 비밀번호 없음
+                .password(passwordEncoder.encode("1234"))  // 소셜 로그인은 비밀번호 없음
                 .profileImg(picture != null ? picture : "default.jpg")
                 .profileImgSrc(picture != null ? picture : "/resources/shortform-user-profile-img/default.jpg")
                 .mention(mentionUuid)

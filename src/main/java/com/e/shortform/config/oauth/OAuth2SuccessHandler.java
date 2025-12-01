@@ -26,7 +26,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtil.generateToken(user);
 
-        String redirectUrl = "http://localhost:3000/social-login?token=" + token;
+        String redirectUrl = "http://localhost:3000/shortform-client/social-login?token=" + token;
 
         getRedirectStrategy().sendRedirect(req, res, redirectUrl);
     }
