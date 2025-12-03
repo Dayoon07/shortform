@@ -27,9 +27,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = jwtUtil.generateToken(user);
 
         // 쿠키에 저장 (httpOnly, secure)
-        Cookie cookie = new Cookie("access_token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS 환경에서만
+        Cookie cookie = new Cookie("accessTkn", token);
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false); // HTTPS 환경에서만
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 24시간
         res.addCookie(cookie);

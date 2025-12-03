@@ -50,7 +50,7 @@ public class UserEntity {
     private LocalDateTime createAt;
 
     @Column(name = "is_social", nullable = false)
-    private boolean isSocial;
+    private boolean social;
 
     @Column(name = "provider", nullable = false, length = 50)
     private String provider;

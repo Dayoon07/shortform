@@ -83,7 +83,7 @@ public class UserService {
                     .profileImg(fileName)
                     .profileImgSrc("/resources/shortform-user-profile-img/" + fileName)
                     .mention(mentionUuid)
-                    .isSocial(false)
+                    .social(false)
                     .provider(ProviderStatus.LOCAL.name())
                     .build();
 
@@ -244,8 +244,8 @@ public class UserService {
                 .profileImg(picture != null ? picture : "default.jpg")
                 .profileImgSrc(picture != null ? picture : "/resources/shortform-user-profile-img/default.jpg")
                 .mention(mentionUuid)
-                .isSocial(true)            // 소셜 회원
-                .provider(provider)        // google, naver, kakao 등
+                .social(true)            // 소셜 회원
+                .provider(provider)      // google, naver, kakao 등
                 .build();
 
         return userRepo.save(userEntity);

@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +52,19 @@ public class RestUserController {
 
     // 동시 요청 방지를 위한 Map (간단한 해결책)
     private final Map<String, Long> lastRequestTimes = new ConcurrentHashMap<>();
+
+    // RestUserController.java에 추가
+    @GetMapping("/user/me")
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        return ResponseEntity.ok(user);
+    }
 
     @GetMapping("/user/all")
     public List<UserEntity> selectAll() {
