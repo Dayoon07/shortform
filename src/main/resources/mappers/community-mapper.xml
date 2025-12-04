@@ -16,6 +16,8 @@
         <result property="username" column="USERNAME" />
         <result property="profileImgSrc" column="PROFILE_IMG_SRC" />
         <result property="mention" column="MENTION" />
+        <result property="social" column="IS_SOCIAL" />
+        <result property="provider" column="PROVIDER" />
         <result property="communityUuid" column="COMMUNITY_UUID" />
         <result property="communityWriterId" column="COMMUNITY_WRITER_ID" />
         <result property="communityText" column="COMMUNITY_TEXT" />
@@ -28,6 +30,8 @@
         <result property="username" column="USERNAME" />
         <result property="profileImgSrc" column="PROFILE_IMG_SRC" />
         <result property="mention" column="MENTION" />
+        <result property="social" column="IS_SOCIAL" />
+        <result property="provider" column="PROVIDER" />
         <result property="communityUuid" column="COMMUNITY_UUID" />
         <result property="communityWriterId" column="COMMUNITY_WRITER_ID" />
         <result property="communityText" column="COMMUNITY_TEXT" />
@@ -49,6 +53,8 @@
             u.USERNAME,
             u.PROFILE_IMG_SRC,
             u.MENTION,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             c.COMMUNITY_UUID,
             c.COMMUNITY_WRITER_ID,
             c.COMMUNITY_TEXT,  -- CLOB 그대로 출력 가능
@@ -90,6 +96,8 @@
                 u.USERNAME,
                 u.PROFILE_IMG_SRC,
                 u.MENTION,
+                u.IS_SOCIAL,
+                u.PROVIDER,
                 c.COMMUNITY_UUID,
                 c.COMMUNITY_WRITER_ID,
                 c.COMMUNITY_TEXT,
@@ -137,6 +145,8 @@
             u.USERNAME,
             u.PROFILE_IMG_SRC,
             u.MENTION,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             c.COMMUNITY_UUID,
             c.COMMUNITY_WRITER_ID,
             c.COMMUNITY_TEXT,

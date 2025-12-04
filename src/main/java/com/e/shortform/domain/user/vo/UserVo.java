@@ -19,7 +19,7 @@ public class UserVo {
     private String bio;
     private String mention;
     private LocalDateTime createAt;
-    private boolean isSocial;
+    private boolean social;
     private String provider;
 
 }

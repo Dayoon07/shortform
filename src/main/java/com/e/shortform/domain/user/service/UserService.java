@@ -139,6 +139,8 @@ public class UserService {
                     "provider", user.getProvider()
             ));
 
+            System.out.println(getClass().getName() + " - " + response);
+
             if ("mobile".equals(clientType)) {
                 // 모바일/네이티브 앱: JWT 토큰 발행
                 String token2 = jwtUtil.generateToken(user);

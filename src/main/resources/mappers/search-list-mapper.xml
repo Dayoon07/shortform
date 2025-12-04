@@ -21,7 +21,7 @@
     <select id="selectMySearchList" parameterType="Long" resultMap="searchListResultMap">
         SELECT s.ID, s.SEARCHED_USER_ID, s.SEARCHED_WORD, s.CREATE_AT
         FROM SHORTFORM_SEARCH_LISTS s
-                 JOIN (
+        JOIN (
             SELECT SEARCHED_WORD, MAX(CREATE_AT) AS LATEST_TIME
             FROM SHORTFORM_SEARCH_LISTS
             WHERE SEARCHED_USER_ID = #{id}

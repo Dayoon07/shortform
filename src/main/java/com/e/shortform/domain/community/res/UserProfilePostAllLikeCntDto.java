@@ -17,6 +17,8 @@ public class UserProfilePostAllLikeCntDto {
     private String username;
     private String profileImgSrc;
     private String mention;
+    private boolean social;
+    private String provider;
     private String communityUuid;
     private Long communityWriterId;
     private String communityText;
