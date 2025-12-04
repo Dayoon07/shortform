@@ -10,7 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -55,6 +55,9 @@ dependencies {
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.apache.commons:commons-pool2")
 }
 
 tasks.withType<Test> {

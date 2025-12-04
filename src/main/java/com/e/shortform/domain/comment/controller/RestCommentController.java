@@ -43,7 +43,7 @@ public class RestCommentController {
 
     @PostMapping("/comment/like/submit")
     public ResponseEntity<?> commentLikeLogic(@RequestParam Long commentId, HttpSession session) {
-        log.info("신호 수신 완료 {}", commentId);
+        log.info("댓글 좋아요 요청 {}", commentId);
         boolean isLiked = commentLikeService.toggleCommentLike(commentId, session);
         return ResponseEntity.ok(Map.of("status", isLiked ? "liked" : "unliked"));
     }
@@ -55,7 +55,7 @@ public class RestCommentController {
 
     @PostMapping("/insert/comment/reply")
     public ResponseEntity<?> commentReplyInsertLogicFuncFuck(@RequestBody Map<String, Object> req) {
-        log.info("commentReplyId: {}, commentReplyText: {}, commentReplyUserId: {}", req.get("commentReplyId"), req.get("commentReplyText"), req.get("commentReplyUserId"));
+        log.info("답글 작성 요청 commentReplyId: {}, commentReplyText: {}, commentReplyUserId: {}", req.get("commentReplyId"), req.get("commentReplyText"), req.get("commentReplyUserId"));
         commentReplyService.commentReplyInsertFuck(
                 Long.parseLong(req.get("commentReplyId").toString()),
                 String.valueOf(req.get("commentReplyText")),

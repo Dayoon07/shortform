@@ -1,5 +1,6 @@
 package com.e.shortform.config;
 
+import com.e.shortform.config.oauth.TokenBlacklistService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.service.UserService;
@@ -25,6 +26,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
     private final UserRepo userRepo;
 
     @Override
@@ -36,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = getTokenFromRequest(request);
 
         if (token != null && jwtUtil.validateToken(token) &&
+                !tokenBlacklistService.isBlacklisted(token) &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
             String mention = jwtUtil.getMentionFromToken(token);

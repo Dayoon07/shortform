@@ -1,5 +1,7 @@
 package com.e.shortform.domain.user.controller;
 
+import com.e.shortform.config.JwtUtil;
+import com.e.shortform.config.oauth.TokenBlacklistService;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -20,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,18 +54,22 @@ public class RestUserController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
 
+    private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
+
     // 동시 요청 방지를 위한 Map (간단한 해결책)
     private final Map<String, Long> lastRequestTimes = new ConcurrentHashMap<>();
 
     @GetMapping("/user/me")
-    public ResponseEntity<?> getCurrentUser() {
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User p) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        System.out.println("authentication: " + authentication);
+        System.out.println("user: " + user);
         return ResponseEntity.ok(user);
     }
 
@@ -124,9 +132,34 @@ public class RestUserController {
     }
 
     @PostMapping("/user/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "로그아웃 되었습니다";
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session, @RequestHeader("Authorization") String bearerToken) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String token = jwtUtil.extractTokenFromBearer(bearerToken);
+
+            if (session != null) {
+                session.invalidate();
+            }
+
+            if (token == null) {
+                response.put("success", false);
+                response.put("message", "유효하지 않은 토큰입니다");
+                return ResponseEntity.badRequest().body(response);
+            } else {
+                // 블랙리스트에 추가
+                tokenBlacklistService.addToBlacklist(token);
+
+                response.put("success", true);
+                response.put("message", "로그아웃되었습니다");
+                return ResponseEntity.ok(response);
+            }
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류", e);
+            response.put("success", false);
+            response.put("message", "로그아웃 처리 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @GetMapping("/user/chk/username")

@@ -34,8 +34,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setMaxAge(24 * 60 * 60); // 24시간
         res.addCookie(cookie);
 
-        System.out.println(getClass().getName() + " - " + cookie + ", " + principal);
-
         // 프론트엔드로 리다이렉트 (토큰은 쿠키에 있음)
         String redirectUrl = "http://localhost:3000/shortform-client/oauth/callback";
         getRedirectStrategy().sendRedirect(req, res, redirectUrl);
