@@ -24,9 +24,7 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}") // 24시간 (밀리초)
     private Long expiration;
 
-    /**
-     * JWT 토큰 생성
-     */
+    /** JWT 토큰 생성 */
     public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
@@ -40,24 +38,18 @@ public class JwtUtil {
         return createToken(claims, user.getUsername());
     }
 
-    /**
-     * 토큰에서 사용자명 추출
-     */
+    /** 토큰에서 사용자명 추출 */
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
-    /**
-     * 토큰에서 사용자 ID 추출
-     */
+    /** 토큰에서 사용자 ID 추출 */
     public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("userId", Long.class);
     }
 
-    /**
-     * 토큰에서 이메일 추출
-     */
+    /** 토큰에서 이메일 추출 */
     public String getMailFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("mail", String.class);
@@ -68,24 +60,18 @@ public class JwtUtil {
         return claims.get("mention", String.class);
     }
 
-    /**
-     * 토큰 만료일 추출
-     */
+    /** 토큰 만료일 추출 */
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
-    /**
-     * 토큰에서 특정 클레임 추출
-     */
+    /** 토큰에서 특정 클레임 추출 */
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
-    /**
-     * 토큰에서 모든 클레임 추출
-     */
+    /** 토큰에서 모든 클레임 추출 */
     private Claims getAllClaimsFromToken(String token) {
         try {
             return Jwts.parser()
@@ -98,9 +84,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 토큰 만료 여부 확인
-     */
+    /** 토큰 만료 여부 확인 */
     private Boolean isTokenExpired(String token) {
         try {
             final Date expiration = getExpirationDateFromToken(token);
@@ -111,9 +95,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 토큰 생성 (내부 메서드)
-     */
+    /** 토큰 생성 (내부 메서드) */
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -124,9 +106,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * 토큰 유효성 검사
-     */
+    /** 토큰 유효성 검사 */
     public Boolean validateToken(String token, UserDetails userDetails) {
         try {
             final String username = getUsernameFromToken(token);
@@ -137,9 +117,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 토큰 유효성 검사 (UserDetails 없이)
-     */
+    /** 토큰 유효성 검사 (UserDetails 없이) */
     public Boolean validateToken(String token) {
         try {
             return !isTokenExpired(token);
@@ -149,9 +127,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 토큰 갱신 (리프레시)
-     */
+    /** 토큰 갱신 (리프레시) */
     public String refreshToken(String token) {
         try {
             final Claims claims = getAllClaimsFromToken(token);
@@ -168,9 +144,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * 토큰에서 남은 만료 시간 계산 (밀리초)
-     */
+    /** 토큰에서 남은 만료 시간 계산 (밀리초) */
     public Long getTokenRemainingTime(String token) {
         try {
             Date expiration = getExpirationDateFromToken(token);
@@ -181,9 +155,7 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * Bearer 토큰에서 실제 토큰 문자열 추출
-     */
+    /** Bearer 토큰에서 실제 토큰 문자열 추출 */
     public String extractTokenFromBearer(String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
@@ -191,17 +163,13 @@ public class JwtUtil {
         return null;
     }
 
-    /**
-     * 토큰에서 소셜 여부 추출하는 메서드
-     */
+    /** 토큰에서 소셜 여부 추출하는 메서드 */
     public Boolean getIsSocialFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("isSocial", Boolean.class);
     }
 
-    /**
-     * 토큰에서 제공자 정보 추출하는 메서드
-     */
+    /** 토큰에서 제공자 정보 추출하는 메서드 */
     public String getProviderFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("provider", String.class);

@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum ProviderStatus {
     LOCAL,
-    GOOGLE
+    GOOGLE,
 }

@@ -233,9 +233,7 @@ public class UserService {
         return userRepo.findByMail(mail);
     }
 
-    /**
-     * 구글 로그인 시 호출하는 회원가입 기능입니다
-     */
+    /** 구글 로그인 시 호출하는 회원가입 기능입니다 */
     public UserEntity createSocialUser(String email, String name, String picture, String provider) {
         String mentionUuid = "user-" + UUID.randomUUID().toString().substring(0, 28);
 
@@ -253,16 +251,12 @@ public class UserService {
         return userRepo.save(userEntity);
     }
 
-    /**
-     * 사용자 정보 업데이트 (주로 소셜 연동시 사용)
-     */
+    /** 사용자 정보 업데이트 (주로 소셜 연동시 사용) */
     public void updateUser(UserEntity user) {
         userRepo.save(user);
     }
 
-    /**
-     * 로컬 계정에서 소셜 계정 연동
-     */
+    /** 로컬 계정에서 소셜 계정 연동 */
     public void linkSocialAccount(Long userId, String provider) {
         UserEntity user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -272,18 +266,14 @@ public class UserService {
         userRepo.save(user);
     }
 
-    /**
-     * 소셜 계정 여부 확인
-     */
+    /** 소셜 계정 여부 확인 */
     public boolean isSocialUser(Long userId) {
         UserEntity user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return user.isSocial();
     }
 
-    /**
-     * 제공자 정보 조회
-     */
+    /** 제공자 정보 조회 */
     public String getUserProvider(Long userId) {
         UserEntity user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
