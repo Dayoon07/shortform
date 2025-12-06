@@ -1,6 +1,7 @@
 package com.e.shortform.domain.user.service;
 
 import com.e.shortform.config.JwtUtil;
+import com.e.shortform.config.oauth.TokenBlacklistService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.enumeration.ProviderStatus;
 import com.e.shortform.domain.user.mapper.UserMapper;
@@ -8,6 +9,8 @@ import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.res.UserProfileDto;
 import com.e.shortform.domain.user.res.UserProfileUpdateDto;
 import com.e.shortform.domain.user.vo.UserVo;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepo userRepo;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public List<UserVo> selectAll() {
         return userMapper.selectAll();
@@ -167,6 +171,45 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session,
+                                                      HttpServletResponse servletRes,
+                                                      String bearerToken) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String token = jwtUtil.extractTokenFromBearer(bearerToken);
+
+            if (session != null) {
+                session.invalidate();
+            }
+
+            if (token == null) {
+                response.put("success", false);
+                response.put("message", "유효하지 않은 토큰입니다");
+                return ResponseEntity.badRequest().body(response);
+            } else {
+                // 블랙리스트에 추가
+                tokenBlacklistService.addToBlacklist(token);
+
+                response.put("success", true);
+                response.put("message", "로그아웃되었습니다");
+
+                Cookie cookie = new Cookie("accessTkn", null);
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                cookie.setHttpOnly(false);
+                cookie.setSecure(false);
+                servletRes.addCookie(cookie);
+                return ResponseEntity.ok(response);
+            }
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류", e);
+            response.put("success", false);
+            response.put("message", "로그아웃 처리 중 오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     public UserEntity findByMention(String mention) {
