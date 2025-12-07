@@ -1,5 +1,6 @@
 package com.e.shortform.domain.search.controller;
 
+import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -9,6 +10,7 @@ import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.entity.SearchListEntity;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.search.vo.SearchListVo;
+import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
@@ -17,6 +19,10 @@ import com.e.shortform.domain.viewstory.service.ViewStoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,15 +51,14 @@ public class RestSearchListController {
         return searchListService.selectAllSearchList();
     }
 
+    @RequireAuth
     @GetMapping("/search")
-    public ResponseEntity<?> search(
-            @RequestParam String q,
-            @RequestParam(required = false) String mention
-    ) {
-        if (mention == null || mention.isEmpty()) {
+    public ResponseEntity<?> search(@RequestParam String q) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getMention() == null || user.getMention().isEmpty()) {
             searchListService.searchWordRecord(q);
         } else {
-            searchListService.searchWordRecordPlusMention(q, mention);
+            searchListService.searchWordRecordPlusMention(q, user.getMention());
         }
 
         return ResponseEntity.ok(videoService.searchLogic(q));
