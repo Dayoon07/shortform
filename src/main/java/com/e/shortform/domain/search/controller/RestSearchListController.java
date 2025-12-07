@@ -51,14 +51,18 @@ public class RestSearchListController {
         return searchListService.selectAllSearchList();
     }
 
-    @RequireAuth
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String q) {
-        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getMention() == null || user.getMention().isEmpty()) {
-            searchListService.searchWordRecord(q);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserEntity user) {
+            if (user.getMention() != null && !user.getMention().isEmpty()) {
+                searchListService.searchWordRecordPlusMention(q, user.getMention());
+            } else {
+                searchListService.searchWordRecord(q);
+            }
         } else {
-            searchListService.searchWordRecordPlusMention(q, user.getMention());
+            searchListService.searchWordRecord(q);
         }
 
         return ResponseEntity.ok(videoService.searchLogic(q));

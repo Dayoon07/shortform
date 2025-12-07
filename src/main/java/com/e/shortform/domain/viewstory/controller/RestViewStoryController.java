@@ -46,7 +46,7 @@ public class RestViewStoryController {
         return viewStoryService.selectAllViewStory();
     }
 
-    @GetMapping("/user/find/viewstory")
+    @GetMapping("/viewstory/find")
     public List<ViewStoryEntity> viewStoryList(@RequestParam Long id) {
         return viewStoryService.getViewStoryListByUserId(id);
     }
