@@ -5,6 +5,7 @@ import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.mapper.FollowMapper;
 import com.e.shortform.domain.user.repository.FollowRepo;
 import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.user.res.FollowToggleDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class FollowService {
 
     private final FollowMapper followMapper;
@@ -60,8 +61,36 @@ public class FollowService {
         return result;
     }
 
-    /** 팔로우 관계 확인 메서드 */
+    /**
+     * mention 기반으로 팔로우 상태 확인 (최적화된 단일 쿼리)
+     * 사용자가 존재하지 않거나 팔로우하지 않은 경우 모두 false 반환
+     * (전에 만든 거는 DB 요청을 3번하는 방식이여서 고침)
+     */
+    public boolean upgradeVerIsFollowingFunc(String reqMention, String resMention) {
+        if (reqMention == null || resMention == null)
+            return false;
+        if (reqMention.trim().isEmpty() || resMention.trim().isEmpty())
+            return false;
+        if (reqMention.equals(resMention))  // 자기 자신을 팔로우하는지 확인하는 경우
+            return false;
+
+        try {
+            Boolean result = followMapper.checkFollowStatusByMention(reqMention, resMention);
+            return result != null && result;
+        } catch (Exception e) {
+            log.error("팔로우 상태 확인 중 오류 발생 - reqMention: {}, resMention: {}", reqMention, resMention, e);
+            return false;
+        }
+    }
+
+    /** ID 기반 팔로우 확인 (기존 메서드 유지) */
     public boolean isFollowing(Long followUserId, Long followedUserId) {
+        if (followUserId == null || followedUserId == null)
+            return false;
+
+        if (followUserId.equals(followedUserId))
+            return false;
+
         return followRepo.existsByFollowUserIdAndFollowedUserId(followUserId, followedUserId);
     }
 
@@ -96,9 +125,7 @@ public class FollowService {
         Optional<FollowEntity> followRelation =
                 followRepo.findByFollowUserIdAndFollowedUserId(followUserId, followedUserId);
 
-        if (followRelation.isPresent()) {
-            followRepo.delete(followRelation.get());
-        }
+        followRelation.ifPresent(followRepo::delete);
     }
 
     /** 팔로워 수 조회 */
@@ -156,9 +183,9 @@ public class FollowService {
         }
     }
 
-    /** <h1>팔로우 상태 토글 (한 번의 트랜잭션으로 처리)</h1> */
+    /** <h3>팔로우 상태 토글 (한 번의 트랜잭션으로 처리)</h3> */
     @Transactional
-    public FollowToggleResult toggleFollow(UserEntity currentUser, UserEntity targetUser) {
+    public FollowToggleDto toggleFollow(UserEntity currentUser, UserEntity targetUser) {
         try {
             boolean isCurrentlyFollowing = followRepo.existsByFollowUserIdAndFollowedUserId(
                     currentUser.getId(), targetUser.getId());
@@ -166,15 +193,15 @@ public class FollowService {
             if (isCurrentlyFollowing) {
                 // 언팔로우
                 boolean unfollowSuccess = unfollowSafely(currentUser.getId(), targetUser.getId());
-                return new FollowToggleResult(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다.");
+                return new FollowToggleDto(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다.");
             } else {
                 // 팔로우
                 boolean followSuccess = createFollowSafely(currentUser, targetUser);
                 if (followSuccess) {
-                    return new FollowToggleResult(true, true, targetUser.getUsername() + "님을 팔로우했습니다.");
+                    return new FollowToggleDto(true, true, targetUser.getUsername() + "님을 팔로우했습니다.");
                 } else {
                     // 이미 팔로우된 상태 (동시 요청으로 인한)
-                    return new FollowToggleResult(true, true, "이미 팔로우 중입니다.");
+                    return new FollowToggleDto(true, true, "이미 팔로우 중입니다.");
                 }
             }
 
@@ -183,30 +210,16 @@ public class FollowService {
         }
     }
 
-    /** 팔로우 토글 결과를 담는 클래스 */
-    public static class FollowToggleResult {
-        private boolean isFollowing;
-        private boolean success;
-        private String message;
-
-        public FollowToggleResult(boolean isFollowing, boolean success, String message) {
-            this.isFollowing = isFollowing;
-            this.success = success;
-            this.message = message;
-        }
-
-        // getters
-        public boolean isFollowing() { return isFollowing; }
-        public boolean isSuccess() { return success; }
-        public String getMessage() { return message; }
-    }
-
     public List<FollowEntity> selectAllFollow() {
         return followRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public boolean existsByFollowUserAndFollowedUser(UserEntity followUser, UserEntity followedUser) {
         return followRepo.existsByFollowUserAndFollowedUser(followUser, followedUser);
+    }
+
+    public Long followExists(Long followUserId, Long followedUserId) {
+        return followMapper.followExists(followUserId, followedUserId);
     }
 
 }

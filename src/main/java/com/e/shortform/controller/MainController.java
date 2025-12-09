@@ -11,6 +11,7 @@ import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.entity.VideoEntity;
+import com.e.shortform.domain.video.res.VideoLikeInfoDto;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
 import com.e.shortform.domain.viewstory.service.ViewStoryService;
@@ -103,7 +104,7 @@ public class MainController {
         UserEntity user = (UserEntity) session.getAttribute("user");
         VideoEntity video = videoService.findByVideoLoc(videoLoc, session);
 
-        VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
+        VideoLikeInfoDto likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
                 videoService.findByVideoLoc(videoLoc, session).getId(),
                 user != null ? user.getId() : null
         );
@@ -175,7 +176,7 @@ public class MainController {
         m.addAttribute("followUser", followUser); // 팔로우 대상 사용자 정보 추가
 
         // 비디오 좋아요 정보
-        VideoLikeService.VideoLikeInfo likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
+        VideoLikeInfoDto likeInfo = videoLikeService.getVideoLikeInfoWithMyBatis(
                 video.getId(),
                 user != null ? user.getId() : null
         );

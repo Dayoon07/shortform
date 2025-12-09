@@ -63,14 +63,17 @@ public class SearchListService {
     }
 
     /** id를 기준으로 내림차순 정렬해서 모든 검색 기록을 가져오는 함수 */
-    public List<SearchListEntity> selectAllSearchList() {
+    public List<SearchListEntity> selectAllSearchListOrderByDesc() {
         return searchListRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
-    public String deleteSearchWord(Long searchedUserId, String searchedWord) {
+    /**
+     * @param id 검색한 유저의 id
+     * @param w 검색어
+     */
+    public String deleteSearchWord(Long id, String w) {
         try {
-            // 직접 삭제 - 조회 불필요
-            int deletedCount = searchListMapper.deleteSearchWord(searchedUserId, searchedWord);
+            int deletedCount = searchListMapper.deleteSearchWord(id, w);
             return deletedCount > 0 ? "검색어 삭제됨" : "삭제할 검색어가 없습니다";
         } catch (Exception e) {
             log.error("검색어 삭제 중 오류 발생: {}", e.getMessage());
@@ -79,7 +82,7 @@ public class SearchListService {
     }
 
     /** 정렬 없이 모든 검색 기록을 가져오는 함수 */
-    public List<SearchListEntity> getAllSearchList() {
+    public List<SearchListEntity> findAllSearchList() {
         return searchListRepo.findAll();
     }
 

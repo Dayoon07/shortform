@@ -41,12 +41,12 @@ public class CommentService {
 
             commentRepo.save(commentEntity);
         } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
         }
 
         map.put("commentText", commentText);
         map.put("userObj", user);
-
         return map;
     }
 
@@ -58,7 +58,7 @@ public class CommentService {
         return commentMapper.selectByCommentButOrderByIsDesc(id);
     }
 
-    public List<?> selectAllComments() {
+    public List<CommentEntity> selectAllComments() {
         return commentRepo.findAll();
     }
 

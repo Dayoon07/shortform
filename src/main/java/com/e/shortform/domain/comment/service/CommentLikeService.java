@@ -25,14 +25,13 @@ public class CommentLikeService {
     private final CommentLikeRepo commentLikeRepo;
 
     @Transactional
-    public boolean toggleCommentLike(Long commentId, HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null) {
+    public boolean toggleCommentLike(Long commentId, String reqUserMention) {
+        UserEntity user = userRepo.findByMention(reqUserMention);
+        if (user == null)
             throw new IllegalStateException("로그인 필요");
-        }
 
         CommentEntity comment = commentRepo.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글"));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다"));
 
         // 이미 좋아요 되어 있는지 확인
         Optional<CommentLikeEntity> existing = commentLikeRepo.findByUserAndComment(user, comment);

@@ -29,16 +29,14 @@ public class CommunityLikeService {
     private final CommunityLikeMapper communityLikeMapper;
 
     @Transactional
-    public Map<String, Object> postLike(String uuid, HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-
+    public Map<String, Object> postLike(String uuid, String reqMention) {
+        UserEntity user = userRepo.findByMention(reqMention);
         CommunityEntity c = communityRepo.findByCommunityUuid(uuid);
-        if (c == null) {
+
+        if (user == null)
+            throw new IllegalStateException("로그인이 필요합니다.");
+        if (c == null)
             throw new IllegalArgumentException("해당 UUID에는 게시글이 없습니다.");
-        }
 
         Optional<CommunityLikeEntity> likeOpt = communityLikeRepo.findByUserAndCommunity(user, c);
         boolean like;

@@ -19,8 +19,7 @@ public class TokenBlacklistService {
     /** 토큰을 블랙리스트에 추가 */
     public void addToBlacklist(String token) {
         try {
-            // 토큰의 남은 유효 시간 계산
-            Long remainingTime = jwtUtil.getTokenRemainingTime(token);
+            Long remainingTime = jwtUtil.getTokenRemainingTime(token);  // 토큰의 남은 유효 시간 계산
 
             if (remainingTime > 0) {
                 // Redis에 저장 (만료 시간 설정)

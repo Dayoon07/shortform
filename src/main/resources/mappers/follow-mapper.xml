@@ -18,11 +18,26 @@
         <association property="followedUser" javaType="com.e.shortform.domain.user.vo.UserVo" />
     </resultMap>
 
-    <select id="followExsits" parameterType="Long" resultType="Long">
+    <select id="followExists" parameterType="Long" resultType="Long">
         SELECT COUNT(*) AS IS_FOLLOWING
         FROM SHORTFORM_USERS_FOLLOWS
         WHERE FOLLOW_USER_ID = #{followUserId}
             AND FOLLOWED_USER_ID = #{followedUserId}
+    </select>
+
+    <select id="checkFollowStatusByMention" resultType="Boolean">
+        SELECT
+            CASE
+                WHEN COUNT(*) > 0 THEN 1
+                ELSE 0
+            END
+        FROM SHORTFORM_USERS_FOLLOWS f
+            INNER JOIN SHORTFORM_USERS req_user
+                ON f.FOLLOW_USER_ID = req_user.ID
+            INNER JOIN SHORTFORM_USERS res_user
+                ON f.FOLLOWED_USER_ID = res_user.ID
+        WHERE req_user.MENTION = #{reqMention}
+            AND res_user.MENTION = #{resMention}
     </select>
 
 </mapper>

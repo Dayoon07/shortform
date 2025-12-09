@@ -4,6 +4,7 @@ import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.video.entity.VideoEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

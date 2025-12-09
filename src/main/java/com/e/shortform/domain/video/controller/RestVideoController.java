@@ -1,5 +1,6 @@
 package com.e.shortform.domain.video.controller;
 
+import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -8,11 +9,14 @@ import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.entity.VideoEntity;
 import com.e.shortform.domain.video.req.VideoRequestDto;
+import com.e.shortform.domain.video.req.VideoUploadReqDto;
 import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
+import com.e.shortform.domain.video.res.VideoLikeToggleDto;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
 import com.e.shortform.domain.viewstory.service.ViewStoryService;
@@ -23,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,26 +53,17 @@ public class RestVideoController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
 
-    /**
-     * 페이징된 비디오 목록 조회 (신규)
-     */
+    /** 페이징된 비디오 목록 조회 (신규) */
     @GetMapping("/video/all")
     public Map<String, Object> selectAllVideos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
-        // 페이지 요청 객체 생성
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        // 페이징된 데이터 조회
-        Map<String, Object> result = videoService.selectIndexPageAllVideosPaginated(pageRequest);
-
-        return result;
+        PageRequest pageRequest = PageRequest.of(page, size);   // 페이지 요청 객체 생성
+        return videoService.selectIndexPageAllVideosPaginated(pageRequest);
     }
 
-    /**
-     * 전체 비디오 조회 (기존 API 유지 - 하위 호환성)
-     */
+    /** 전체 비디오 조회 (기존 API 유지 - 하위 호환성) */
     @GetMapping("/video/all/legacy")
     public List<IndexPageAllVideosDto> selectAllVideosLegacy() {
         return videoService.selectIndexPageAllVideos();
@@ -78,57 +74,34 @@ public class RestVideoController {
         return videoService.findAll();
     }
 
+    @RequireAuth
     @PostMapping("/upload/video")
-    public ResponseEntity<Map<String, Object>> uploadVideoComplete(
-            @RequestParam("video") MultipartFile file,
-            @RequestParam("title") String title,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "hashtags", required = false) String hashtags,
-            @RequestParam("visibility") String visibility,
-            @RequestParam("commentsAllowed") String commentsAllowed,
-            @RequestParam("thumbnail") MultipartFile thumbnail,
-            @RequestParam("mention") String mention) {
-        UserEntity user = userService.findByMention(mention);
-        Map<String, Object> response = videoService.uploadVideo(file, title, description, hashtags, visibility, commentsAllowed, thumbnail, user);
-        HttpStatus status = (Boolean) response.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-        return new ResponseEntity<>(response, status);
+    public ResponseEntity<Map<String, Object>> uploadVideo(
+            @RequestBody VideoUploadReqDto reqDto,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        Map<String, Object> res = videoService.uploadVideo(
+                reqDto.getVideo(),
+                reqDto.getTitle(),
+                reqDto.getDescription(),
+                reqDto.getHashtags(),
+                reqDto.getVisibility(),
+                reqDto.getCommentsAllowed(),
+                reqDto.getThumbnail(),
+                user);
+        HttpStatus status = (Boolean) res.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(res, status);
     }
 
+    @RequireAuth
     @PostMapping("/video/insert/comment")
     public ResponseEntity<?> insertComment(
             @RequestParam("commentText") String commentText,
             @RequestParam("commentVideoId") Long commentVideoId,
-            HttpSession session
+            @AuthenticationPrincipal AuthUserReqDto user
     ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-
-        if (user == null) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "message", "사용자가 존재하지 않습니다."
-            ));
-        }
-
-        Map<String, Object> response = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/video/insert/comment/by/mention")
-    public ResponseEntity<?> swipeVideoInsertComment(
-            @RequestParam("commentText") String commentText,
-            @RequestParam("commentVideoId") Long commentVideoId,
-            @RequestParam("resUserMention") String resUserMention
-    ) {
-        UserEntity user =  userService.findByMention(resUserMention);
-
-        if (user == null) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "message", "사용자가 존재하지 않습니다."
-            ));
-        }
-
-        Map<String, Object> response = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
-        return ResponseEntity.ok(response);
+        Map<String, Object> res = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/video/find/comment/popular")
@@ -141,25 +114,20 @@ public class RestVideoController {
         return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
     }
 
-    /**
-     * 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능)
-     */
+    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
     @PostMapping("/video/like")
     public ResponseEntity<?> videoLikeToggle(@RequestBody Map<String, Object> req, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
 
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "success", false,
-                    "message", "세션이 없습니다"
-            ));
-        }
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "세션이 없습니다"));
 
         try {
             Long videoId = Long.valueOf(req.get("videoId").toString());
 
             // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeService.LikeToggleResult result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
+            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
 
             if (result.isSuccess()) {
                 return ResponseEntity.ok(Map.of(
@@ -190,23 +158,16 @@ public class RestVideoController {
         }
     }
 
-    /**
-     * 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능)
-     */
+    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
+    @RequireAuth
     @PostMapping("/video/like/by/mention")
-    public ResponseEntity<?> videoLikeToggleByMention(@RequestParam Long videoId, @RequestParam String reqUserMention) {
-        UserEntity user = userService.findByMention(reqUserMention);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "success", false,
-                    "message", "세션이 없습니다"
-            ));
-        }
-
+    public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
+            @RequestParam Long videoId,
+            @AuthenticationPrincipal AuthUserReqDto user
+    ) {
         try {
             // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeService.LikeToggleResult result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
+            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
 
             if (result.isSuccess()) {
                 return ResponseEntity.ok(Map.of(
@@ -223,12 +184,14 @@ public class RestVideoController {
             }
 
         } catch (NumberFormatException e) {
+            log.error(e.getMessage());
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "잘못된 비디오 ID입니다"
             ));
         } catch (Exception e) {
+            log.error(e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                     "success", false,
@@ -435,18 +398,18 @@ public class RestVideoController {
         }
     }
 
-    @PostMapping("/videos/tag")
+    @PostMapping("/video/explore/hashtag")
     public ResponseEntity<List<?>> exploreVideoList(@RequestParam String hashtag) {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(hashtag));
     }
 
-    @GetMapping("/like/video")
-    public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@RequestParam String mention) {
-        UserEntity user = userService.findByMention(mention);
+    @RequireAuth
+    @GetMapping("/video/find/like")
+    public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@AuthenticationPrincipal AuthUserReqDto user) {
         return ResponseEntity.ok(videoService.myLikeVideos(user.getId()));
     }
 
-    @GetMapping("/hashtag")
+    @GetMapping("/video/hashtag")
     public ResponseEntity<?> getTagVideo(@RequestParam String videoTag) {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(videoTag));
     }

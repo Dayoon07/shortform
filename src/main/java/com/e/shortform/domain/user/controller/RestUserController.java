@@ -10,6 +10,9 @@ import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.req.FollowToggleReqDto;
+import com.e.shortform.domain.user.req.SignupReqDto;
+import com.e.shortform.domain.user.res.FollowToggleDto;
 import com.e.shortform.domain.user.res.UserProfileUpdateDto;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
@@ -85,7 +88,7 @@ public class RestUserController {
         UserEntity user = userService.findByMention(mention);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "해당 멘션의 사용자를 찾을 수 없습니다."));
+                .body(Map.of("message", "해당 멘션의 사용자를 찾을 수 없습니다."));
         }
         return ResponseEntity.ok(user);
     }
@@ -107,7 +110,7 @@ public class RestUserController {
         Map<String, Object> map = new HashMap<>();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "해당 멘션의 사용자를 찾을 수 없습니다."));
+                .body(Map.of("message", "해당 멘션의 사용자를 찾을 수 없습니다."));
         }
         map.put("profileInfo", userService.getUserProfilePageInfo(user.getId()));
         map.put("profileVideosInfo", videoService.selectUserProfilePageAllVideos(mention));
@@ -115,14 +118,9 @@ public class RestUserController {
     }
 
     @PostMapping("/user/signup")
-    public ResponseEntity<String> signup(
-            @RequestParam("email") String email,
-            @RequestParam("username") String username,
-            @RequestParam("password") String password,
-            @RequestParam("profileImage") MultipartFile profileImage
-    ) {
-        userService.signup(username, password, email, profileImage);
-        return ResponseEntity.ok("회원가입 완료");
+    public ResponseEntity<String> signup(@RequestBody SignupReqDto req) {
+        String t = userService.signup(req.getUsername(), req.getPassword(), req.getEmail(), req.getProfileImage());
+        return ResponseEntity.ok(t);
     }
 
     @PostMapping("/user/login")
@@ -143,12 +141,12 @@ public class RestUserController {
 
     @GetMapping("/user/chk/username")
     public boolean chkUsername(@RequestParam String username) {
-        return userService.selectChkUsername(username) == null;
+        return userService.selectChkUsername(username);
     }
 
     @GetMapping("/user/chk/mail")
     public boolean chkUserMail(@RequestParam String mail) {
-        return userService.selectChkUserMail(mail) == null;
+        return userService.selectChkUserMail(mail);
     }
 
     @PostMapping("/follow")
@@ -171,7 +169,6 @@ public class RestUserController {
     public ResponseEntity<Map<String, Object>> toggleFollow(
             @RequestParam String mention,
             HttpSession session) {
-
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -210,7 +207,7 @@ public class RestUserController {
             }
 
             // 팔로우 상태 토글
-            FollowService.FollowToggleResult result = followService.toggleFollow(currentUser, targetUser);
+            FollowToggleDto result = followService.toggleFollow(currentUser, targetUser);
 
             response.put("success", result.isSuccess());
             response.put("isFollowing", result.isFollowing());
@@ -334,17 +331,14 @@ public class RestUserController {
     }
 
     // upgrade는 리액트 화면에서 사용하기 위한 일종의 커스텀 엔드포인트 함수
-    // 기존에 있던 follow/toggle의 엔드포인트는 템플릿에서 사용힐 수 있게 남긴 것
+    // 기존에 있던 /follow/toggle의 엔드포인트는 템플릿에서 사용힐 수 있게 남긴 것
     @PostMapping("/follow/toggle/upgrade")
-    public ResponseEntity<Map<String, Object>> upgradeToggleFollow(
-            @RequestParam String reqMention,
-            @RequestParam String resMention) {
-
+    public ResponseEntity<Map<String, Object>> upgradeToggleFollow(@RequestBody FollowToggleReqDto req) {
         Map<String, Object> response = new HashMap<>();
-
         UserEntity currentUser = null;
+
         try {
-            currentUser = userService.findByMention(reqMention);
+            currentUser = userService.findByMention(req.getReqMention());
             if (currentUser == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
@@ -352,7 +346,7 @@ public class RestUserController {
             }
 
             // 중복 요청 방지 (1초 내 동일한 요청 차단)
-            String requestKey = currentUser.getId() + ":" + resMention;
+            String requestKey = currentUser.getId() + ":" + req.getResMention();
             Long lastRequestTime = lastRequestTimes.get(requestKey);
             long currentTime = System.currentTimeMillis();
 
@@ -364,7 +358,7 @@ public class RestUserController {
 
             lastRequestTimes.put(requestKey, currentTime);
 
-            UserEntity targetUser = userService.findByMention(resMention);
+            UserEntity targetUser = userService.findByMention(req.getResMention());
             if (targetUser == null) {
                 response.put("success", false);
                 response.put("message", "사용자를 찾을 수 없습니다.");
@@ -379,7 +373,7 @@ public class RestUserController {
             }
 
             // 팔로우 상태 토글
-            FollowService.FollowToggleResult result = followService.toggleFollow(currentUser, targetUser);
+            FollowToggleDto result = followService.toggleFollow(currentUser, targetUser);
 
             response.put("success", result.isSuccess());
             response.put("isFollowing", result.isFollowing());
@@ -393,13 +387,14 @@ public class RestUserController {
 
         } catch (Exception e) {
             e.printStackTrace(); // 로그 확인용
+            log.error(e.getMessage());
             response.put("success", false);
             response.put("message", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             return ResponseEntity.status(500).body(response);
         } finally {
             // 요청 완료 후 일정 시간 후 캐시에서 제거 (메모리 누수 방지)
             String requestKey = currentUser != null ?
-                    currentUser.getId() + ":" + resMention : "";
+                    currentUser.getId() + ":" + req.getResMention() : "";
             if (!requestKey.isEmpty()) {
                 // 5초 후 캐시에서 제거
                 CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
@@ -410,35 +405,31 @@ public class RestUserController {
 
         return ResponseEntity.ok(response);
     }
+
     // 팔로우 상태 확인
     @GetMapping("/follow/status/upgrade")
-    public ResponseEntity<Map<String, Object>> getUpgradeFollowStatus(
+    public ResponseEntity<Map<String, Object>> upgradeFollowStatus(
             @RequestParam String reqMention,
             @RequestParam String resMention) {
-
         Map<String, Object> response = new HashMap<>();
-
         try {
-            UserEntity currentUser = userService.findByMention(reqMention);
-            if (currentUser == null) {
-                response.put("isFollowing", false);
-                return ResponseEntity.ok(response);
-            }
+            boolean isFollowing = followService.upgradeVerIsFollowingFunc(
+                    reqMention.trim(),
+                    resMention.trim()
+            );
 
-            UserEntity targetUser = userService.findByMention(resMention);
-            if (targetUser == null) {
-                response.put("isFollowing", false);
-                return ResponseEntity.ok(response);
-            }
-
-            boolean isFollowing = followService.isFollowing(currentUser.getId(), targetUser.getId());
+            response.put("success", true);
             response.put("isFollowing", isFollowing);
 
-        } catch (Exception e) {
-            response.put("isFollowing", false);
-            response.put("error", e.getMessage());
-        }
+            log.debug("팔로우 상태 조회 성공 - reqMention: {}, resMention: {}, isFollowing: {}",
+                    reqMention, resMention, isFollowing);
 
+        } catch (Exception e) {
+            log.error("팔로우 상태 조회 중 예상치 못한 오류", e);
+            response.put("success", false);
+            response.put("isFollowing", false);
+            response.put("message", "팔로우 상태 조회에 실패했습니다");
+        }
         return ResponseEntity.ok(response);
     }
 

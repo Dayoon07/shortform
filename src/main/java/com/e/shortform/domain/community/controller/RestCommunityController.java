@@ -1,5 +1,6 @@
 package com.e.shortform.domain.community.controller;
 
+import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -8,6 +9,7 @@ import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,39 +46,39 @@ public class RestCommunityController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
 
-    @GetMapping("/find/community/all")
+    @GetMapping("/community/all")
     public List<?> selectAllCommunity() {
         return communityService.selectAllCommunity();
     }
 
-    @GetMapping("/find/community/addition/all")
+    @GetMapping("/community/addition/all")
     public List<?> selectAllCommunityAddition() {
         return communityAdditionService.findAll();
     }
 
-    @PostMapping("/post/write")
-    public ResponseEntity<Map<String, Object>> createPost(
+    @RequireAuth
+    @PostMapping("/community/write")
+    public ResponseEntity<Map<String, Object>> createCommunityPost(
             @RequestParam(value = "content", required = false) String content,
-            @RequestParam("visibility") String visibility,
+            @RequestParam(value = "visibility") String visibility,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            String mention) {
-        return communityService.realCreatePost(content, visibility, images, mention);
+            @AuthenticationPrincipal AuthUserReqDto user
+    ) {
+        return communityService.realCreatePost(content, visibility, images, user.getMention());
     }
 
-    @GetMapping("/find/community/list")
+    @GetMapping("/community/find")
     public List<?> selectByCommunityBut(@RequestParam Long id) {
         return communityService.selectByCommunityButWhereId(id);
     }
 
-    @PostMapping("/post/like")
-    public ResponseEntity<Map<String, Object>> postLike(@RequestParam String communityUuid, HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("like", "fail", "message", "로그인 필요"));
-        }
-
-        Map<String, Object> map = communityLikeService.postLike(communityUuid, session);
+    @RequireAuth
+    @PostMapping("/community/like")
+    public ResponseEntity<Map<String, Object>> communityLike(
+            @RequestParam String communityUuid,
+            @AuthenticationPrincipal AuthUserReqDto user
+    ) {
+        Map<String, Object> map = communityLikeService.postLike(communityUuid, user.getMention());
         return ResponseEntity.ok(map);
     }
 

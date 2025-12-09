@@ -11,6 +11,7 @@ import com.e.shortform.domain.search.entity.SearchListEntity;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.search.vo.SearchListVo;
 import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.user.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
@@ -47,14 +48,29 @@ public class RestSearchListController {
     private final CommunityLikeService communityLikeService;
 
     @GetMapping("/search/list/all")
-    public List<?> selectAllSearchList() {
-        return searchListService.selectAllSearchList();
+    public List<SearchListEntity> findAllSearchList() {
+        return searchListService.findAllSearchList();
+    }
+
+    @GetMapping("/search/list/all/desc")
+    public List<SearchListEntity> selectAllSearchListOrderByDesc() {
+        return searchListService.selectAllSearchListOrderByDesc();
+    }
+
+    @GetMapping("/search/list")
+    public List<SearchListVo> mySearchList(@RequestParam String id) {
+        return searchListService.selectMySearchList(Long.parseLong(id));
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String q) {
+        // 로그인 여부 상관없이 검색할 수 있게 만들었으나
+        // AuthenticationPrincipal, RequireAuth 애노테이션을 사용하면 
+        // 비로그인 유저는 요청할 때 에러가 나기 때문에 context holder를 사용함
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        // 인증되어 있으면서 UserEntuty 타입을 가진 인증했을 때
+        // 인증이 되어 있지 않으면 검색어만 저장
         if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserEntity user) {
             if (user.getMention() != null && !user.getMention().isEmpty()) {
                 searchListService.searchWordRecordPlusMention(q, user.getMention());
@@ -68,20 +84,14 @@ public class RestSearchListController {
         return ResponseEntity.ok(videoService.searchLogic(q));
     }
 
-    @GetMapping("/user/search/list")
-    public List<SearchListVo> mySearchList(@RequestParam String id) {
-        return searchListService.selectMySearchList(Long.parseLong(id));
-    }
-
-    @GetMapping("/user/search/all")
-    public List<SearchListEntity> getAllSearchLists() {
-        return searchListService.getAllSearchList();
-    }
-
+    @RequireAuth
     @PostMapping("/search/list/delete")
-    public String deleteSearchWord(@RequestParam Long id, @RequestParam String searchWord) {
-        String result = searchListService.deleteSearchWord(id, searchWord);
-        log.info("deleteSearchWord result: {}", result);
+    public String deleteSearchWord(
+            @RequestParam String searchWord,
+            @AuthenticationPrincipal AuthUserReqDto user
+    ) {
+        String result = searchListService.deleteSearchWord(user.getId(), searchWord);
+        log.info("삭제한 검색어: {}", result);
         return result;
     }
 

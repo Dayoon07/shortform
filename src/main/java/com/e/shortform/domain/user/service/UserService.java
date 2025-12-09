@@ -52,15 +52,15 @@ public class UserService {
         return userRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
-    public String selectChkUsername(String username) {
-        return userMapper.selectChkUsername(username);
+    public boolean selectChkUsername(String username) {
+        return userMapper.selectChkUsername(username) == null;
     }
 
-    public String selectChkUserMail(String mail) {
-        return userMapper.selectChkUserMail(mail);
+    public boolean selectChkUserMail(String mail) {
+        return userMapper.selectChkUserMail(mail) == null;
     }
 
-    public void signup(String username, String password, String mail, MultipartFile file) {
+    public String signup(String username, String password, String mail, MultipartFile file) {
         try {
             String n = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
             String originalFilename = file.getOriginalFilename();
@@ -92,10 +92,11 @@ public class UserService {
                     .build();
 
             userRepo.save(userEntity);
-
+            return "회원가입에 성공했습니다";
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("파일 업로드 실패");
+            log.error(e.getMessage());
+            return "회원가입에 실패했습니다";
         }
     }
 
