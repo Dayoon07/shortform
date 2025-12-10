@@ -3,7 +3,7 @@ package com.e.shortform.domain.user.enumeration;
 import lombok.Getter;
 
 @Getter
-public enum ProviderStatus {
+public enum SocialProviderStatus {
     LOCAL,
     GOOGLE,
 }

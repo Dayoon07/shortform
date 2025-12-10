@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VideoWithUserFuckingDto {
+public class VideoWithUserVerTwoDto {
 
     private Long videoId;
     private String videoTitle;
@@ -31,6 +31,8 @@ public class VideoWithUserFuckingDto {
     private String profileImg;
     private String profileImgSrc;
     private String previewImg;
+    private boolean social;
+    private String provider;
     private String bio;
     private String mention;
     private LocalDateTime createAt;

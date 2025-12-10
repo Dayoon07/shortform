@@ -3,7 +3,7 @@ package com.e.shortform.domain.user.service;
 import com.e.shortform.config.JwtUtil;
 import com.e.shortform.config.oauth.TokenBlacklistService;
 import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.enumeration.ProviderStatus;
+import com.e.shortform.domain.user.enumeration.SocialProviderStatus;
 import com.e.shortform.domain.user.mapper.UserMapper;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.res.UserProfileDto;
@@ -88,7 +88,7 @@ public class UserService {
                     .profileImgSrc("/resources/shortform-user-profile-img/" + fileName)
                     .mention(mentionUuid)
                     .social(false)
-                    .provider(ProviderStatus.LOCAL.name())
+                    .provider(SocialProviderStatus.LOCAL.name())
                     .build();
 
             userRepo.save(userEntity);
@@ -229,15 +229,18 @@ public class UserService {
         return userMapper.selectProfileUserFollowingList(id);
     }
 
-    public void updateUserInfo(UserProfileUpdateDto dto) {
+    // updateUserInfo 메서드 시그니처 변경
+    public void updateUserInfo(UserProfileUpdateDto dto, String newProfileImgPath, Long userId) {
+        // DTO의 필드가 null이 아닐 때만 업데이트하는 로직을 Mapper나 Service에 구현합니다.
         userMapper.updateUserInfo(
-                dto.username(),
-                dto.mail(),
-                dto.mention(),
-                dto.bio(),
-                dto.profileImg(),
-                dto.profileImgSrc(),
-                dto.id()
+                dto.getUsername(),
+                dto.getMail(),
+                dto.getMention(),
+                dto.getBio(),
+                // 파일 경로는 DTO가 아닌 Controller에서 처리된 최종 경로를 사용
+                newProfileImgPath, // finalProfileImgPath
+                newProfileImgPath, // profileImgSrc
+                userId // AuthUserReqDto에서 가져온 ID를 사용
         );
     }
 
@@ -284,7 +287,7 @@ public class UserService {
         UserEntity userEntity = UserEntity.builder()
                 .username(name)
                 .mail(email)
-                .password(passwordEncoder.encode("1234"))  // 소셜 로그인은 비밀번호 없음
+                .password(passwordEncoder.encode("1234"))  // 소셜 로그인은 비밀번호가 필요하지 않으나 null값을 넣을 수는 없기에 하드코딩함
                 .profileImg(picture != null ? picture : "default.jpg")
                 .profileImgSrc(picture != null ? picture : "/resources/shortform-user-profile-img/default.jpg")
                 .mention(mentionUuid)

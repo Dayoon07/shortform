@@ -10,7 +10,7 @@ import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
-import com.e.shortform.domain.user.service.FollowService;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.entity.VideoEntity;
 import com.e.shortform.domain.video.req.VideoRequestDto;
@@ -26,9 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,18 +75,27 @@ public class RestVideoController {
     @RequireAuth
     @PostMapping("/upload/video")
     public ResponseEntity<Map<String, Object>> uploadVideo(
-            @RequestBody VideoUploadReqDto reqDto,
+            @RequestPart("video") MultipartFile video,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "hashtags", required = false) String hashtags,
+            @RequestParam("visibility") String visibility,
+            @RequestParam("commentsAllowed") String commentsAllowed,
+            @RequestParam("mention") String mention,
+            @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
             @AuthenticationPrincipal UserEntity user
     ) {
         Map<String, Object> res = videoService.uploadVideo(
-                reqDto.getVideo(),
-                reqDto.getTitle(),
-                reqDto.getDescription(),
-                reqDto.getHashtags(),
-                reqDto.getVisibility(),
-                reqDto.getCommentsAllowed(),
-                reqDto.getThumbnail(),
-                user);
+                video,
+                title,
+                description,
+                hashtags,
+                visibility,
+                commentsAllowed,
+                thumbnail,
+                user
+        );
+
         HttpStatus status = (Boolean) res.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(res, status);
     }

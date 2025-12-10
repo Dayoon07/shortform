@@ -12,7 +12,7 @@ import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.search.vo.SearchListVo;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
-import com.e.shortform.domain.user.service.FollowService;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +68,7 @@ public class RestSearchListController {
         // 비로그인 유저는 요청할 때 에러가 나기 때문에 context holder를 사용함
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // 인증되어 있으면서 UserEntuty 타입을 가진 인증했을 때
+        // 인증되어 있으면서 UserEntuty 타입
         // 인증이 되어 있지 않으면 검색어만 저장
         if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserEntity user) {
             if (user.getMention() != null && !user.getMention().isEmpty()) {
@@ -91,7 +90,7 @@ public class RestSearchListController {
             @AuthenticationPrincipal AuthUserReqDto user
     ) {
         String result = searchListService.deleteSearchWord(user.getId(), searchWord);
-        log.info("삭제한 검색어: {}", result);
+        log.info("삭제한 검색어: {}", searchWord);
         return result;
     }
 

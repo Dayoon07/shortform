@@ -1,4 +1,4 @@
-package com.e.shortform.domain.user.mapper;
+package com.e.shortform.domain.follow.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

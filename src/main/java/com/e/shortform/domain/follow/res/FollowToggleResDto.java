@@ -1,4 +1,4 @@
-package com.e.shortform.domain.user.res;
+package com.e.shortform.domain.follow.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FollowToggleDto {
+public class FollowToggleResDto {
 
     private boolean isFollowing;
     private boolean success;

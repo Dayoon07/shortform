@@ -1,4 +1,4 @@
-package com.e.shortform.domain.user.req;
+package com.e.shortform.domain.follow.req;
 
 import lombok.Data;
 

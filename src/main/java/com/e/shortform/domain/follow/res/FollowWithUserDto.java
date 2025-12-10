@@ -1,4 +1,4 @@
-package com.e.shortform.domain.user.res;
+package com.e.shortform.domain.follow.res;
 
 import com.e.shortform.domain.user.vo.UserVo;
 import lombok.AllArgsConstructor;

@@ -8,7 +8,7 @@ import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.service.FollowService;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.entity.VideoEntity;
 import com.e.shortform.domain.video.res.VideoLikeInfoDto;

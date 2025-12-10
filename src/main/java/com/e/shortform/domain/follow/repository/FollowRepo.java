@@ -1,6 +1,6 @@
-package com.e.shortform.domain.user.repository;
+package com.e.shortform.domain.follow.repository;
 
-import com.e.shortform.domain.user.entity.FollowEntity;
+import com.e.shortform.domain.follow.entity.FollowEntity;
 import com.e.shortform.domain.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

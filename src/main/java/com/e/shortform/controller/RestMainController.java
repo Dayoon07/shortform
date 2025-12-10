@@ -1,40 +1,22 @@
 package com.e.shortform.controller;
 
-import com.e.shortform.common.annotation.CheckSession;
 import com.e.shortform.config.JwtUtil;
-import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
-import com.e.shortform.domain.search.entity.SearchListEntity;
 import com.e.shortform.domain.search.service.SearchListService;
-import com.e.shortform.domain.search.vo.SearchListVo;
-import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.res.UserProfileUpdateDto;
-import com.e.shortform.domain.user.service.FollowService;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
-import com.e.shortform.domain.video.entity.VideoEntity;
-import com.e.shortform.domain.video.req.VideoRequestDto;
-import com.e.shortform.domain.video.res.IndexPageAllVideosDto;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
-import com.e.shortform.domain.viewstory.entity.ViewStoryEntity;
 import com.e.shortform.domain.viewstory.service.ViewStoryService;
-import jakarta.servlet.http.HttpSession;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 @RestController()
 @Slf4j

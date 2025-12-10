@@ -107,9 +107,14 @@
     </select>
 
     <update id="updateUserInfo">
-        UPDATE SHORTFORM_USERS SET USERNAME = #{username},
-            MAIL = #{mail}, MENTION = #{mention}, BIO = #{bio},
-            PROFILE_IMG = #{profileImg}, PROFILE_IMG_SRC = #{profileImgSrc}
+        UPDATE SHORTFORM_USERS
+        SET
+            USERNAME = #{username},
+            MAIL = #{mail},
+            MENTION = #{mention},
+            BIO = #{bio},
+            PROFILE_IMG = #{profileImg},
+            PROFILE_IMG_SRC = #{profileImgSrc}
         WHERE ID = #{id}
     </update>
 

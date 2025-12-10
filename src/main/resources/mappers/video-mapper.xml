@@ -54,13 +54,15 @@
         <result property="profileImg" column="PROFILE_IMG"/>
         <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
         <result property="previewImg" column="PREVIEW_IMG" />
+        <result property="social" column="IS_SOCIAL"/>
+        <result property="provider" column="PROVIDER"/>
         <result property="bio" column="BIO"/>
         <result property="mention" column="MENTION"/>
         <result property="uploaderCreateAt" column="UPLOADER_CREATE_AT"/>
         <result property="likeCount" column="LIKE_COUNT"/>
     </resultMap>
     
-    <resultMap id="videoWithUserFuckingResultMap" type="com.e.shortform.domain.video.res.VideoWithUserFuckingDto">
+    <resultMap id="videoWithUserFuckingResultMap" type="com.e.shortform.domain.video.res.VideoWithUserVerTwoDto">
         <result property="videoId" column="VIDEO_ID"/>
         <result property="videoTitle" column="VIDEO_TITLE"/>
         <result property="videoDescription" column="VIDEO_DESCRIPTION"/>
@@ -78,6 +80,8 @@
         <result property="profileImg" column="PROFILE_IMG"/>
         <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
         <result property="previewImg" column="PREVIEW_IMG" />
+        <result property="social" column="IS_SOCIAL" />
+        <result property="provider" column="PROVIDER" />
         <result property="bio" column="BIO"/>
         <result property="mention" column="MENTION"/>
         <result property="createAt" column="CREATE_AT"/>
@@ -104,6 +108,10 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,
@@ -130,7 +138,8 @@
                v.PREVIEW_IMG, v.UPLOAD_AT,
                u.ID AS USER_ID,
                u.USERNAME, u.MAIL, u.PROFILE_IMG,
-               u.PROFILE_IMG_SRC, u.BIO, u.MENTION,
+               u.PROFILE_IMG_SRC, u.IS_SOCIAL,
+               u.PROVIDER, u.BIO, u.MENTION,
                u.PROFILE_IMG_SRC,
                u.CREATE_AT
         FROM SHORTFORM_VIDEOS v
@@ -179,6 +188,8 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,
@@ -220,6 +231,8 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,
@@ -273,6 +286,8 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,
@@ -313,6 +328,8 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,
@@ -352,6 +369,8 @@
             u.MAIL AS UPLOADER_MAIL,
             u.PROFILE_IMG,
             u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
             u.BIO,
             u.MENTION,
             u.CREATE_AT AS UPLOADER_CREATE_AT,

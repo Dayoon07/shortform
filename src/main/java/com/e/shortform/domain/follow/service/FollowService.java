@@ -1,11 +1,11 @@
-package com.e.shortform.domain.user.service;
+package com.e.shortform.domain.follow.service;
 
-import com.e.shortform.domain.user.entity.FollowEntity;
+import com.e.shortform.domain.follow.entity.FollowEntity;
 import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.mapper.FollowMapper;
-import com.e.shortform.domain.user.repository.FollowRepo;
+import com.e.shortform.domain.follow.mapper.FollowMapper;
+import com.e.shortform.domain.follow.repository.FollowRepo;
 import com.e.shortform.domain.user.repository.UserRepo;
-import com.e.shortform.domain.user.res.FollowToggleDto;
+import com.e.shortform.domain.follow.res.FollowToggleResDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -185,7 +185,7 @@ public class FollowService {
 
     /** <h3>팔로우 상태 토글 (한 번의 트랜잭션으로 처리)</h3> */
     @Transactional
-    public FollowToggleDto toggleFollow(UserEntity currentUser, UserEntity targetUser) {
+    public FollowToggleResDto toggleFollow(UserEntity currentUser, UserEntity targetUser) {
         try {
             boolean isCurrentlyFollowing = followRepo.existsByFollowUserIdAndFollowedUserId(
                     currentUser.getId(), targetUser.getId());
@@ -193,15 +193,15 @@ public class FollowService {
             if (isCurrentlyFollowing) {
                 // 언팔로우
                 boolean unfollowSuccess = unfollowSafely(currentUser.getId(), targetUser.getId());
-                return new FollowToggleDto(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다.");
+                return new FollowToggleResDto(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다.");
             } else {
                 // 팔로우
                 boolean followSuccess = createFollowSafely(currentUser, targetUser);
                 if (followSuccess) {
-                    return new FollowToggleDto(true, true, targetUser.getUsername() + "님을 팔로우했습니다.");
+                    return new FollowToggleResDto(true, true, targetUser.getUsername() + "님을 팔로우했습니다.");
                 } else {
                     // 이미 팔로우된 상태 (동시 요청으로 인한)
-                    return new FollowToggleDto(true, true, "이미 팔로우 중입니다.");
+                    return new FollowToggleResDto(true, true, "이미 팔로우 중입니다.");
                 }
             }
 

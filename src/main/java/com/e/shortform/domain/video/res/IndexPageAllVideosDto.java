@@ -30,6 +30,8 @@ public class IndexPageAllVideosDto {
     private String profileImg;
     private String profileImgSrc;
     private String previewImg;
+    private boolean social;
+    private String provider;
     private String bio;
     private String mention;
     private LocalDateTime uploaderCreateAt;

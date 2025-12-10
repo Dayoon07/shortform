@@ -1,5 +1,6 @@
-package com.e.shortform.domain.user.entity;
+package com.e.shortform.domain.follow.entity;
 
+import com.e.shortform.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

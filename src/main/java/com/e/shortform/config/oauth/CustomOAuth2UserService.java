@@ -26,6 +26,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // OAuth2 제공자 정보 추출 (registrationId)
         String provider = req.getClientRegistration().getRegistrationId(); // "google", "naver", etc.
+        log.info("req.getClientRegistration().getRegistrationId(): {}", provider);
         System.out.printf("%s", provider);
 
         UserEntity user = userService.findByMail(email);
