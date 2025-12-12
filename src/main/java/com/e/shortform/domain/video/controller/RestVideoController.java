@@ -299,7 +299,7 @@ public class RestVideoController {
 
             Long likeCnt = videoLikeService.countByVideo(randomVideo);
             Long commentCnt = commentService.countByVideo(randomVideo);
-            UserEntity uploader = userService.findByMention(randomVideo.getUploader().getMention());
+//            UserEntity uploader = userService.findByMention(randomVideo.getUploader().getMention());
 
             if (user != null) {
                 // viewStoryService.userViewstoryInsert(user.getId(), randomVideo.getId());
