@@ -191,7 +191,9 @@ public class RestFollowController {
     // 기존에 있던 /follow/toggle의 엔드포인트는 템플릿에서 사용힐 수 있게 남긴 것
     @RequireAuth
     @PostMapping("/follow/toggle/upgrade")
-    public ResponseEntity<Map<String, Object>> upgradeToggleFollow(@RequestBody FollowToggleReqDto req) {
+    public ResponseEntity<Map<String, Object>> upgradeToggleFollow(
+            @RequestBody FollowToggleReqDto req
+    ) {
         Map<String, Object> response = new HashMap<>();
         UserEntity currentUser = null;
 
@@ -199,7 +201,7 @@ public class RestFollowController {
             currentUser = userService.findByMention(req.getReqMention());
             if (currentUser == null) {
                 response.put("success", false);
-                response.put("message", "로그인이 필요합니다.");
+                response.put("message", "로그인이 필요합니다");
                 return ResponseEntity.status(401).body(response);
             }
 
@@ -210,7 +212,7 @@ public class RestFollowController {
 
             if (lastRequestTime != null && (currentTime - lastRequestTime) < 1000) {
                 response.put("success", false);
-                response.put("message", "너무 빠른 요청입니다. 잠시 후 다시 시도해주세요.");
+                response.put("message", "너무 빠른 요청입니다. 잠시 후 다시 시도해주세요");
                 return ResponseEntity.status(429).body(response);
             }
 
@@ -219,14 +221,14 @@ public class RestFollowController {
             UserEntity targetUser = userService.findByMention(req.getResMention());
             if (targetUser == null) {
                 response.put("success", false);
-                response.put("message", "사용자를 찾을 수 없습니다.");
+                response.put("message", "사용자를 찾을 수 없습니다");
                 return ResponseEntity.status(404).body(response);
             }
 
             // 자기 자신을 팔로우하려는 경우
             if (currentUser.getId().equals(targetUser.getId())) {
                 response.put("success", false);
-                response.put("message", "자기 자신을 팔로우할 수 없습니다.");
+                response.put("message", "자기 자신을 팔로우할 수 없습니다");
                 return ResponseEntity.status(400).body(response);
             }
 

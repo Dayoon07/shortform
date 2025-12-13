@@ -193,15 +193,15 @@ public class FollowService {
             if (isCurrentlyFollowing) {
                 // 언팔로우
                 boolean unfollowSuccess = unfollowSafely(currentUser.getId(), targetUser.getId());
-                return new FollowToggleResDto(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다.");
+                return new FollowToggleResDto(false, unfollowSuccess, targetUser.getUsername() + "님을 언팔로우했습니다");
             } else {
                 // 팔로우
                 boolean followSuccess = createFollowSafely(currentUser, targetUser);
                 if (followSuccess) {
-                    return new FollowToggleResDto(true, true, targetUser.getUsername() + "님을 팔로우했습니다.");
+                    return new FollowToggleResDto(true, true, targetUser.getUsername() + "님을 팔로우했습니다");
                 } else {
                     // 이미 팔로우된 상태 (동시 요청으로 인한)
-                    return new FollowToggleResDto(true, true, "이미 팔로우 중입니다.");
+                    return new FollowToggleResDto(true, true, "이미 팔로우 중입니다");
                 }
             }
 

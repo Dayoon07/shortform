@@ -4,10 +4,12 @@ import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
+import com.e.shortform.domain.community.req.WriteReqDto;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
 import com.e.shortform.domain.search.service.SearchListService;
+import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
@@ -57,16 +59,16 @@ public class RestCommunityController {
     @PostMapping("/community/write")
     public ResponseEntity<Map<String, Object>> createCommunityPost(
             @RequestParam(value = "content", required = false) String content,
-            @RequestParam(value = "visibility") String visibility,
+            @RequestParam("visibility") String visibility,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @AuthenticationPrincipal AuthUserReqDto user
-    ) {
-        return communityService.realCreatePost(content, visibility, images, user.getMention());
+            @AuthenticationPrincipal AuthUserReqDto user) {
+        return communityService.realCreatePost(content, visibility, images, user);
     }
 
     @GetMapping("/community/find")
-    public List<?> selectByCommunityBut(@RequestParam Long id) {
-        return communityService.selectByCommunityButWhereId(id);
+    public List<?> selectByCommunityBut(@RequestParam String mention) {
+        UserEntity writer = userService.findByMention(mention);
+        return communityService.selectByCommunityButWhereId(writer.getId());
     }
 
     @RequireAuth

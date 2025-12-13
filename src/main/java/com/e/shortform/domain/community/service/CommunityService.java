@@ -9,6 +9,7 @@ import com.e.shortform.domain.community.repository.CommunityRepo;
 import com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.repository.UserRepo;
+import com.e.shortform.domain.user.req.AuthUserReqDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,9 @@ public class CommunityService {
     private final CommunityAdditionRepo communityAdditionRepo;
 
     // 업로드 설정 상수들
-    private static final String UPLOAD_DIRECTORY = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-community-post-img";
+    private static final String UPLOAD_DIRECTORY =
+            System.getProperty("user.home").replace("\\", "/")
+            + "/Desktop/shortform-server/shortform-community-post-img";
     private static final String BASE_URL = "/resources/shortform-community-post-img";
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final int MAX_FILES = 5;
@@ -48,31 +51,12 @@ public class CommunityService {
     // 파일명에 사용할 날짜 포맷터
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 
-    /** 게시글 생성 (mention 기반) */
-    @Transactional
-    public ResponseEntity<Map<String, Object>> realCreatePost(
-            String content,
-            String visibility,
-            List<MultipartFile> images,
-            String mention
-    ) {
-        UserEntity user = userRepo.findByMention(mention);
-        if (user == null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "로그인이 필요합니다");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-
-        return realCreatePost(content, visibility, images, user);
-    }
-
     /** 게시글 생성 (통합 메서드) */
     public ResponseEntity<Map<String, Object>> realCreatePost(
             String content,
             String visibility,
             List<MultipartFile> images,
-            UserEntity user
+            AuthUserReqDto user
     ) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -181,7 +165,7 @@ public class CommunityService {
      * @throws IllegalArgumentException 잘못된 입력이 있을 경우
      * @throws SecurityException 권한이 없을 경우
      */
-    public String createPost(String content, String visibility, List<MultipartFile> images, UserEntity user) {
+    public String createPost(String content, String visibility, List<MultipartFile> images, AuthUserReqDto user) {
         validateInput(content, visibility, images); // 입력 검증 (글만, 이미지만, 글+이미지 모든 케이스 지원)
         UserEntity validatedUser = validateUser(user);  // 사용자 검증
 
@@ -280,7 +264,7 @@ public class CommunityService {
     }
 
     /** 사용자를 검증하고 반환합니다 (통합 메서드) */
-    private UserEntity validateUser(UserEntity user) {
+    private UserEntity validateUser(AuthUserReqDto user) {
         if (user == null) throw new SecurityException("로그인이 필요합니다");
         return userRepo.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
