@@ -56,7 +56,7 @@ public class CommunityService {
             String content,
             String visibility,
             List<MultipartFile> images,
-            AuthUserReqDto user
+            UserEntity user
     ) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -126,13 +126,11 @@ public class CommunityService {
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
-
         } catch (SecurityException e) {
             log.warn("게시글 작성 실패 - 권한 없음: {}", e.getMessage());
             response.put("success", false);
             response.put("message", "권한이 없습니다");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-
         } catch (Exception e) {
             log.error("게시글 작성 중 오류 발생", e);
             response.put("success", false);
@@ -165,7 +163,7 @@ public class CommunityService {
      * @throws IllegalArgumentException 잘못된 입력이 있을 경우
      * @throws SecurityException 권한이 없을 경우
      */
-    public String createPost(String content, String visibility, List<MultipartFile> images, AuthUserReqDto user) {
+    public String createPost(String content, String visibility, List<MultipartFile> images, UserEntity user) {
         validateInput(content, visibility, images); // 입력 검증 (글만, 이미지만, 글+이미지 모든 케이스 지원)
         UserEntity validatedUser = validateUser(user);  // 사용자 검증
 
@@ -264,7 +262,7 @@ public class CommunityService {
     }
 
     /** 사용자를 검증하고 반환합니다 (통합 메서드) */
-    private UserEntity validateUser(AuthUserReqDto user) {
+    private UserEntity validateUser(UserEntity user) {
         if (user == null) throw new SecurityException("로그인이 필요합니다");
         return userRepo.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));

@@ -61,7 +61,7 @@ public class RestCommunityController {
             @RequestParam(value = "content", required = false) String content,
             @RequestParam("visibility") String visibility,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @AuthenticationPrincipal AuthUserReqDto user) {
+            @AuthenticationPrincipal UserEntity user) {
         return communityService.realCreatePost(content, visibility, images, user);
     }
 

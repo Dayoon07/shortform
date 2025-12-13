@@ -116,7 +116,7 @@ public class RestUserController {
     }
 
     @PostMapping("/user/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupReqDto req) {
+    public ResponseEntity<String> signup(@ModelAttribute SignupReqDto req) {
         String t = userService.signup(req.getUsername(), req.getPassword(), req.getEmail(), req.getProfileImage());
         return ResponseEntity.ok(t);
     }
