@@ -46,7 +46,7 @@ public class RestSearchListController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
 
-    @GetMapping("/search/list/all")
+    @GetMapping("/search/all")
     public List<SearchListEntity> findAllSearchList() {
         return searchListService.findAllSearchList();
     }
