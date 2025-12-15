@@ -4,10 +4,10 @@ import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
-import com.e.shortform.domain.community.req.WriteReqDto;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
@@ -29,7 +29,7 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/community", produces = "application/json;charset=utf-8")
 public class RestCommunityController {
 
     private final UserService userService;
@@ -44,19 +44,20 @@ public class RestCommunityController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
-    @GetMapping("/community/all")
+    @GetMapping("/all")
     public List<?> selectAllCommunity() {
         return communityService.selectAllCommunity();
     }
 
-    @GetMapping("/community/addition/all")
+    @GetMapping("/addition/all")
     public List<?> selectAllCommunityAddition() {
         return communityAdditionService.findAll();
     }
 
     @RequireAuth
-    @PostMapping("/community/write")
+    @PostMapping("/write")
     public ResponseEntity<Map<String, Object>> createCommunityPost(
             @RequestParam(value = "content", required = false) String content,
             @RequestParam("visibility") String visibility,
@@ -65,14 +66,14 @@ public class RestCommunityController {
         return communityService.realCreatePost(content, visibility, images, user);
     }
 
-    @GetMapping("/community/find")
+    @GetMapping("/find")
     public List<?> selectByCommunityBut(@RequestParam String mention) {
         UserEntity writer = userService.findByMention(mention);
         return communityService.selectByCommunityButWhereId(writer.getId());
     }
 
     @RequireAuth
-    @PostMapping("/community/like")
+    @PostMapping("/like")
     public ResponseEntity<Map<String, Object>> communityLike(
             @RequestParam String communityUuid,
             @AuthenticationPrincipal AuthUserReqDto user

@@ -7,6 +7,7 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.entity.SearchListEntity;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.search.vo.SearchListVo;
@@ -30,7 +31,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/search", produces = "application/json;charset=utf-8")
 public class RestSearchListController {
 
     private final UserService userService;
@@ -45,23 +46,24 @@ public class RestSearchListController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
-    @GetMapping("/search/all")
+    @GetMapping("/all")
     public List<SearchListEntity> findAllSearchList() {
         return searchListService.findAllSearchList();
     }
 
-    @GetMapping("/search/list/all/desc")
+    @GetMapping("/list/all/desc")
     public List<SearchListEntity> selectAllSearchListOrderByDesc() {
         return searchListService.selectAllSearchListOrderByDesc();
     }
 
-    @GetMapping("/search/list")
+    @GetMapping("/list")
     public List<SearchListVo> mySearchList(@RequestParam String id) {
         return searchListService.selectMySearchList(Long.parseLong(id));
     }
 
-    @GetMapping("/search")
+    @GetMapping
     public ResponseEntity<?> search(@RequestParam String q) {
         // 로그인 여부 상관없이 검색할 수 있게 만들었으나
         // AuthenticationPrincipal, RequireAuth 애노테이션을 사용하면 
@@ -84,7 +86,7 @@ public class RestSearchListController {
     }
 
     @RequireAuth
-    @PostMapping("/search/list/delete")
+    @PostMapping("/list/delete")
     public String deleteSearchWord(
             @RequestParam String searchWord,
             @AuthenticationPrincipal AuthUserReqDto user

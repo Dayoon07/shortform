@@ -9,6 +9,7 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
@@ -39,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/user", produces = "application/json;charset=utf-8")
 @RestController
 public class RestUserController {
 
@@ -55,6 +56,7 @@ public class RestUserController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
@@ -62,7 +64,7 @@ public class RestUserController {
     // 동시 요청 방지를 위한 Map (간단한 해결책)
     private final Map<String, Long> lastRequestTimes = new ConcurrentHashMap<>();
 
-    @GetMapping("/user/me")
+    @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User p) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated())
@@ -76,12 +78,12 @@ public class RestUserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/user/all")
+    @GetMapping("/all")
     public List<UserEntity> selectAll() {
         return userService.selectAllUsers();
     }
 
-    @GetMapping("/user/info/{mention}")
+    @GetMapping("/info/{mention}")
     public ResponseEntity<?> getUserInfo(@PathVariable String mention) {
         UserEntity user = userService.findByMention(mention);
         if (user == null) {
@@ -91,18 +93,18 @@ public class RestUserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/user/info/{mention}/video")
+    @GetMapping("/info/{mention}/video")
     public ResponseEntity<?> getUserVideo(@PathVariable String mention) {
         return ResponseEntity.ok(videoService.selectUserProfilePageAllVideos(mention));
     }
 
-    @GetMapping("/user/post/info")
+    @GetMapping("/post/info")
     public ResponseEntity<?> getUserPosts(@RequestParam String mention) {
         UserEntity user = userService.findByMention(mention);
         return ResponseEntity.ok(communityService.selectByCommunityButWhereIdAsdf(user.getId()));
     }
 
-    @GetMapping("/user/profile/info")
+    @GetMapping("/profile/info")
     public ResponseEntity<Map<String, Object>> getProfileUserInfo(@RequestParam String mention) {
         UserEntity user = userService.findByMention(mention);
         Map<String, Object> map = new HashMap<>();
@@ -115,13 +117,13 @@ public class RestUserController {
         return ResponseEntity.ok(map);
     }
 
-    @PostMapping("/user/signup")
+    @PostMapping("/signup")
     public ResponseEntity<String> signup(@ModelAttribute SignupReqDto req) {
         String t = userService.signup(req.getUsername(), req.getPassword(), req.getEmail(), req.getProfileImage());
         return ResponseEntity.ok(t);
     }
 
-    @PostMapping("/user/login")
+    @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(
             @RequestBody UserEntity loginRequest,
             HttpSession session,
@@ -129,7 +131,7 @@ public class RestUserController {
         return userService.login(loginRequest.getUsername(), loginRequest.getPassword(), session, clientType);
     }
 
-    @PostMapping("/user/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(
             HttpSession session,
             HttpServletResponse servletRes,
@@ -137,18 +139,18 @@ public class RestUserController {
         return userService.logout(session, servletRes, bearerToken);
     }
 
-    @GetMapping("/user/chk/username")
+    @GetMapping("/chk/username")
     public boolean chkUsername(@RequestParam String username) {
         return userService.selectChkUsername(username);
     }
 
-    @GetMapping("/user/chk/mail")
+    @GetMapping("/chk/mail")
     public boolean chkUserMail(@RequestParam String mail) {
         return userService.selectChkUserMail(mail);
     }
 
     @RequireAuth
-    @PostMapping("/user/update")
+    @PostMapping("/update")
     public ResponseEntity<?> updateUserInfo(
             // 1. JSON 형태의 사용자 정보를 받습니다. (클라이언트에서 "req"라는 키로 전송해야 함)
             @RequestPart(value = "req") UserProfileUpdateDto reqDto,

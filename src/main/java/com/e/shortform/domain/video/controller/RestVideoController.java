@@ -7,6 +7,7 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
@@ -35,7 +36,7 @@ import java.util.*;
 @RestController()
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/video", produces = "application/json;charset=utf-8")
 public class RestVideoController {
 
     private final UserService userService;
@@ -50,9 +51,10 @@ public class RestVideoController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
     /** 페이징된 비디오 목록 조회 (신규) */
-    @GetMapping("/video/all")
+    @GetMapping("/all")
     public Map<String, Object> selectAllVideos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
@@ -62,18 +64,18 @@ public class RestVideoController {
     }
 
     /** 전체 비디오 조회 (기존 API 유지 - 하위 호환성) */
-    @GetMapping("/video/all/legacy")
+    @GetMapping("/all/legacy")
     public List<IndexPageAllVideosDto> selectAllVideosLegacy() {
         return videoService.selectIndexPageAllVideos();
     }
 
-    @GetMapping("/video/like/all")
+    @GetMapping("/like/all")
     public List<?> likeVideoAll() {
         return videoService.findAll();
     }
 
     @RequireAuth
-    @PostMapping("/upload/video")
+    @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadVideo(
             @RequestPart("video") MultipartFile video,
             @RequestParam("title") String title,
@@ -101,7 +103,7 @@ public class RestVideoController {
     }
 
     @RequireAuth
-    @PostMapping("/video/insert/comment")
+    @PostMapping("/insert/comment")
     public ResponseEntity<?> insertComment(
             @RequestParam("commentText") String commentText,
             @RequestParam("commentVideoId") Long commentVideoId,
@@ -111,18 +113,18 @@ public class RestVideoController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/video/find/comment/popular")
+    @GetMapping("/find/comment/popular")
     public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
         return ResponseEntity.ok(commentService.selectByCommentId(id));
     }
 
-    @GetMapping("/video/find/comment/recent")
+    @GetMapping("/find/comment/recent")
     public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
         return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
     }
 
     /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
-    @PostMapping("/video/like")
+    @PostMapping("/like")
     public ResponseEntity<?> videoLikeToggle(@RequestBody Map<String, Object> req, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
 
@@ -167,7 +169,7 @@ public class RestVideoController {
 
     /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
     @RequireAuth
-    @PostMapping("/video/like/by/mention")
+    @PostMapping("/like/by/mention")
     public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
             @RequestParam Long videoId,
             @AuthenticationPrincipal AuthUserReqDto user
@@ -207,7 +209,7 @@ public class RestVideoController {
         }
     }
 
-    @PostMapping("/videos/random")
+    @PostMapping("/random")
     public ResponseEntity<?> getRandomVideo(@RequestBody VideoRequestDto request, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("user");
 
@@ -283,7 +285,7 @@ public class RestVideoController {
         }
     }
 
-    @PostMapping("/video/swipe/find")
+    @PostMapping("/swipe/find")
     public ResponseEntity<?> getSwipeVideo(
             @RequestParam String videoLoc,
             @RequestParam(required = false) String mention) {
@@ -327,7 +329,7 @@ public class RestVideoController {
         }
     }
 
-    @PostMapping("/videos/v2/random")
+    @PostMapping("/random/v2")
     public ResponseEntity<?> getRandomVideoVersionTwo(
             @RequestParam(name = "excludeIds") List<Long> excludeIds,
             @RequestParam(name = "mention", required = false) String mention) {
@@ -405,18 +407,18 @@ public class RestVideoController {
         }
     }
 
-    @PostMapping("/video/explore/hashtag")
+    @PostMapping("/explore/hashtag")
     public ResponseEntity<List<?>> exploreVideoList(@RequestParam String hashtag) {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(hashtag));
     }
 
     @RequireAuth
-    @GetMapping("/video/find/like")
+    @GetMapping("/find/like")
     public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@AuthenticationPrincipal AuthUserReqDto user) {
         return ResponseEntity.ok(videoService.myLikeVideos(user.getId()));
     }
 
-    @GetMapping("/video/hashtag")
+    @GetMapping("/hashtag")
     public ResponseEntity<?> getTagVideo(@RequestParam String videoTag) {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(videoTag));
     }

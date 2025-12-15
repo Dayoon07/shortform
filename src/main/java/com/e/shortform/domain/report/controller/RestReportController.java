@@ -1,4 +1,4 @@
-package com.e.shortform.domain.viewstory.controller;
+package com.e.shortform.domain.report.controller;
 
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
@@ -6,34 +6,25 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
-import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
-import com.e.shortform.domain.viewstory.entity.ViewStoryEntity;
 import com.e.shortform.domain.viewstory.service.ViewStoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/viewstory", produces = "application/json;charset=utf-8")
-public class RestViewStoryController {
-
-    /**
-     * 클라이언트에서 시청 기록 데이터는 사용하지 않기 때문에
-     * 관리자 화면에서 필요로 하는 것과 알고리즘 계산에 필요한
-     * 기능만 만들 예정
-     */
+@RequestMapping(value = "/api/report", produces = "application/json;charset=utf-8")
+@RestController
+public class RestReportController {
 
     private final UserService userService;
     private final VideoService videoService;
@@ -50,13 +41,13 @@ public class RestViewStoryController {
     private final ReportService reportService;
 
     @GetMapping("/all")
-    public List<?> selectAllViewStory() {
-        return viewStoryService.selectAllViewStory();
+    public ResponseEntity<?> getReportAll() {
+        return ResponseEntity.ok(reportService.getReportAll());
     }
 
-    @GetMapping("/find")
-    public List<ViewStoryEntity> viewStoryList(@RequestParam Long id) {
-        return viewStoryService.getViewStoryListByUserId(id);
+    @GetMapping("/jpa")
+    public ResponseEntity<?> getReportAllJpaVer() {
+        return ResponseEntity.ok(reportService.getReportAllJpaVer());
     }
 
 }

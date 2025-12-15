@@ -3,7 +3,7 @@ package com.e.shortform.domain.user.service;
 import com.e.shortform.config.JwtUtil;
 import com.e.shortform.config.oauth.TokenBlacklistService;
 import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.enumeration.SocialProviderStatus;
+import com.e.shortform.domain.user.enums.SocialProviderStatus;
 import com.e.shortform.domain.user.mapper.UserMapper;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.res.UserProfileDto;

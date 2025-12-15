@@ -7,6 +7,7 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.follow.req.FollowToggleReqDto;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/follow", produces = "application/json;charset=utf-8")
 @RestController
 public class RestFollowController {
 
@@ -47,15 +48,16 @@ public class RestFollowController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
     private final Map<String, Long> lastRequestTimes = new ConcurrentHashMap<>();
 
-    @GetMapping("/follow/all")
+    @GetMapping("/all")
     public List<?> selectAllFollow() {
         return followService.selectAllFollow();
     }
 
-    @PostMapping("/follow")
+    @PostMapping
     public ResponseEntity<Map<String, Object>> follow(@RequestBody Map<String, String> request, HttpSession session) {
         String mention = request.get("mention");
         UserEntity user =  (UserEntity) session.getAttribute("user");
@@ -71,7 +73,7 @@ public class RestFollowController {
     }
 
     // 팔로우/언팔로우 토글
-    @PostMapping("/follow/toggle")
+    @PostMapping("/toggle")
     public ResponseEntity<Map<String, Object>> toggleFollow(
             @RequestParam String mention,
             HttpSession session) {
@@ -146,7 +148,7 @@ public class RestFollowController {
     }
 
     // 팔로우 상태 확인
-    @GetMapping("/follow/status")
+    @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getFollowStatus(
             @RequestParam String mention,
             HttpSession session) {
@@ -177,12 +179,12 @@ public class RestFollowController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/follow/user/follower/list")
+    @GetMapping("/user/follower/list")
     public ResponseEntity<?> selectProfileUserFollowList(@RequestParam Long id) {
         return ResponseEntity.ok(userService.selectProfileUserFollowList(id));
     }
 
-    @GetMapping("/follow/user/following/list")
+    @GetMapping("/user/following/list")
     public ResponseEntity<?> selectProfileUserFollowingList(@RequestParam Long id) {
         return ResponseEntity.ok(userService.selectProfileUserFollowingList(id));
     }
@@ -190,7 +192,7 @@ public class RestFollowController {
     // upgrade는 리액트 화면에서 사용하기 위한 일종의 커스텀 엔드포인트 함수
     // 기존에 있던 /follow/toggle의 엔드포인트는 템플릿에서 사용힐 수 있게 남긴 것
     @RequireAuth
-    @PostMapping("/follow/toggle/upgrade")
+    @PostMapping("/toggle/upgrade")
     public ResponseEntity<Map<String, Object>> upgradeToggleFollow(
             @RequestBody FollowToggleReqDto req
     ) {
@@ -266,7 +268,7 @@ public class RestFollowController {
     }
 
     // 팔로우 상태 확인
-    @GetMapping("/follow/status/upgrade")
+    @GetMapping("/status/upgrade")
     public ResponseEntity<Map<String, Object>> upgradeFollowStatus(
             @RequestParam String reqMention,
             @RequestParam String resMention) {

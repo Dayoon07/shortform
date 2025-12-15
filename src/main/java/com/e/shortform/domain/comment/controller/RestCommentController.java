@@ -9,6 +9,7 @@ import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.service.CommunityAdditionService;
 import com.e.shortform.domain.community.service.CommunityLikeService;
 import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.follow.service.FollowService;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/api/comment", produces = "application/json;charset=utf-8")
 @RestController
 public class RestCommentController {
 
@@ -43,9 +44,10 @@ public class RestCommentController {
     private final CommunityService communityService;
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
+    private final ReportService reportService;
 
     @RequireAuth
-    @PostMapping("/comment/like")
+    @PostMapping("/like")
     public ResponseEntity<?> commentLikeLogic(
             @RequestParam Long commentId,
             @AuthenticationPrincipal AuthUserReqDto user
@@ -55,13 +57,13 @@ public class RestCommentController {
         return ResponseEntity.ok(Map.of("status", isLiked ? "liked" : "unliked"));
     }
 
-    @GetMapping("/comment/all")
+    @GetMapping("/all")
     public List<?> selectAllComments() {
         return commentService.selectAllComments();
     }
 
     @RequireAuth
-    @PostMapping("/comment/reply/insert")
+    @PostMapping("/reply/insert")
     public ResponseEntity<?> commentReplyInsert(
             @RequestBody CommentReplyReqDto req,
             @AuthenticationPrincipal AuthUserReqDto user
@@ -77,12 +79,12 @@ public class RestCommentController {
         return ResponseEntity.ok(Map.of("message", "데이터 보냄"));
     }
 
-    @GetMapping("/comment/reply/all")
+    @GetMapping("/reply/all")
     public List<?> selectAllCommentReply() {
         return commentReplyService.selectAllCommentReply();
     }
 
-    @PostMapping("/comment/reply/find/content")
+    @PostMapping("/reply/find/content")
     public ResponseEntity<List<CommentReplyEntity>> findByCommentReply(@RequestParam Long commentId) {
         return ResponseEntity.ok(commentReplyService.findByParentComment(commentId));
     }
