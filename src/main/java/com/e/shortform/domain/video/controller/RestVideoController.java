@@ -33,10 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-@RestController()
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/video", produces = "application/json;charset=utf-8")
+@RestController
 public class RestVideoController {
 
     private final UserService userService;
@@ -171,12 +171,12 @@ public class RestVideoController {
     @RequireAuth
     @PostMapping("/like/by/mention")
     public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
-            @RequestParam Long videoId,
-            @AuthenticationPrincipal AuthUserReqDto user
+            @RequestParam Long id,
+            @AuthenticationPrincipal UserEntity user
     ) {
         try {
             // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
+            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(id, user.getId());
 
             if (result.isSuccess()) {
                 return ResponseEntity.ok(Map.of(
@@ -412,10 +412,9 @@ public class RestVideoController {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(hashtag));
     }
 
-    @RequireAuth
     @GetMapping("/find/like")
-    public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@AuthenticationPrincipal AuthUserReqDto user) {
-        return ResponseEntity.ok(videoService.myLikeVideos(user.getId()));
+    public ResponseEntity<List<IndexPageAllVideosDto>> userLikeVideoList(@RequestParam Long id) {
+        return ResponseEntity.ok(videoService.myLikeVideos(id));
     }
 
     @GetMapping("/hashtag")
