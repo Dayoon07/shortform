@@ -102,17 +102,6 @@ public class RestVideoController {
         return new ResponseEntity<>(res, status);
     }
 
-    @RequireAuth
-    @PostMapping("/insert/comment")
-    public ResponseEntity<?> insertComment(
-            @RequestParam("commentText") String commentText,
-            @RequestParam("commentVideoId") Long commentVideoId,
-            @AuthenticationPrincipal AuthUserReqDto user
-    ) {
-        Map<String, Object> res = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
-        return ResponseEntity.ok(res);
-    }
-
     @GetMapping("/find/comment/popular")
     public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
         return ResponseEntity.ok(commentService.selectByCommentId(id));
@@ -159,48 +148,6 @@ public class RestVideoController {
                     "message", "잘못된 비디오 ID입니다"
             ));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "success", false,
-                    "message", "서버 오류가 발생했습니다"
-            ));
-        }
-    }
-
-    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
-    @RequireAuth
-    @PostMapping("/like/by/mention")
-    public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
-            @RequestParam Long id,
-            @AuthenticationPrincipal UserEntity user
-    ) {
-        try {
-            // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(id, user.getId());
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "isLiked", result.isLiked(),
-                        "totalLikes", result.getTotalLikes(),
-                        "message", result.getMessage()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                        "success", false,
-                        "message", result.getMessage()
-                ));
-            }
-
-        } catch (NumberFormatException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "잘못된 비디오 ID입니다"
-            ));
-        } catch (Exception e) {
-            log.error(e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                     "success", false,
