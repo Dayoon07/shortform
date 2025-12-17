@@ -59,4 +59,7 @@ public class VideoEntity {
     @Column(name = "upload_at", updatable = false)
     private LocalDateTime uploadAt;
 
+    @Column(name = "delete_status", nullable = false)
+    private Boolean deleteStatus;
+
 }

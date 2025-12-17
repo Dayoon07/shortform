@@ -16,6 +16,7 @@
         <result property="commentAvailability" column="COMMENT_AVAILABILITY"/>
         <result property="previewImg" column="PREVIEW_IMG" />
         <result property="uploadAt" column="UPLOAD_AT"/>
+        <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
 
     <resultMap id="videoWithUserResultMap" type="com.e.shortform.domain.video.res.VideoWithUserDto">
@@ -127,6 +128,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        AND v.DELETE_STATUS = 0
     </sql>
     
     <select id="selectByVideo" parameterType="String" resultMap="videoWithUserResultMap">
@@ -146,6 +148,7 @@
             JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
         WHERE u.mention = #{mention}
             AND v.VIDEO_WATCH_AVAILABILITY = 'public'
+            AND v.DELETE_STATUS = 0
     </select>
 
     <!-- 기존 메서드 (하위 호환성 유지) -->
@@ -205,6 +208,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+          AND v.DELETE_STATUS = 0
           AND (LOWER(v.VIDEO_TITLE) LIKE '%' || LOWER(#{searchWordParam}) || '%'
           OR LOWER(v.VIDEO_TAG) LIKE '%' || LOWER(#{searchWordParam}) || '%'
           OR LOWER(v.VIDEO_DESCRIPTION) LIKE '%' || LOWER(#{searchWordParam}) || '%')
@@ -248,6 +252,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE u.mention = #{mention}
+            AND v.DELETE_STATUS = 0
         ORDER BY v.UPLOAD_AT DESC
     </select>
 
@@ -345,7 +350,8 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE VIDEO_WATCH_AVAILABILITY = 'public'
-        AND REGEXP_LIKE(VIDEO_TAG, '(^| )' || #{hashtag} || '( |$)')
+            AND DELETE_STATUS = 0
+            AND REGEXP_LIKE(VIDEO_TAG, '(^| )' || #{hashtag} || '( |$)')
         ORDER BY UPLOAD_AT DESC
     </select>
 
@@ -386,6 +392,7 @@
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+            AND v.DELETE_STATUS = 0
         ORDER BY v.VIDEO_VIEWS DESC
     </select>
 

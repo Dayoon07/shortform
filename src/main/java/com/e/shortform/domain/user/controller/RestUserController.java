@@ -159,7 +159,7 @@ public class RestUserController {
             // 3. 기존 이미지 경로를 받습니다. (선택적 String)
             @RequestPart(value = "currentProfileImgSrc", required = false) String currentProfileImgSrc,
             // 4. 인증 정보에서 사용자 ID를 가져옵니다.
-            @AuthenticationPrincipal AuthUserReqDto authUser // 이 객체 안에 ID가 있다고 가정
+            @AuthenticationPrincipal UserEntity authUser // 이 객체 안에 ID가 있다고 가정
     ) {
         log.info("update req user mention {}", authUser.getMention());
         log.info("update req user info {}", authUser);

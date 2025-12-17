@@ -8,6 +8,7 @@
         <result property="userId" column="COMMENT_USER_ID"/>
         <result property="videoId" column="COMMENT_VIDEO_ID"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
 
     <resultMap id="commentWithUserVideoResultMap" type="com.e.shortform.domain.comment.res.CommentWithUserVideoDto">

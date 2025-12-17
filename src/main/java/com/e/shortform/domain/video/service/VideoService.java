@@ -100,6 +100,7 @@ public class VideoService {
                     .previewImg(thumbnailSavedName != null
                             ? "/resources/shortform-user-video-preview-img/" + thumbnailSavedName
                             : null)
+                    .deleteStatus(false)
                     .build();
 
             VideoEntity savedVideo = videoRepo.save(videoEntity);

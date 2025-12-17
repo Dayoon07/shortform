@@ -9,7 +9,6 @@ public enum StatusType {
 
     PENDING("PENDING"),
     REVIEWING("REVIEWING"),
-    APPROVED("APPROVED"),
     REJECTED("REJECTED"),
     RESOLVED("RESOLVED");
 

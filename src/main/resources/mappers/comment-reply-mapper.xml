@@ -8,6 +8,7 @@
         <result property="commentReplyUserId" column="COMMENT_REPLY_USER_ID"/>
         <result property="commentReplyId" column="COMMENT_REPLY_ID"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
 
     <resultMap id="commentReplyWithUserCommentResultMap" type="com.e.shortform.domain.comment.res.CommentReplyWithUserCommentDto">

@@ -30,28 +30,32 @@ public class ReportEntity {
 
     @ManyToOne
     @JoinColumn(name = "REPORTER_USER_ID", nullable = false,
-            foreignKey = @ForeignKey(name = "REPORTER_USER_ID"))
+            foreignKey = @ForeignKey(name = "FK_REPORT_REPORTER"))
     private UserEntity reporterUser;
 
     @ManyToOne
     @JoinColumn(name = "REPORTED_USER_ID", nullable = false,
-            foreignKey = @ForeignKey(name = "REPORTED_USER_ID"))
+            foreignKey = @ForeignKey(name = "FK_REPORT_REPORTED"))
     private UserEntity reportedUser;
 
     @Column(name = "REPORT_TYPE", nullable = false)
     private String reportType;
 
+    @Column(name = "REPORT_REASON")
+    private String reportReason;
+
     @Column(name = "STATUS", nullable = false)
     private String status;
 
+    @Column(name = "ACTION_TAKEN")
+    private String actionTaken;
+
+    @Lob
     @Column(name = "REVIEW_COMMENT")
     private String reviewComment;
 
     @Column(name = "REVIEWED_AT")
     private String reviewedAt;
-
-    @Column(name = "ACTION_TAKEN")
-    private String actionTaken;
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false)

@@ -88,7 +88,7 @@ public class UserService {
                     .profileImgSrc("/resources/shortform-user-profile-img/" + fileName)
                     .mention(mentionUuid)
                     .social(false)
-                    .provider(SocialProviderStatus.LOCAL.name())
+                    .provider(SocialProviderStatus.LOCAL.getValue())
                     .build();
 
             userRepo.save(userEntity);

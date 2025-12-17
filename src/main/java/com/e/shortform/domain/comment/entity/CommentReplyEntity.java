@@ -37,4 +37,7 @@ public class CommentReplyEntity {
     @Column(name = "create_at", updatable = false)
     private LocalDateTime createAt;
 
+    @Column(name = "delete_status", nullable = false)
+    private Boolean deleteStatus;
+
 }

@@ -3,6 +3,7 @@ package com.e.shortform.domain.comment.controller;
 import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import com.e.shortform.domain.comment.req.CommentReplyReqDto;
+import com.e.shortform.domain.comment.req.CommentReqDto;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -15,13 +16,11 @@ import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
-import com.e.shortform.domain.video.res.VideoLikeToggleDto;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
 import com.e.shortform.domain.viewstory.service.ViewStoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -52,54 +51,14 @@ public class RestCommentController {
     @RequireAuth
     @PostMapping("/insert")
     public ResponseEntity<?> insertComment(
-            @RequestParam("commentText") String commentText,
-            @RequestParam("commentVideoId") Long commentVideoId,
-            @AuthenticationPrincipal AuthUserReqDto user
-    ) {
-        Map<String, Object> res = commentService.videoInsertComment(commentText, user.getId(), commentVideoId);
-        return ResponseEntity.ok(res);
-    }
-
-    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
-    @RequireAuth
-    @PostMapping("/like/by/mention")
-    public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
-            @RequestParam Long id,
+            @RequestBody CommentReqDto req,
             @AuthenticationPrincipal UserEntity user
     ) {
-        try {
-            // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(id, user.getId());
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "isLiked", result.isLiked(),
-                        "totalLikes", result.getTotalLikes(),
-                        "message", result.getMessage()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                        "success", false,
-                        "message", result.getMessage()
-                ));
-            }
-
-        } catch (NumberFormatException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "잘못된 비디오 ID입니다"
-            ));
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "success", false,
-                    "message", "서버 오류가 발생했습니다"
-            ));
-        }
+        Map<String, Object> res = commentService.videoInsertComment(
+                req.getCommentText(),
+                user.getId(),
+                req.getCommentVideoId());
+        return ResponseEntity.ok(res);
     }
 
     @RequireAuth

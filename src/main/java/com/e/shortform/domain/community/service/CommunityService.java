@@ -280,7 +280,11 @@ public class CommunityService {
                 .user(user)
                 .communityUuid(generateUniqueUuid())
                 .communityAvailability(visibility)
+                .deleteStatus(false)
                 .build();
+
+
+
         return communityRepo.save(post);
     }
 

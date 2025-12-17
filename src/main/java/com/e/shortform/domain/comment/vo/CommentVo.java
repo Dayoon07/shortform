@@ -15,5 +15,6 @@ public class CommentVo {
     private Long commentUserId;
     private Long commentVideoId;
     private LocalDateTime createAt;
+    private boolean deleteStatus;
 
 }

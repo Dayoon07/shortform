@@ -34,6 +34,7 @@ public class CommentReplyService {
                 .commentReplyText(dto.getCommentReplyText())
                 .user(user)
                 .parentComment(parentComment)
+                .deleteStatus(false)
                 .build();
 
         commentReplyRepo.save(entity);

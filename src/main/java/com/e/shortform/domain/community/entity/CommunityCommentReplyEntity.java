@@ -41,4 +41,7 @@ public class CommunityCommentReplyEntity {
     @Column(name = "CREATE_AT", updatable = false)
     private LocalDateTime createAt;
 
+    @Column(name = "DELETE_STATUS", nullable = false)
+    private Boolean deleteStatus;
+
 }

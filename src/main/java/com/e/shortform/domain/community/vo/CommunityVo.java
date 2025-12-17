@@ -19,5 +19,6 @@ public class CommunityVo {
     private String communityUuid;
     private String communityAvailability;
     private LocalDateTime createAt;
+    private boolean deleteStatus;
 
 }

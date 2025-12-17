@@ -18,5 +18,6 @@ public class CommunityCommentReplyVo {
     private Long replyUserId;
     private Long commentId;
     private LocalDateTime createAt;
+    private boolean deleteStatus;
 
 }

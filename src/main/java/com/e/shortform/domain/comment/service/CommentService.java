@@ -37,6 +37,7 @@ public class CommentService {
                     .commentText(commentText)
                     .user(user)
                     .video(video)
+                    .deleteStatus(false)
                     .build();
 
             commentRepo.save(commentEntity);

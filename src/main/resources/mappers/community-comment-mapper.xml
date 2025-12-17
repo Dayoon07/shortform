@@ -8,6 +8,7 @@
         <result property="commentUserId" column="COMMENT_USER_ID"/>
         <result property="communityId" column="COMMUNITY_ID"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
 
 </mapper>

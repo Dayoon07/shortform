@@ -23,5 +23,6 @@ public class VideoVo {
     private String commentAvailability;
     private String previewImg;
     private LocalDateTime uploadAt;
+    private boolean deleteStatus;
 
 }

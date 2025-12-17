@@ -15,5 +15,6 @@ public class CommentReplyVo {
     private Long commentReplyUserId;
     private Long commentReplyId;
     private LocalDateTime createAt;
+    private boolean deleteStatus;
 
 }

@@ -9,6 +9,7 @@
         <result property="communityUuid" column="COMMUNITY_UUID"/>
         <result property="communityAvailability" column="COMMUNITY_AVAILABILITY"/>
         <result property="createAt" column="CREATE_AT"/>
+        <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
 
     <resultMap id="profilePageCommunityResultMap" type="com.e.shortform.domain.community.res.CommunityWithUserProfileDto">
