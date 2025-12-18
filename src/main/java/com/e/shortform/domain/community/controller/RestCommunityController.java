@@ -68,8 +68,9 @@ public class RestCommunityController {
     }
 
     @GetMapping("/find")
-    public List<?> selectByCommunityBut(@RequestParam Long writerId) {
-        return communityService.selectByCommunityButWhereId(writerId);
+    public List<?> selectByCommunityBut(@RequestParam String mention) {
+        UserEntity writer = userService.findByMention(mention);
+        return communityService.selectByCommunityButWhereId(writer.getId());
     }
 
     @RequireAuth
