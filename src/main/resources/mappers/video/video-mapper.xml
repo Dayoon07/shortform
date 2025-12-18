@@ -400,4 +400,8 @@
         SELECT * FROM shortform_videos WHERE video_loc = #{videoLoc}
     </select>
 
+    <update id="changeDeleteStatus" parameterType="Long">
+        UPDATE shortform_videos SET delete_status = 1 WHERE id = #{id}
+    </update>
+
 </mapper>

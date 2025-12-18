@@ -23,4 +23,5 @@ public interface VideoMapper {
     List<IndexPageAllVideosDto> selectIndexPageAllVideosPaginated(@Param("offset") int offset, @Param("size") int size);
     /** public 비디오 총 개수 조회 (신규) */
     int countPublicVideos();
+    boolean changeDeleteStatus(Long id);
 }

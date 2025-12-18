@@ -3,6 +3,8 @@ package com.e.shortform.domain.community.service;
 import com.e.shortform.domain.community.entity.CommunityCommentEntity;
 import com.e.shortform.domain.community.entity.CommunityEntity;
 import com.e.shortform.domain.community.repository.CommunityCommentRepo;
+import com.e.shortform.domain.community.repository.CommunityRepo;
+import com.e.shortform.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityCommentService {
 
+    private final CommunityRepo communityRepo;
     private final CommunityCommentRepo communityCommentRepo;
 
     public List<CommunityCommentEntity> findByCommunity(CommunityEntity community) {
         return communityCommentRepo.findByCommunity(community);
+    }
+
+    public void insertComment (Long id, String comment, UserEntity user) {
+        CommunityEntity b = communityRepo.findById(id).orElseThrow();
+        CommunityCommentEntity a = CommunityCommentEntity.builder()
+                .commentText(comment)
+                .user(user)
+                .community(b)
+                .deleteStatus(false)
+                .build();
+        communityCommentRepo.save(a);
     }
 
 }

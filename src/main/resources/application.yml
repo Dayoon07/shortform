@@ -93,7 +93,7 @@ server:
     connection-timeout: 60000
 
 mybatis:
-  mapper-locations: classpath:/mappers/*.xml
+  mapper-locations: classpath:/mappers/*/*.xml
   type-aliases-package: com.e.shortform.domain.*.res, com.e.shortform.domain.*.vo
 
 logging:
@@ -101,7 +101,7 @@ logging:
     com.zaxxer.hikari: warn
 
 jwt:
-  secret: ThisIsAVeryLongAndSecureSecretKeyForHS512AlgorithmWhichNeedsAtLeastSixtyFourBytesThisIsAVeryLongAndSecureSecretKeyForHS512AlgorithmWhichNeedsAtLeastSixtyFourBytes
+  secret: Lorem-ipsum-dolor-sit-amet-consectetur-adipisicing-elit.-Ratione-minima-cupiditate-repellat-minus,-repudiandae-officia?-Repudiandae-atque-porro-necessitatibus-quidem-vel-consectetur-unde-eos-beatae.-Accusantium-molestias-nihil-nobis-nulla
   expiration: 86400000
 
 springdoc:

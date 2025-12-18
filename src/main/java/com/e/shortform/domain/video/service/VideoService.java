@@ -308,4 +308,35 @@ public class VideoService {
         return response;
     }
 
+    public boolean changeDeleteStatus(Long id) {
+        videoRepo.findById(id).orElseThrow(
+                () -> new RuntimeException("영상을 찾을 수 없거나 존재하지 않습니다"));
+        return videoMapper.changeDeleteStatus(id);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -395,6 +395,12 @@ public class CommunityService {
         return communityMapper.selectByCommunityButWhereIdAsdf(id);
     }
 
+    public boolean changeDeleteStatus(Long id)  {
+        communityRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("찾을 수 없거나 존재하지 않는 글입니다"));
+        return communityMapper.changeDeleteStatus(id);
+    }
+
 
 
 }

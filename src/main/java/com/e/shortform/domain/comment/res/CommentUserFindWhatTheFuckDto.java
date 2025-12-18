@@ -22,5 +22,6 @@ public class CommentUserFindWhatTheFuckDto {
     private String profileImgSrc;
     private String mention;
     private Long likeCount;
+    private Long replyCount;
 
 }

@@ -32,6 +32,7 @@
         <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
         <result property="mention" column="MENTION"/>
         <result property="likeCount" column="LIKE_COUNT"/>
+        <result property="replyCount" column="REPLY_COUNT" />
     </resultMap>
 
     <select id="selectByCommentId" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">
@@ -44,16 +45,23 @@
             U.USERNAME,
             U.PROFILE_IMG_SRC,
             U.MENTION,
-            NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT
+            NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
+            NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT -- 이 댓글에 달린 답글 총 개수
         FROM SHORTFORM_COMMENTS C
-        JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
-            LEFT JOIN (
-                SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
-                FROM SHORTFORM_COMMENT_LIKES
-                GROUP BY COMMENT_ID
-            ) L ON C.ID = L.COMMENT_ID
+                 JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                 LEFT JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_COMMENT_LIKES
+            GROUP BY COMMENT_ID
+        ) L ON C.ID = L.LIKE_COUNT -- ID 매칭 확인 필요
+                 LEFT JOIN (
+            -- 답글 테이블에서 댓글ID별로 개수를 미리 집계
+            SELECT COMMENT_REPLY_ID, COUNT(*) AS REPLY_COUNT
+            FROM SHORTFORM_COMMENT_REPLYS
+            GROUP BY COMMENT_REPLY_ID
+        ) R ON C.ID = R.COMMENT_REPLY_ID
         WHERE C.COMMENT_VIDEO_ID = #{id}
-        ORDER BY LIKE_COUNT DESC
+        ORDER BY C.CREATE_AT DESC -- 최신순 또는 좋아요순
     </select>
     
     <select id="selectByCommentButOrderByIsDesc" resultMap="commentWithUserVideoFfuucckkResultMap" parameterType="Long">

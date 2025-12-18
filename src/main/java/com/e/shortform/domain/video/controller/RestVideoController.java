@@ -411,7 +411,10 @@ public class RestVideoController {
         return ResponseEntity.ok(videoService.selectExploreVideoListButTag(videoTag));
     }
 
-
+    @PostMapping("/delete")
+    public ResponseEntity<Boolean> deleteVideo(@RequestParam Long vid) {
+        return ResponseEntity.ok(videoService.changeDeleteStatus(vid));
+    }
 
 
 

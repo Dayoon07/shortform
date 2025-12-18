@@ -65,10 +65,10 @@ public class RestCommentController {
     @PostMapping("/like")
     public ResponseEntity<?> commentLikeLogic(
             @RequestParam Long commentId,
-            @AuthenticationPrincipal AuthUserReqDto user
+            @AuthenticationPrincipal UserEntity user
     ) {
         log.info("댓글 좋아요 요청 {}", commentId);
-        boolean isLiked = commentLikeService.toggleCommentLike(commentId, user.getMention());
+        boolean isLiked = commentLikeService.toggleCommentLike(commentId, user);
         return ResponseEntity.ok(Map.of("status", isLiked ? "liked" : "unliked"));
     }
 

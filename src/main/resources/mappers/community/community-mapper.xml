@@ -168,4 +168,8 @@
         ORDER BY c.CREATE_AT DESC
     </select>
 
+    <update id="changeDeleteStatus" parameterType="Long">
+        UPDATE shortform_communitys SET delete_status = 1 where id = #{id}
+    </update>
+
 </mapper>

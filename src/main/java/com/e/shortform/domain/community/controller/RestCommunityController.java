@@ -4,9 +4,7 @@ import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
-import com.e.shortform.domain.community.service.CommunityAdditionService;
-import com.e.shortform.domain.community.service.CommunityLikeService;
-import com.e.shortform.domain.community.service.CommunityService;
+import com.e.shortform.domain.community.service.*;
 import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
@@ -23,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +44,8 @@ public class RestCommunityController {
     private final CommunityAdditionService communityAdditionService;
     private final CommunityLikeService communityLikeService;
     private final ReportService reportService;
+    private final CommunityCommentService communityCommentService;
+    private final CommunityCommentReplyService communityCommentReplyService;
 
     @GetMapping("/all")
     public List<?> selectAllCommunity() {
@@ -67,9 +68,8 @@ public class RestCommunityController {
     }
 
     @GetMapping("/find")
-    public List<?> selectByCommunityBut(@RequestParam String mention) {
-        UserEntity writer = userService.findByMention(mention);
-        return communityService.selectByCommunityButWhereId(writer.getId());
+    public List<?> selectByCommunityBut(@RequestParam Long writerId) {
+        return communityService.selectByCommunityButWhereId(writerId);
     }
 
     @RequireAuth
@@ -81,5 +81,50 @@ public class RestCommunityController {
         Map<String, Object> map = communityLikeService.postLike(communityUuid, user.getMention());
         return ResponseEntity.ok(map);
     }
+
+    @RequireAuth
+    @PostMapping("/delete")
+    public ResponseEntity<Boolean> communityDelete(
+            @RequestParam Long id) {
+        return ResponseEntity.ok(communityService.changeDeleteStatus(id));
+    }
+
+    @RequireAuth
+    @PostMapping("/comment/insert")
+    public ResponseEntity<?> insertComment(
+            @RequestParam Long communityId,
+            @RequestParam String comment,
+            @AuthenticationPrincipal UserEntity user) {
+        communityCommentService.insertComment(communityId, comment, user);
+        return ResponseEntity.ok(true);
+    }
+
+    @RequireAuth
+    @PostMapping("/comment/reply/insert")
+    public ResponseEntity<?> insertCommentReply(
+            @RequestParam String replyText,
+            @RequestParam Long commentId,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        communityCommentReplyService.insertCommentReply(commentId, replyText, user);
+        return ResponseEntity.ok(true);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

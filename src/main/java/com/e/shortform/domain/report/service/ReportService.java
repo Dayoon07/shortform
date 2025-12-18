@@ -4,7 +4,10 @@ import com.e.shortform.domain.report.entity.ReportEntity;
 import com.e.shortform.domain.report.enums.TargetType;
 import com.e.shortform.domain.report.mapper.ReportMapper;
 import com.e.shortform.domain.report.repository.ReportRepo;
+import com.e.shortform.domain.report.req.ReportReqDto;
 import com.e.shortform.domain.report.vo.ReportVo;
+import com.e.shortform.domain.user.entity.UserEntity;
+import com.e.shortform.domain.user.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ReportService {
+
+    private final UserRepo userRepo;
 
     private final ReportRepo reportRepo;
     private final ReportMapper reportMapper;
@@ -30,5 +35,36 @@ public class ReportService {
     public List<ReportEntity> getReportAllJpaVer() {
         return reportRepo.findAll();
     }
+
+    public void saveReport(ReportReqDto reqDto) {
+        UserEntity reporterUser = userRepo.findById(reqDto.getReporterUser())
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다"));
+        UserEntity reportedUser = userRepo.findById(reqDto.getReportedUser())
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다"));
+
+        ReportEntity a = ReportEntity.builder()
+                .targetType(reqDto.getTargetType())
+                .targetId(reqDto.getTargetId())
+                .reporterUser(reporterUser)
+                .reportedUser(reportedUser)
+                .reportType(reqDto.getReportType())
+                .reportReason(reqDto.getReportReason())
+                .build();
+        reportRepo.save(a);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

@@ -25,11 +25,7 @@ public class CommentLikeService {
     private final CommentLikeRepo commentLikeRepo;
 
     @Transactional
-    public boolean toggleCommentLike(Long commentId, String reqUserMention) {
-        UserEntity user = userRepo.findByMention(reqUserMention);
-        if (user == null)
-            throw new IllegalStateException("로그인 필요");
-
+    public boolean toggleCommentLike(Long commentId, UserEntity user) {
         CommentEntity comment = commentRepo.findById(commentId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다"));
 
