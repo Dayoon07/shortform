@@ -101,7 +101,7 @@ logging:
     com.zaxxer.hikari: warn
 
 jwt:
-  secret: Lorem-ipsum-dolor-sit-amet-consectetur-adipisicing-elit.-Ratione-minima-cupiditate-repellat-minus,-repudiandae-officia?-Repudiandae-atque-porro-necessitatibus-quidem-vel-consectetur-unde-eos-beatae.-Accusantium-molestias-nihil-nobis-nulla
+  secret: LoremaipsumadolorasitaametaconsecteturaaadipisicingaelitaaVoluptasanatusaasapienteaundeacommodiaharumaprovidentanobisaaRecusandaeaatemporeaprovidentaquasiahicaminimaaveroalaboriosamavoluptatesanonaminusamagniaenimavoluptatibus
   expiration: 86400000
 
 springdoc:

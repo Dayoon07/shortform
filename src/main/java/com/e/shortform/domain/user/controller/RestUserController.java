@@ -13,6 +13,7 @@ import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
+import com.e.shortform.domain.user.req.LoginReq;
 import com.e.shortform.domain.user.req.SignupReqDto;
 import com.e.shortform.domain.user.res.UserProfileUpdateDto;
 import com.e.shortform.domain.follow.service.FollowService;
@@ -125,7 +126,7 @@ public class RestUserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(
-            @RequestBody UserEntity loginRequest,
+            @RequestBody LoginReq loginRequest,
             HttpSession session,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType) {
         return userService.login(loginRequest.getUsername(), loginRequest.getPassword(), session, clientType);

@@ -9,7 +9,6 @@ public class ReportReqDto {
 
     private String targetType;
     private Long targetId;
-    private Long reporterUser;
     private Long reportedUser;
     private String reportType;
     private String reportReason;
