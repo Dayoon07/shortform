@@ -4,6 +4,9 @@ import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
+import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
+import com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto;
 import com.e.shortform.domain.community.service.*;
 import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
@@ -68,9 +71,16 @@ public class RestCommunityController {
     }
 
     @GetMapping("/find")
-    public List<?> selectByCommunityBut(@RequestParam String mention) {
+    public List<CommunityWithUserProfileDto> selectByCommunityBut(@RequestParam String mention) {
         UserEntity writer = userService.findByMention(mention);
         return communityService.selectByCommunityButWhereId(writer.getId());
+    }
+
+    @GetMapping("/find/detail")
+    public ResponseEntity<UserProfilePostAllLikeCntDto> selectByCommunityButDetail(
+            @RequestParam String communityUuid) {
+        UserProfilePostAllLikeCntDto details = communityService.findByCommunityBoardF(communityUuid);
+        return details != null ? ResponseEntity.ok(details) : ResponseEntity.noContent().build();
     }
 
     @RequireAuth

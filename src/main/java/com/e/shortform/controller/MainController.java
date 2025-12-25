@@ -230,7 +230,7 @@ public class MainController {
             throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
         }
 
-        m.addAttribute("cat", communityService.findByCommunityBoardFuck(communityUuid));
+        m.addAttribute("cat", communityService.findByCommunityBoardF(communityUuid));
         m.addAttribute("comments", communityCommentService.findByCommunity(community));
         return "profile/post-detail";
     }

@@ -70,7 +70,7 @@
         ORDER BY c.CREATE_AT DESC
     </select>
 
-    <select id="findByCommunityBoardFuck" parameterType="String" resultMap="profilePageAllCommunityResultMap">
+    <select id="findByCommunityBoardF" parameterType="String" resultMap="profilePageAllCommunityResultMap">
         WITH FILES AS (
             SELECT
                 COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
