@@ -1,5 +1,6 @@
 package com.e.shortform.domain.community.service;
 
+import com.e.shortform.domain.community.res.CommunityDetailDto;
 import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
 import com.e.shortform.domain.community.entity.CommunityAdditionEntity;
 import com.e.shortform.domain.community.entity.CommunityEntity;
@@ -387,7 +388,7 @@ public class CommunityService {
         return communityRepo.findByCommunityUuid(communityUuid);
     }
 
-    public UserProfilePostAllLikeCntDto findByCommunityBoardF(String uuid) {
+    public CommunityDetailDto findByCommunityBoardF(String uuid) {
         return communityMapper.findByCommunityBoardF(uuid);
     }
 
@@ -395,10 +396,10 @@ public class CommunityService {
         return communityMapper.selectByCommunityButWhereIdAsdf(id);
     }
 
-    public boolean changeDeleteStatus(Long id)  {
-        communityRepo.findById(id)
+    public boolean changeDeleteStatus(Long communityId)  {
+        communityRepo.findById(communityId)
                 .orElseThrow(() -> new RuntimeException("찾을 수 없거나 존재하지 않는 글입니다"));
-        return communityMapper.changeDeleteStatus(id);
+        return communityMapper.changeDeleteStatus(communityId);
     }
 
 }

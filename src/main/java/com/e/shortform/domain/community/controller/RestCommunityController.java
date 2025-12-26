@@ -5,6 +5,7 @@ import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
 import com.e.shortform.domain.community.entity.CommunityEntity;
+import com.e.shortform.domain.community.res.CommunityDetailDto;
 import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
 import com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto;
 import com.e.shortform.domain.community.service.*;
@@ -77,9 +78,9 @@ public class RestCommunityController {
     }
 
     @GetMapping("/find/detail")
-    public ResponseEntity<UserProfilePostAllLikeCntDto> selectByCommunityButDetail(
+    public ResponseEntity<CommunityDetailDto> selectByCommunityButDetail(
             @RequestParam String communityUuid) {
-        UserProfilePostAllLikeCntDto details = communityService.findByCommunityBoardF(communityUuid);
+        CommunityDetailDto details = communityService.findByCommunityBoardF(communityUuid);
         return details != null ? ResponseEntity.ok(details) : ResponseEntity.noContent().build();
     }
 
@@ -87,16 +88,14 @@ public class RestCommunityController {
     @PostMapping("/like")
     public ResponseEntity<Map<String, Object>> communityLike(
             @RequestParam String communityUuid,
-            @AuthenticationPrincipal AuthUserReqDto user
-    ) {
+            @AuthenticationPrincipal AuthUserReqDto user) {
         Map<String, Object> map = communityLikeService.postLike(communityUuid, user.getMention());
         return ResponseEntity.ok(map);
     }
 
     @RequireAuth
     @PostMapping("/delete")
-    public ResponseEntity<Boolean> communityDelete(
-            @RequestParam Long id) {
+    public ResponseEntity<Boolean> communityDelete(@RequestParam Long id) {
         return ResponseEntity.ok(communityService.changeDeleteStatus(id));
     }
 
@@ -115,11 +114,21 @@ public class RestCommunityController {
     public ResponseEntity<?> insertCommentReply(
             @RequestParam String replyText,
             @RequestParam Long commentId,
-            @AuthenticationPrincipal UserEntity user
-    ) {
+            @AuthenticationPrincipal UserEntity user) {
         communityCommentReplyService.insertCommentReply(commentId, replyText, user);
         return ResponseEntity.ok(true);
     }
+
+    @GetMapping("/comment/list")
+    public ResponseEntity<?> getCommunityComments(@RequestParam Long communityId) {
+        return ResponseEntity.ok(communityCommentService.findByCommunityIdWithReplyCounts(communityId));
+    }
+
+    @GetMapping("/comment/list/recent")
+    public ResponseEntity<?> getCommunityCommentsRecent(@RequestParam Long communityId) {
+        return ResponseEntity.ok(communityCommentService.findByCommunityIdOrderByDesc(communityId));
+    }
+
 
 
 

@@ -3,12 +3,87 @@
 <mapper namespace="com.e.shortform.domain.community.mapper.CommunityCommentMapper">
 
     <resultMap id="communityCommentResultMap" type="com.e.shortform.domain.community.vo.CommunityCommentVo">
-        <id property="id" column="id"/>
+        <id property="id" column="ID"/>
         <result property="commentText" column="COMMENT_TEXT"/>
         <result property="commentUserId" column="COMMENT_USER_ID"/>
         <result property="communityId" column="COMMUNITY_ID"/>
         <result property="createAt" column="CREATE_AT"/>
         <result property="deleteStatus" column="DELETE_STATUS" />
     </resultMap>
+
+    <resultMap id="communityCommentWithUserResultMap" type="com.e.shortform.domain.community.res.CommunityCommentWithUserDto">
+        <id property="id" column="COMMENT_ID"/>
+        <result property="commentText" column="COMMENT_TEXT"/>
+        <result property="commentUserId" column="COMMENT_USER_ID"/>
+        <result property="communityId" column="COMMUNITY_ID"/>
+        <result property="createAt" column="CREATE_AT"/>
+        <result property="username" column="USERNAME"/>
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
+        <result property="mention" column="MENTION"/>
+        <result property="likeCount" column="LIKE_COUNT"/>
+        <result property="replyCount" column="REPLY_COUNT"/>
+    </resultMap>
+
+    <!-- 커뮤니티 댓글 조회 (답글 개수 포함) -->
+    <select id="selectByCommunityId" resultMap="communityCommentWithUserResultMap" parameterType="Long">
+        SELECT
+            C.ID AS COMMENT_ID,
+            C.COMMENT_TEXT,
+            C.COMMENT_USER_ID,
+            C.COMMUNITY_ID,
+            C.CREATE_AT,
+            U.USERNAME,
+            U.PROFILE_IMG_SRC,
+            U.MENTION,
+            NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
+            NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT
+        FROM SHORTFORM_COMMUNITY_COMMENTS C
+                 JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                 LEFT JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
+            GROUP BY COMMENT_ID
+        ) L ON C.ID = L.COMMENT_ID
+                 LEFT JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
+            WHERE DELETE_STATUS = 0
+            GROUP BY COMMENT_ID
+        ) R ON C.ID = R.COMMENT_ID
+        WHERE C.COMMUNITY_ID = #{communityId}
+          AND C.DELETE_STATUS = 0
+        ORDER BY C.CREATE_AT ASC
+    </select>
+
+    <!-- 최신순 정렬 버전 -->
+    <select id="selectByCommunityIdOrderByDesc" resultMap="communityCommentWithUserResultMap" parameterType="Long">
+        SELECT
+            C.ID AS COMMENT_ID,
+            C.COMMENT_TEXT,
+            C.COMMENT_USER_ID,
+            C.COMMUNITY_ID,
+            C.CREATE_AT,
+            U.USERNAME,
+            U.PROFILE_IMG_SRC,
+            U.MENTION,
+            NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
+            NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT
+        FROM SHORTFORM_COMMUNITY_COMMENTS C
+                 JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                 LEFT JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
+            GROUP BY COMMENT_ID
+        ) L ON C.ID = L.COMMENT_ID
+                 LEFT JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
+            WHERE DELETE_STATUS = 0
+            GROUP BY COMMENT_ID
+        ) R ON C.ID = R.COMMENT_ID
+        WHERE C.COMMUNITY_ID = #{communityId}
+          AND C.DELETE_STATUS = 0
+        ORDER BY C.CREATE_AT DESC
+    </select>
 
 </mapper>

@@ -42,6 +42,17 @@
         <result property="commentCnt" column="COMMENT_CNT" />
     </resultMap>
 
+    <resultMap id="communityDetailResultMap" type="com.e.shortform.domain.community.res.CommunityDetailDto">
+        <id property="id" column="ID" />
+        <result property="communityUuid" column="COMMUNITY_UUID" />
+        <result property="communityText" column="COMMUNITY_TEXT" />
+        <result property="createAt" column="CREATE_AT" />
+        <result property="files" column="FILES" />
+        <result property="likeCnt" column="LIKE_CNT" />
+        <result property="commentCnt" column="COMMENT_CNT" />
+        <association property="userVo" javaType="com.e.shortform.domain.user.vo.UserVo" />
+    </resultMap>
+
     <select id="selectByCommunityButWhereId" parameterType="Long" resultMap="profilePageCommunityResultMap">
         WITH FILES AS (
             SELECT COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
@@ -70,53 +81,63 @@
         ORDER BY c.CREATE_AT DESC
     </select>
 
-    <select id="findByCommunityBoardF" parameterType="String" resultMap="profilePageAllCommunityResultMap">
+    <select id="findByCommunityBoardF" parameterType="String" resultMap="communityDetailResultMap">
         WITH FILES AS (
             SELECT
                 COMMUNITY_ID AS ADDITIONS_COMMUNITY_ID,
                 LISTAGG(FILE_SRC, ',') WITHIN GROUP (ORDER BY UPLOAD_AT) AS FILES
             FROM SHORTFORM_COMMUNITY_ADDITIONS
-            GROUP BY COMMUNITY_ID
-            ),
+            GROUP BY COMMUNITY_ID),
             LIKES AS (
             SELECT
                 COMMUNITY_ID,
                 COUNT(*) AS LIKE_CNT
             FROM SHORTFORM_COMMUNITY_LIKES
-            GROUP BY COMMUNITY_ID
-            ),
+            GROUP BY COMMUNITY_ID),
             COMMENTS AS (
-            SELECT
-                COMMUNITY_ID,
-                COUNT(*) AS COMMENT_CNT
-            FROM SHORTFORM_COMMUNITY_COMMENTS
-            GROUP BY COMMUNITY_ID
+                SELECT
+                    COMMUNITY_ID,
+                    COUNT(*) AS COMMENT_CNT
+                FROM SHORTFORM_COMMUNITY_COMMENTS
+            WHERE PARENT_COMMENT_ID IS NULL  -- 최상위 댓글만 카운트
+        GROUP BY COMMUNITY_ID
+            ),
+            REPLIES AS (
+        SELECT
+            COMMUNITY_ID,
+            COUNT(*) AS REPLY_CNT
+        FROM SHORTFORM_COMMUNITY_COMMENTS
+        WHERE PARENT_COMMENT_ID IS NOT NULL  -- 답글만 카운트
+        GROUP BY COMMUNITY_ID
             )
-            SELECT
-                c.ID,
-                u.USERNAME,
-                u.PROFILE_IMG_SRC,
-                u.MENTION,
-                u.IS_SOCIAL,
-                u.PROVIDER,
-                c.COMMUNITY_UUID,
-                c.COMMUNITY_WRITER_ID,
-                c.COMMUNITY_TEXT,
-                c.CREATE_AT,
-                f.FILES,
-                NVL(l.LIKE_CNT, 0)    AS LIKE_CNT,
-                NVL(cm.COMMENT_CNT, 0) AS COMMENT_CNT
-            FROM SHORTFORM_COMMUNITYS c
-            LEFT JOIN FILES f
-                ON c.ID = f.ADDITIONS_COMMUNITY_ID
-            LEFT JOIN LIKES l
-                ON c.ID = l.COMMUNITY_ID
-            LEFT JOIN COMMENTS cm
-                ON c.ID = cm.COMMUNITY_ID
-            INNER JOIN SHORTFORM_USERS u
-                ON u.ID = c.COMMUNITY_WRITER_ID
-            WHERE c.COMMUNITY_UUID = #{mention}
-            ORDER BY c.CREATE_AT DESC
+        SELECT
+            c.ID,
+            u.USERNAME,
+            u.PROFILE_IMG_SRC,
+            u.MENTION,
+            u.IS_SOCIAL,
+            u.PROVIDER,
+            c.COMMUNITY_UUID,
+            c.COMMUNITY_WRITER_ID,
+            c.COMMUNITY_TEXT,
+            c.CREATE_AT,
+            f.FILES,
+            NVL(l.LIKE_CNT, 0)    AS LIKE_CNT,
+            NVL(cm.COMMENT_CNT, 0) AS COMMENT_CNT,
+            NVL(r.REPLY_CNT, 0)   AS REPLY_CNT
+        FROM SHORTFORM_COMMUNITYS c
+                 LEFT JOIN FILES f
+                           ON c.ID = f.ADDITIONS_COMMUNITY_ID
+                 LEFT JOIN LIKES l
+                           ON c.ID = l.COMMUNITY_ID
+                 LEFT JOIN COMMENTS cm
+                           ON c.ID = cm.COMMUNITY_ID
+                 LEFT JOIN REPLIES r
+                           ON c.ID = r.COMMUNITY_ID
+                 INNER JOIN SHORTFORM_USERS u
+                            ON u.ID = c.COMMUNITY_WRITER_ID
+        WHERE c.COMMUNITY_UUID = #{mention}
+        ORDER BY c.CREATE_AT DESC
     </select>
 
     <select id="selectByCommunityButWhereIdAsdf" parameterType="Long" resultMap="profilePageAllCommunityResultMap">
@@ -169,7 +190,7 @@
     </select>
 
     <update id="changeDeleteStatus" parameterType="Long">
-        UPDATE shortform_communitys SET delete_status = 1 where id = #{id}
+        UPDATE shortform_communitys SET delete_status = 1 where id = #{communityId}
     </update>
 
 </mapper>
