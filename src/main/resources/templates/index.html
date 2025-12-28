@@ -143,3 +143,149 @@
 
 -->
 
+<!--
+    -- 방법 1: 댓글과 대댓글을 한 번에 가져오기 (계층 구조)
+WITH COMMENT_DATA AS (
+    -- 댓글 정보
+    SELECT
+        c.ID AS COMMENT_ID,
+        c.COMMENT_TEXT,
+        c.COMMENT_USER_ID,
+        c.COMMENT_VIDEO_ID,
+        c.CREATE_AT,
+        c.DELETE_STATUS,
+        -- 댓글 작성자 정보
+        u.USERNAME,
+        u.MENTION,
+        u.PROFILE_IMG_SRC,
+        u.IS_SOCIAL,
+        u.PROVIDER,
+        -- 댓글 좋아요 수
+        (SELECT COUNT(*) FROM SHORTFORM_COMMENT_LIKES cl WHERE cl.COMMENT_ID = c.ID) AS LIKE_COUNT,
+        -- 대댓글 수
+        (SELECT COUNT(*) FROM SHORTFORM_COMMENT_REPLYS cr WHERE cr.COMMENT_REPLY_ID = c.ID AND cr.DELETE_STATUS = 0) AS REPLY_COUNT,
+        NULL AS REPLY_ID,
+        NULL AS REPLY_TEXT,
+        NULL AS REPLY_CREATE_AT,
+        0 AS IS_REPLY
+    FROM SHORTFORM_COMMENTS c
+             JOIN SHORTFORM_USERS u ON c.COMMENT_USER_ID = u.ID
+    WHERE c.COMMENT_VIDEO_ID = :videoId  -- 파라미터로 받을 video ID
+      AND c.DELETE_STATUS = 0
+
+    UNION ALL
+
+    -- 대댓글 정보
+    SELECT
+        cr.COMMENT_REPLY_ID AS COMMENT_ID,  -- 부모 댓글 ID
+        cr.COMMENT_REPLY_TEXT AS COMMENT_TEXT,
+        cr.COMMENT_REPLY_USER_ID AS COMMENT_USER_ID,
+        c.COMMENT_VIDEO_ID,
+        cr.CREATE_AT,
+        cr.DELETE_STATUS,
+        -- 대댓글 작성자 정보
+        u.USERNAME,
+        u.MENTION,
+        u.PROFILE_IMG_SRC,
+        u.IS_SOCIAL,
+        u.PROVIDER,
+        -- 대댓글 좋아요 수
+        (SELECT COUNT(*) FROM SHORTFORM_REPLY_LIKES rl WHERE rl.REPLY_ID = cr.ID) AS LIKE_COUNT,
+        0 AS REPLY_COUNT,  -- 대댓글은 답글 수 없음
+        cr.ID AS REPLY_ID,
+        cr.COMMENT_REPLY_TEXT AS REPLY_TEXT,
+        cr.CREATE_AT AS REPLY_CREATE_AT,
+        1 AS IS_REPLY
+    FROM SHORTFORM_COMMENT_REPLYS cr
+             JOIN SHORTFORM_COMMENTS c ON cr.COMMENT_REPLY_ID = c.ID
+             JOIN SHORTFORM_USERS u ON cr.COMMENT_REPLY_USER_ID = u.ID
+    WHERE c.COMMENT_VIDEO_ID = :videoId
+      AND cr.DELETE_STATUS = 0
+      AND c.DELETE_STATUS = 0
+)
+SELECT * FROM COMMENT_DATA
+ORDER BY
+    COMMENT_ID,  -- 댓글 그룹핑
+    IS_REPLY,    -- 댓글이 먼저, 대댓글이 나중에
+    CREATE_AT;   -- 작성 시간순
+
+
+-- 방법 2: 인기순으로 댓글만 가져오기 (대댓글 제외)
+SELECT
+    c.ID,
+    c.COMMENT_TEXT,
+    c.COMMENT_USER_ID,
+    c.COMMENT_VIDEO_ID,
+    c.CREATE_AT,
+    -- 작성자 정보
+    u.USERNAME,
+    u.MENTION,
+    u.PROFILE_IMG_SRC,
+    u.IS_SOCIAL,
+    u.PROVIDER,
+    -- 통계
+    (SELECT COUNT(*) FROM SHORTFORM_COMMENT_LIKES cl WHERE cl.COMMENT_ID = c.ID) AS LIKE_COUNT,
+    (SELECT COUNT(*) FROM SHORTFORM_COMMENT_REPLYS cr WHERE cr.COMMENT_REPLY_ID = c.ID AND cr.DELETE_STATUS = 0) AS REPLY_COUNT
+FROM SHORTFORM_COMMENTS c
+         JOIN SHORTFORM_USERS u ON c.COMMENT_USER_ID = u.ID
+WHERE c.COMMENT_VIDEO_ID = :videoId
+  AND c.DELETE_STATUS = 0
+ORDER BY LIKE_COUNT DESC, c.CREATE_AT DESC;
+
+
+-- 방법 3: 최신순으로 댓글만 가져오기
+SELECT
+    c.ID,
+    c.COMMENT_TEXT,
+    c.COMMENT_USER_ID,
+    c.COMMENT_VIDEO_ID,
+    c.CREATE_AT,
+    -- 작성자 정보
+    u.USERNAME,
+    u.MENTION,
+    u.PROFILE_IMG_SRC,
+    u.IS_SOCIAL,
+    u.PROVIDER,
+    -- 통계
+    (SELECT COUNT(*) FROM SHORTFORM_COMMENT_LIKES cl WHERE cl.COMMENT_ID = c.ID) AS LIKE_COUNT,
+    (SELECT COUNT(*) FROM SHORTFORM_COMMENT_REPLYS cr WHERE cr.COMMENT_REPLY_ID = c.ID AND cr.DELETE_STATUS = 0) AS REPLY_COUNT
+FROM SHORTFORM_COMMENTS c
+         JOIN SHORTFORM_USERS u ON c.COMMENT_USER_ID = u.ID
+WHERE c.COMMENT_VIDEO_ID = :videoId
+  AND c.DELETE_STATUS = 0
+ORDER BY c.CREATE_AT DESC;
+
+
+-- 방법 4: 특정 댓글의 대댓글 가져오기
+SELECT
+    cr.ID,
+    cr.COMMENT_REPLY_TEXT,
+    cr.COMMENT_REPLY_USER_ID,
+    cr.COMMENT_REPLY_ID,
+    cr.CREATE_AT,
+    -- 작성자 정보
+    u.USERNAME,
+    u.MENTION,
+    u.PROFILE_IMG_SRC,
+    u.IS_SOCIAL,
+    u.PROVIDER,
+    -- 좋아요 수
+    (SELECT COUNT(*) FROM SHORTFORM_REPLY_LIKES rl WHERE rl.REPLY_ID = cr.ID) AS LIKE_COUNT
+FROM SHORTFORM_COMMENT_REPLYS cr
+         JOIN SHORTFORM_USERS u ON cr.COMMENT_REPLY_USER_ID = u.ID
+WHERE cr.COMMENT_REPLY_ID = :commentId  -- 특정 댓글 ID
+  AND cr.DELETE_STATUS = 0
+ORDER BY cr.CREATE_AT ASC;
+
+
+-- 방법 5: 댓글 + 대댓글 전체 카운트
+SELECT
+    (SELECT COUNT(*) FROM SHORTFORM_COMMENTS WHERE COMMENT_VIDEO_ID = :videoId AND DELETE_STATUS = 0) AS COMMENT_COUNT,
+    (SELECT COUNT(*)
+     FROM SHORTFORM_COMMENT_REPLYS cr
+              JOIN SHORTFORM_COMMENTS c ON cr.COMMENT_REPLY_ID = c.ID
+     WHERE c.COMMENT_VIDEO_ID = :videoId
+       AND cr.DELETE_STATUS = 0
+       AND c.DELETE_STATUS = 0) AS REPLY_COUNT
+FROM DUAL;
+-->

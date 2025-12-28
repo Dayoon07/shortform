@@ -1,6 +1,7 @@
 package com.e.shortform.domain.comment.controller;
 
 import com.e.shortform.common.annotation.RequireAuth;
+import com.e.shortform.domain.comment.entity.CommentLikeEntity;
 import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import com.e.shortform.domain.comment.req.CommentReplyReqDto;
 import com.e.shortform.domain.comment.req.CommentReqDto;
@@ -61,6 +62,11 @@ public class RestCommentController {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/like/all")
+    public List<CommentLikeEntity> getAllComments() {
+        return commentLikeService.findAll();
+    }
+
     @RequireAuth
     @PostMapping("/like")
     public ResponseEntity<?> commentLikeLogic(
@@ -102,6 +108,16 @@ public class RestCommentController {
     @PostMapping("/reply/find/content")
     public ResponseEntity<List<CommentReplyEntity>> findByCommentReply(@RequestParam Long commentId) {
         return ResponseEntity.ok(commentReplyService.findByParentComment(commentId));
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentId(id));
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
     }
 
 }

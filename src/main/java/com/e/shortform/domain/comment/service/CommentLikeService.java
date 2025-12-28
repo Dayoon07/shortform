@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,6 +46,10 @@ public class CommentLikeService {
             commentLikeRepo.save(commentLikeEntity);
             return true; // liked
         }
+    }
+
+    public List<CommentLikeEntity> findAll() {
+        return commentLikeRepo.findAll();
     }
 
 

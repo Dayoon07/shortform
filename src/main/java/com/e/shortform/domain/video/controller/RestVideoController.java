@@ -102,16 +102,6 @@ public class RestVideoController {
         return new ResponseEntity<>(res, status);
     }
 
-    @GetMapping("/find/comment/popular")
-    public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
-        return ResponseEntity.ok(commentService.selectByCommentId(id));
-    }
-
-    @GetMapping("/find/comment/recent")
-    public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
-        return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
-    }
-
     /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
     @PostMapping("/like")
     public ResponseEntity<?> videoLikeToggle(@RequestBody Map<String, Object> req, HttpSession session) {
