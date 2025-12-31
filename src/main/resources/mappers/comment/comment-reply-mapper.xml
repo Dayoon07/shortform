@@ -20,26 +20,41 @@
         <association property="userVo" javaType="com.e.shortform.domain.user.vo.UserVo" />
         <association property="commentVo" javaType="com.e.shortform.domain.comment.vo.CommentVo" />
     </resultMap>
+    
+    <resultMap id="commentReplyVerTwoResultMap" type="com.e.shortform.domain.comment.res.CommentReply">
+        <result property="id" column="ID" />
+        <result property="commentReplyText" column="COMMENT_REPLY_TEXT" />
+        <result property="commentReplyUserId" column="COMMENT_REPLY_USER_ID" />
+        <result property="commentReplyId" column="COMMENT_REPLY_ID" />
+        <result property="createAt" column="CREATE_AT" />
+        <result property="username" column="USERNAME" />
+        <result property="mention" column="MENTION" />
+        <result property="profileImgSrc" column="PROFILE_IMG_SRC" />
+        <result property="social" column="IS_SOCIAL" />
+        <result property="provider" column="PROVIDER" />
+        <result property="likeCount" column="LIKE_COUNT" />
+    </resultMap>
 
-<!--    <select id="selectCommentReplyContent" parameterType="Long" resultMap="">-->
-<!--        SELECT-->
-<!--            A.ID AS COMMENT_REPLY_ID,-->
-<!--            A.COMMENT_REPLY_TEXT,-->
-<!--            A.COMMENT_REPLY_USER_ID,-->
-<!--            B.ID AS COMMENT_ID,-->
-<!--            B.COMMENT_TEXT,-->
-<!--            B.COMMENT_USER_ID,-->
-<!--            B.COMMENT_VIDEO_ID,-->
-<!--            C.PROFILE_IMG_SRC,-->
-<!--            C.BIO,-->
-<!--            C.MENTION-->
-<!--        FROM SHORTFORM_COMMENT_REPLYS A-->
-<!--                 JOIN SHORTFORM_COMMENTS B-->
-<!--                      ON A.COMMENT_REPLY_ID = B.ID-->
-<!--                 JOIN SHORTFORM_USERS C-->
-<!--                      ON B.COMMENT_USER_ID = C.ID-->
-<!--        WHERE A.COMMENT_REPLY_ID = 2-->
-<!--        ORDER BY A.CREATE_AT-->
-<!--    </select>-->
+    <select id="selectCommentReply" parameterType="Long" resultMap="commentReplyVerTwoResultMap">
+        SELECT
+            cr.ID,
+            cr.COMMENT_REPLY_TEXT,
+            cr.COMMENT_REPLY_USER_ID,
+            cr.COMMENT_REPLY_ID,
+            cr.CREATE_AT,
+            -- 작성자 정보
+            u.USERNAME,
+            u.MENTION,
+            u.PROFILE_IMG_SRC,
+            u.IS_SOCIAL,
+            u.PROVIDER,
+            -- 좋아요 수
+            (SELECT COUNT(*) FROM SHORTFORM_REPLY_LIKES rl WHERE rl.REPLY_ID = cr.ID) AS LIKE_COUNT
+        FROM SHORTFORM_COMMENT_REPLYS cr
+                 JOIN SHORTFORM_USERS u ON cr.COMMENT_REPLY_USER_ID = u.ID
+        WHERE cr.COMMENT_REPLY_ID = #{commentId}  -- 특정 댓글 ID
+          AND cr.DELETE_STATUS = 0
+        ORDER BY cr.CREATE_AT ASC
+    </select>
 
 </mapper>

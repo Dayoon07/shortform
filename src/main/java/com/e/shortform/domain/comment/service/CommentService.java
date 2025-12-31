@@ -3,7 +3,7 @@ package com.e.shortform.domain.comment.service;
 import com.e.shortform.domain.comment.entity.CommentEntity;
 import com.e.shortform.domain.comment.mapper.CommentMapper;
 import com.e.shortform.domain.comment.repository.CommentRepo;
-import com.e.shortform.domain.comment.res.CommentWithUserVideoDto;
+import com.e.shortform.domain.comment.res.CommentButVideoRes;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.video.entity.VideoEntity;
@@ -51,11 +51,11 @@ public class CommentService {
         return map;
     }
 
-    public List<CommentWithUserVideoDto> selectByCommentId(Long id) {
+    public List<CommentButVideoRes> selectByCommentId(Long id) {
         return commentMapper.selectByCommentId(id);
     }
 
-    public List<CommentWithUserVideoDto> selectByCommentButOrderByIsDesc(Long id) {
+    public List<CommentButVideoRes> selectByCommentButOrderByIsDesc(Long id) {
         return commentMapper.selectByCommentButOrderByIsDesc(id);
     }
 

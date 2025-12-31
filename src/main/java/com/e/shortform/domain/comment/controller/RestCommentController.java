@@ -5,6 +5,8 @@ import com.e.shortform.domain.comment.entity.CommentLikeEntity;
 import com.e.shortform.domain.comment.entity.CommentReplyEntity;
 import com.e.shortform.domain.comment.req.CommentReplyReqDto;
 import com.e.shortform.domain.comment.req.CommentReqDto;
+import com.e.shortform.domain.comment.res.CommentButVideoRes;
+import com.e.shortform.domain.comment.res.CommentReply;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
@@ -83,11 +85,21 @@ public class RestCommentController {
         return commentService.selectAllComments();
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<List<CommentButVideoRes>> findVideoComment(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentId(id));
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
+        return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
+    }
+
     @RequireAuth
     @PostMapping("/reply/insert")
     public ResponseEntity<?> commentReplyInsert(
             @RequestBody CommentReplyReqDto req,
-            @AuthenticationPrincipal AuthUserReqDto user
+            @AuthenticationPrincipal UserEntity user
     ) throws Exception {
         if (req.getCommentReplyText().trim().isEmpty())
             return ResponseEntity.ok(Map.of("message", "답글에 어떠한 값도 있지 않습니다"));
@@ -105,19 +117,9 @@ public class RestCommentController {
         return commentReplyService.selectAllCommentReply();
     }
 
-    @PostMapping("/reply/find/content")
-    public ResponseEntity<List<CommentReplyEntity>> findByCommentReply(@RequestParam Long commentId) {
-        return ResponseEntity.ok(commentReplyService.findByParentComment(commentId));
-    }
-
-    @GetMapping("/popular")
-    public ResponseEntity<?> findVideoComment(@RequestParam Long id) {
-        return ResponseEntity.ok(commentService.selectByCommentId(id));
-    }
-
-    @GetMapping("/recent")
-    public ResponseEntity<?> findVideoCommentRecent(@RequestParam Long id) {
-        return ResponseEntity.ok(commentService.selectByCommentButOrderByIsDesc(id));
+    @GetMapping("/reply/find/content")
+    public ResponseEntity<List<CommentReply>> findByCommentReply(@RequestParam Long commentId) {
+        return ResponseEntity.ok(commentReplyService.selectCommentReply(commentId));
     }
 
 }

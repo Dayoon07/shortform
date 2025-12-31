@@ -1,26 +1,29 @@
 package com.e.shortform.domain.comment.res;
 
+import com.e.shortform.domain.user.vo.UserVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentUserFindWhatTheFuckDto {
+public class CommentButVideoRes {
 
     private Long id;
     private String commentText;
     private Long commentUserId;
     private Long commentVideoId;
-    private LocalDateTime createAt;
+    private String createAt;
+
     private String username;
-    private String profileImgSrc;
     private String mention;
+    private String profileImgSrc;
+    private boolean social;
+    private String provider;
+
     private Long likeCount;
     private Long replyCount;
 

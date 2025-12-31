@@ -2,9 +2,11 @@ package com.e.shortform.domain.comment.service;
 
 import com.e.shortform.domain.comment.entity.CommentEntity;
 import com.e.shortform.domain.comment.entity.CommentReplyEntity;
+import com.e.shortform.domain.comment.mapper.CommentReplyMapper;
 import com.e.shortform.domain.comment.repository.CommentReplyRepo;
 import com.e.shortform.domain.comment.repository.CommentRepo;
 import com.e.shortform.domain.comment.req.CommentReplyReqDto;
+import com.e.shortform.domain.comment.res.CommentReply;
 import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.repository.UserRepo;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
@@ -22,17 +24,15 @@ public class CommentReplyService {
     private final CommentReplyRepo commentReplyRepo;
     private final CommentRepo commentRepo;
     private final UserRepo userRepo;
+    private final CommentReplyMapper commentReplyMapper;
 
-    public void commentReplyInsert(CommentReplyReqDto dto, AuthUserReqDto u) throws Exception {
-        UserEntity user = userRepo.findByMention(u.getMention());
-        if (user == null) throw new Exception("로그인이 필요합니다");
-
+    public void commentReplyInsert(CommentReplyReqDto dto, UserEntity u) throws Exception {
         CommentEntity parentComment = commentRepo.findById(dto.getCommentReplyId())
                 .orElseThrow(() -> new Exception("댓글을 찾을 수 없습니다"));
 
         CommentReplyEntity entity = CommentReplyEntity.builder()
                 .commentReplyText(dto.getCommentReplyText())
-                .user(user)
+                .user(u)
                 .parentComment(parentComment)
                 .deleteStatus(false)
                 .build();
@@ -48,6 +48,10 @@ public class CommentReplyService {
     public List<CommentReplyEntity> findByParentComment(Long commentId) {
         CommentEntity parentComment = commentRepo.findById(commentId).orElseThrow();
         return commentReplyRepo.findByParentComment(parentComment);
+    }
+
+    public List<CommentReply> selectCommentReply(Long id) {
+        return commentReplyMapper.selectCommentReply(id);
     }
 
 
