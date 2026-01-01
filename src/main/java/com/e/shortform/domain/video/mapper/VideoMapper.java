@@ -24,4 +24,5 @@ public interface VideoMapper {
     /** public 비디오 총 개수 조회 (신규) */
     int countPublicVideos();
     boolean changeDeleteStatus(Long id);
+    void videoViewsRandomUpdate();
 }

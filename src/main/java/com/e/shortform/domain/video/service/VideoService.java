@@ -314,7 +314,9 @@ public class VideoService {
         return videoMapper.changeDeleteStatus(id);
     }
 
-
+    public void videoViewsRandomUpdate() {
+        videoMapper.videoViewsRandomUpdate();
+    }
 
 
 

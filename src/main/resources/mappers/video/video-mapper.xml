@@ -400,4 +400,8 @@
         UPDATE shortform_videos SET delete_status = 1 WHERE id = #{id}
     </update>
 
+    <update id="videoViewsRandomUpdate">
+        UPDATE shortform_videos SET video_views = ROUND(DBMS_RANDOM.value * 35412, 0)
+    </update>
+
 </mapper>

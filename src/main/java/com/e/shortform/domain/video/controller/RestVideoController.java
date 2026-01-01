@@ -53,6 +53,12 @@ public class RestVideoController {
     private final CommunityLikeService communityLikeService;
     private final ReportService reportService;
 
+    @PostMapping("/views/random/update")
+    public void videoViewsRandomUpdate() {
+        videoService.videoViewsRandomUpdate();
+        System.out.println("변경 완료");
+    }
+
     /** 페이징된 비디오 목록 조회 (신규) */
     @GetMapping("/all")
     public Map<String, Object> selectAllVideos(
