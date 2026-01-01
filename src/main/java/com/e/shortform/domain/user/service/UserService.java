@@ -229,25 +229,35 @@ public class UserService {
         return userMapper.selectProfileUserFollowingList(id);
     }
 
-    // updateUserInfo 메서드 시그니처 변경
     public void updateUserInfo(UserProfileUpdateDto dto, String newProfileImgPath, Long userId) {
-        // DTO의 필드가 null이 아닐 때만 업데이트하는 로직을 Mapper나 Service에 구현합니다.
+        // newProfileImgPath가 null이 아닌 경우에만 업데이트
+        String finalProfileImg = newProfileImgPath;
+        String finalProfileImgSrc = newProfileImgPath;
+
+        // 외부 URL인 경우 profileImg는 URL로 저장
+        if (newProfileImgPath != null &&
+                (newProfileImgPath.startsWith("http://") || newProfileImgPath.startsWith("https://"))) {
+            finalProfileImg = newProfileImgPath; // URL을 그대로 사용
+        }
+
         userMapper.updateUserInfo(
                 dto.getUsername(),
                 dto.getMail(),
                 dto.getMention(),
                 dto.getBio(),
-                // 파일 경로는 DTO가 아닌 Controller에서 처리된 최종 경로를 사용
-                newProfileImgPath, // finalProfileImgPath
-                newProfileImgPath, // profileImgSrc
-                userId // AuthUserReqDto에서 가져온 ID를 사용
+                finalProfileImg,
+                finalProfileImgSrc,
+                userId
         );
     }
 
     public String fileTransfer(MultipartFile profileImg, String currentProfileImgSrc) {
         if (profileImg != null && !profileImg.isEmpty()) {
-            String newFilename = UUID.randomUUID().toString() + profileImg.getOriginalFilename().substring(profileImg.getOriginalFilename().lastIndexOf("."));
-            String uploadDir = System.getProperty("user.home").replace("\\", "/") + "/Desktop/shortform-server/shortform-user-profile-img/";
+            // 새 파일이 업로드된 경우
+            String newFilename = UUID.randomUUID().toString()
+                    + profileImg.getOriginalFilename().substring(profileImg.getOriginalFilename().lastIndexOf("."));
+            String uploadDir = System.getProperty("user.home").replace("\\", "/")
+                    + "/Desktop/shortform-server/shortform-user-profile-img/";
             Path savePath = Paths.get(uploadDir, newFilename);
 
             try {
@@ -257,12 +267,29 @@ public class UserService {
                 throw new RuntimeException("프로필 이미지 저장 실패", e);
             }
         } else {
+            // 파일 변경 없음 - 기존 경로 유지
+            if (currentProfileImgSrc == null || currentProfileImgSrc.isEmpty()) {
+                return null;
+            }
+
+            // 외부 URL인 경우 (구글, 네이버 등 소셜 로그인)
+            if (currentProfileImgSrc.startsWith("http://") ||
+                    currentProfileImgSrc.startsWith("https://")) {
+                return currentProfileImgSrc; // 그대로 반환
+            }
+
+            // 로컬 경로인 경우
             return extractPathFromUrl(currentProfileImgSrc);
         }
     }
 
     private String extractPathFromUrl(String fullUrl) {
         if (fullUrl == null || fullUrl.isEmpty()) return null;
+
+        // 이미 /resources/로 시작하면 그대로 반환
+        if (fullUrl.startsWith("/resources/")) {
+            return fullUrl;
+        }
 
         try {
             return new URL(fullUrl).getPath();

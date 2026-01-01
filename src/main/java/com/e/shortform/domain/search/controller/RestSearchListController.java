@@ -53,7 +53,7 @@ public class RestSearchListController {
         return searchListService.findAllSearchList();
     }
 
-    @GetMapping("/list/all/desc")
+    @GetMapping("/all/order/by/desc")
     public List<SearchListEntity> selectAllSearchListOrderByDesc() {
         return searchListService.selectAllSearchListOrderByDesc();
     }

@@ -119,14 +119,10 @@
             -- 통계 정보
             COALESCE(like_counts.LIKE_COUNT, 0) AS LIKE_COUNT
         FROM SHORTFORM_VIDEOS v
-                 LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
-                 LEFT JOIN (
-            SELECT
-                LIKE_VIDEO_ID,
-                COUNT(*) AS LIKE_COUNT
-            FROM SHORTFORM_VIDEO_LIKES
-            GROUP BY LIKE_VIDEO_ID
-        ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
+            LEFT JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
+            LEFT JOIN (
+                SELECT LIKE_VIDEO_ID, COUNT(*) AS LIKE_COUNT FROM SHORTFORM_VIDEO_LIKES GROUP BY LIKE_VIDEO_ID
+            ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
         WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
         AND v.DELETE_STATUS = 0
     </sql>
