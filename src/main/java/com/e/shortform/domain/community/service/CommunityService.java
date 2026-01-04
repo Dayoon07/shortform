@@ -218,7 +218,7 @@ public class CommunityService {
         if (visibility == null || visibility.trim().isEmpty())
             throw new IllegalArgumentException("공개 범위를 선택해주세요");
 
-        if (!Arrays.asList("public", "private", "followers").contains(visibility))
+        if (!Arrays.asList("PUBLIC", "PRIVATE", "FOLLOWERS").contains(visibility))
             throw new IllegalArgumentException("올바른 공개 범위를 선택해주세요");
 
         // 이미지 개수 검증
@@ -388,12 +388,8 @@ public class CommunityService {
         return communityRepo.findByCommunityUuid(communityUuid);
     }
 
-    public CommunityDetailDto findByCommunityBoardF(String uuid) {
-        return communityMapper.findByCommunityBoardF(uuid);
-    }
-
-    public List<UserProfilePostAllLikeCntDto> selectByCommunityButWhereIdAsdf(Long id) {
-        return communityMapper.selectByCommunityButWhereIdAsdf(id);
+    public CommunityDetailDto findByCommunityBoardF(String communityUuid) {
+        return communityMapper.findByCommunityBoardF(communityUuid);
     }
 
     public boolean changeDeleteStatus(Long communityId)  {

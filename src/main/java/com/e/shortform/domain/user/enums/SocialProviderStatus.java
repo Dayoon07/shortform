@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SocialProviderStatus {
-    LOCAL("local"),
-    GOOGLE("google");
+    LOCAL("LOCAL"),
+    GOOGLE("GOOGLE");
 
     private final String value;
 

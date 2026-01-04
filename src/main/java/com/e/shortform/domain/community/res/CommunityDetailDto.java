@@ -15,12 +15,18 @@ import java.time.LocalDateTime;
 public class CommunityDetailDto {
 
     private Long id;
+    private String username;
+    private String profileImgSrc;
+    private String mention;
+    private boolean social;
+    private String provider;
     private String communityUuid;
+    private Long communityWriterId;
     private String communityText;
     private LocalDateTime createAt;
     private String files;
     private Long likeCnt;
     private Long commentCnt;
-    private UserVo userVo;
+    private Long replyCnt;
 
 }

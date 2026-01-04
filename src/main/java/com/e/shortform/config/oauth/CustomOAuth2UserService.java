@@ -39,7 +39,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if (!user.isSocial()) {
                 // 로컬 계정에 소셜 계정 연동하는 경우
                 user.setSocial(true);
-                user.setProvider(provider);
+                user.setProvider(provider.toUpperCase());
                 userService.updateUser(user);
             }
         }

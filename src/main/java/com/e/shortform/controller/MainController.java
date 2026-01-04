@@ -136,7 +136,7 @@ public class MainController {
                 m.addAttribute("isFollowing", false);
             }
 
-            m.addAttribute("posts", communityService.selectByCommunityButWhereIdAsdf(profileUser.getId()));
+            m.addAttribute("posts", communityService.selectByCommunityButWhereId(profileUser.getId()));
             return "profile/profile-post";
         } else {
             return "profile/void-user";

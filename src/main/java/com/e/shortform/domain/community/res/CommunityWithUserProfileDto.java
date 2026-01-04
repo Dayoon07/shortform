@@ -24,5 +24,7 @@ public class CommunityWithUserProfileDto {
     private String communityText;
     private LocalDateTime createAt;
     private String files;
+    private Long likeCnt;
+    private Long commentCnt;
 
 }

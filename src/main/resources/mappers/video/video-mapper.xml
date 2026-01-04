@@ -123,7 +123,7 @@
             LEFT JOIN (
                 SELECT LIKE_VIDEO_ID, COUNT(*) AS LIKE_COUNT FROM SHORTFORM_VIDEO_LIKES GROUP BY LIKE_VIDEO_ID
             ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
         AND v.DELETE_STATUS = 0
     </sql>
     
@@ -143,7 +143,7 @@
         FROM SHORTFORM_VIDEOS v
             JOIN SHORTFORM_USERS u ON v.UPLOADER_USER_ID = u.ID
         WHERE u.mention = #{mention}
-            AND v.VIDEO_WATCH_AVAILABILITY = 'public'
+            AND v.VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
             AND v.DELETE_STATUS = 0
     </select>
 
@@ -164,7 +164,7 @@
     <select id="countPublicVideos" resultType="int">
         SELECT COUNT(*)
         FROM SHORTFORM_VIDEOS
-        WHERE VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
     </select>
 
     <select id="searchLogic" resultMap="IndexPageAllVideosResultMap" parameterType="String">
@@ -203,7 +203,7 @@
             FROM SHORTFORM_VIDEO_LIKES
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
           AND v.DELETE_STATUS = 0
           AND (LOWER(v.VIDEO_TITLE) LIKE '%' || LOWER(#{searchWordParam}) || '%'
           OR LOWER(v.VIDEO_TAG) LIKE '%' || LOWER(#{searchWordParam}) || '%'
@@ -305,7 +305,7 @@
             FROM SHORTFORM_VIDEO_LIKES
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
         ORDER BY my_like.LIKE_AT DESC
     </select>
 
@@ -345,7 +345,7 @@
             FROM SHORTFORM_VIDEO_LIKES
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
             AND DELETE_STATUS = 0
             AND REGEXP_LIKE(VIDEO_TAG, '(^| )' || #{hashtag} || '( |$)')
         ORDER BY UPLOAD_AT DESC
@@ -387,7 +387,7 @@
             FROM SHORTFORM_VIDEO_LIKES
             GROUP BY LIKE_VIDEO_ID
         ) like_counts ON v.ID = like_counts.LIKE_VIDEO_ID
-        WHERE v.VIDEO_WATCH_AVAILABILITY = 'public'
+        WHERE v.VIDEO_WATCH_AVAILABILITY = 'PUBLIC'
             AND v.DELETE_STATUS = 0
         ORDER BY v.VIDEO_VIEWS DESC
     </select>

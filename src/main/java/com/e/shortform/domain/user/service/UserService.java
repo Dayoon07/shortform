@@ -319,7 +319,7 @@ public class UserService {
                 .profileImgSrc(picture != null ? picture : "/resources/shortform-user-profile-img/default.jpg")
                 .mention(mentionUuid)
                 .social(true)            // 소셜 회원
-                .provider(provider)      // google, naver, kakao 등
+                .provider(provider.toUpperCase())      // google, naver, kakao 등
                 .build();
 
         return userRepo.save(userEntity);

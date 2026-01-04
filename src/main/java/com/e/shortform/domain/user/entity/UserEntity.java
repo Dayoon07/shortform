@@ -30,11 +30,9 @@ public class UserEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Lob
     @Column(name = "profile_img", nullable = false)
     private String profileImg;
 
-    @Lob
     @Column(name = "profile_img_src", nullable = false)
     private String profileImgSrc;
 

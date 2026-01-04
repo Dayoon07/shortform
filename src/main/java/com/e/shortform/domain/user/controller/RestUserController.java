@@ -102,7 +102,7 @@ public class RestUserController {
     @GetMapping("/post/info")
     public ResponseEntity<?> getUserPosts(@RequestParam String mention) {
         UserEntity user = userService.findByMention(mention);
-        return ResponseEntity.ok(communityService.selectByCommunityButWhereIdAsdf(user.getId()));
+        return ResponseEntity.ok(communityService.selectByCommunityButWhereId(user.getId()));
     }
 
     @GetMapping("/profile/info")

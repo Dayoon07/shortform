@@ -11,8 +11,7 @@ import java.util.List;
 public interface CommunityMapper {
 
     List<CommunityWithUserProfileDto> selectByCommunityButWhereId(Long id);
-    CommunityDetailDto findByCommunityBoardF(String uuid);
-    List<UserProfilePostAllLikeCntDto> selectByCommunityButWhereIdAsdf(Long id);
+    CommunityDetailDto findByCommunityBoardF(String communityUuid);
     boolean changeDeleteStatus(Long communityId);
 
 }
