@@ -75,11 +75,6 @@ public class RestVideoController {
         return videoService.selectIndexPageAllVideos();
     }
 
-    @GetMapping("/like/all")
-    public List<?> likeVideoAll() {
-        return videoService.findAll();
-    }
-
     @RequireAuth
     @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadVideo(
@@ -106,92 +101,6 @@ public class RestVideoController {
 
         HttpStatus status = (Boolean) res.get("success") ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(res, status);
-    }
-
-    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
-    @PostMapping("/like")
-    public ResponseEntity<?> videoLikeToggle(@RequestBody Map<String, Object> req, HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("user");
-
-        if (user == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("success", false, "message", "세션이 없습니다"));
-
-        try {
-            Long videoId = Long.valueOf(req.get("videoId").toString());
-
-            // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(videoId, user.getId());
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "isLiked", result.isLiked(),
-                        "totalLikes", result.getTotalLikes(),
-                        "message", result.getMessage()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                        "success", false,
-                        "message", result.getMessage()
-                ));
-            }
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "잘못된 비디오 ID입니다"
-            ));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "success", false,
-                    "message", "서버 오류가 발생했습니다"
-            ));
-        }
-    }
-
-    /** 좋아요 토글 API (MyBatis 사용 - 더 빠른 성능) */
-    @RequireAuth
-    @PostMapping("/like/by/mention")
-    public ResponseEntity<Map<String, Object>> videoLikeToggleByMention(
-            @RequestParam Long id,
-            @AuthenticationPrincipal UserEntity user
-    ) {
-        try {
-            // MyBatis 방식 사용 (성능상 유리)
-            VideoLikeToggleDto result = videoLikeService.toggleLikeWithMyBatis(id, user.getId());
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "isLiked", result.isLiked(),
-                        "totalLikes", result.getTotalLikes(),
-                        "message", result.getMessage()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                        "success", false,
-                        "message", result.getMessage()
-                ));
-            }
-
-        } catch (NumberFormatException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "잘못된 비디오 ID입니다"
-            ));
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "success", false,
-                    "message", "서버 오류가 발생했습니다"
-            ));
-        }
     }
 
     @PostMapping("/random")

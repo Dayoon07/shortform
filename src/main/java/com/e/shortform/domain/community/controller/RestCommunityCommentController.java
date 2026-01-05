@@ -4,16 +4,11 @@ import com.e.shortform.common.annotation.RequireAuth;
 import com.e.shortform.domain.comment.service.CommentLikeService;
 import com.e.shortform.domain.comment.service.CommentReplyService;
 import com.e.shortform.domain.comment.service.CommentService;
-import com.e.shortform.domain.community.entity.CommunityEntity;
-import com.e.shortform.domain.community.res.CommunityDetailDto;
-import com.e.shortform.domain.community.res.CommunityWithUserProfileDto;
-import com.e.shortform.domain.community.res.UserProfilePostAllLikeCntDto;
 import com.e.shortform.domain.community.service.*;
+import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
 import com.e.shortform.domain.user.entity.UserEntity;
-import com.e.shortform.domain.user.req.AuthUserReqDto;
-import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
 import com.e.shortform.domain.video.service.VideoService;
@@ -23,17 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/community", produces = "application/json;charset=utf-8")
-public class RestCommunityController {
+@RequestMapping(value = "/api/community/comment", produces = "application/json;charset=utf-8")
+public class RestCommunityCommentController {
 
     private final UserService userService;
     private final VideoService videoService;
@@ -51,46 +41,24 @@ public class RestCommunityController {
     private final CommunityCommentService communityCommentService;
     private final CommunityCommentReplyService communityCommentReplyService;
 
-    @GetMapping("/all")
-    public List<?> selectAllCommunity() {
-        return communityService.selectAllCommunity();
-    }
-
     @RequireAuth
-    @PostMapping("/write")
-    public ResponseEntity<Map<String, Object>> createCommunityPost(
-            @RequestParam(value = "content", required = false) String content,
-            @RequestParam("visibility") String visibility,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+    @PostMapping("/insert")
+    public ResponseEntity<?> insertComment(
+            @RequestParam Long communityId,
+            @RequestParam String comment,
             @AuthenticationPrincipal UserEntity user) {
-        return communityService.realCreatePost(content, visibility, images, user);
+        communityCommentService.insertComment(communityId, comment, user);
+        return ResponseEntity.ok(true);
     }
 
-    @GetMapping("/find")
-    public List<CommunityWithUserProfileDto> selectByCommunityBut(@RequestParam String mention) {
-        UserEntity writer = userService.findByMention(mention);
-        return communityService.selectByCommunityButWhereId(writer.getId());
+    @GetMapping("/list")
+    public ResponseEntity<?> getCommunityComments(@RequestParam Long communityId) {
+        return ResponseEntity.ok(communityCommentService.findByCommunityIdWithReplyCounts(communityId));
     }
 
-    @GetMapping("/find/detail")
-    public ResponseEntity<CommunityDetailDto> selectByCommunityButDetail(
-            @RequestParam String communityUuid) {
-        CommunityDetailDto details = communityService.findByCommunityBoardF(communityUuid);
-        return details != null ? ResponseEntity.ok(details) : ResponseEntity.noContent().build();
+    @GetMapping("/list/recent")
+    public ResponseEntity<?> getCommunityCommentsRecent(@RequestParam Long communityId) {
+        return ResponseEntity.ok(communityCommentService.findByCommunityIdOrderByDesc(communityId));
     }
-
-    @RequireAuth
-    @PostMapping("/delete")
-    public ResponseEntity<Boolean> communityDelete(@RequestParam Long id) {
-        return ResponseEntity.ok(communityService.changeDeleteStatus(id));
-    }
-
-
-
-
-
-
-
-
 
 }
