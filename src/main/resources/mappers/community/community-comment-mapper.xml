@@ -69,21 +69,21 @@
             NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
             NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT
         FROM SHORTFORM_COMMUNITY_COMMENTS C
-                 JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
-                 LEFT JOIN (
-            SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
-            FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
-            GROUP BY COMMENT_ID
-        ) L ON C.ID = L.COMMENT_ID
-                 LEFT JOIN (
-            SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
-            FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
-            WHERE DELETE_STATUS = 0
-            GROUP BY COMMENT_ID
-        ) R ON C.ID = R.COMMENT_ID
+            INNER JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                LEFT OUTER JOIN (
+                    SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+                    FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
+                    GROUP BY COMMENT_ID
+                ) L ON C.ID = L.COMMENT_ID
+            LEFT OUTER JOIN (
+                SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
+                FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
+                WHERE DELETE_STATUS = 0
+                GROUP BY COMMENT_ID
+            ) R ON C.ID = R.COMMENT_ID
         WHERE C.COMMUNITY_ID = #{communityId}
-          AND C.DELETE_STATUS = 0
-        ORDER BY C.CREATE_AT DESC
+            AND C.DELETE_STATUS = 0
+            ORDER BY C.CREATE_AT DESC
     </select>
 
 </mapper>
