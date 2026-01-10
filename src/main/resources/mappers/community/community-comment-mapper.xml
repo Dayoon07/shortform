@@ -20,6 +20,8 @@
         <result property="username" column="USERNAME"/>
         <result property="profileImgSrc" column="PROFILE_IMG_SRC"/>
         <result property="mention" column="MENTION"/>
+        <result property="social" column="IS_SOCIAL"/>
+        <result property="provider" column="PROVIDER"/>
         <result property="likeCount" column="LIKE_COUNT"/>
         <result property="replyCount" column="REPLY_COUNT"/>
     </resultMap>
@@ -35,9 +37,12 @@
             U.USERNAME,
             U.PROFILE_IMG_SRC,
             U.MENTION,
+            U.IS_SOCIAL,
+            U.PROVIDER,
             NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
             NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT
         FROM SHORTFORM_COMMUNITY_COMMENTS C
+                 INNER JOIN SHORTFORM_COMMUNITYS CC ON C.COMMUNITY_ID = CC.ID
                  JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
                  LEFT JOIN (
             SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
@@ -56,7 +61,7 @@
     </select>
 
     <!-- 최신순 정렬 버전 -->
-    <select id="selectByCommunityIdOrderByDesc" resultMap="communityCommentWithUserResultMap" parameterType="Long">
+    <select id="selectByCommunityIdOrderByDesc" resultMap="communityCommentWithUserResultMap" parameterType="String">
         SELECT
             C.ID AS COMMENT_ID,
             C.COMMENT_TEXT,
@@ -66,24 +71,27 @@
             U.USERNAME,
             U.PROFILE_IMG_SRC,
             U.MENTION,
+            U.IS_SOCIAL,
+            U.PROVIDER,
             NVL(L.LIKE_COUNT, 0) AS LIKE_COUNT,
             NVL(R.REPLY_COUNT, 0) AS REPLY_COUNT
         FROM SHORTFORM_COMMUNITY_COMMENTS C
-            INNER JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
-                LEFT OUTER JOIN (
-                    SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
-                    FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
-                    GROUP BY COMMENT_ID
-                ) L ON C.ID = L.COMMENT_ID
-            LEFT OUTER JOIN (
-                SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
-                FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
-                WHERE DELETE_STATUS = 0
-                GROUP BY COMMENT_ID
-            ) R ON C.ID = R.COMMENT_ID
-        WHERE C.COMMUNITY_ID = #{communityId}
-            AND C.DELETE_STATUS = 0
-            ORDER BY C.CREATE_AT DESC
+                 INNER JOIN SHORTFORM_COMMUNITYS CC ON C.COMMUNITY_ID = CC.ID
+                 INNER JOIN SHORTFORM_USERS U ON C.COMMENT_USER_ID = U.ID
+                 LEFT OUTER JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS LIKE_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_LIKES
+            GROUP BY COMMENT_ID
+        ) L ON C.ID = L.COMMENT_ID
+                 LEFT OUTER JOIN (
+            SELECT COMMENT_ID, COUNT(*) AS REPLY_COUNT
+            FROM SHORTFORM_COMMUNITY_COMMENT_REPLYS
+            WHERE DELETE_STATUS = 0
+            GROUP BY COMMENT_ID
+        ) R ON C.ID = R.COMMENT_ID
+        WHERE CC.COMMUNITY_UUID = #{communityUuid}
+          AND C.DELETE_STATUS = 0
+        ORDER BY C.CREATE_AT DESC
     </select>
 
 </mapper>

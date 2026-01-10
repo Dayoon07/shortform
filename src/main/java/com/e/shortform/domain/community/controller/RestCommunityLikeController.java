@@ -8,6 +8,7 @@ import com.e.shortform.domain.community.service.*;
 import com.e.shortform.domain.follow.service.FollowService;
 import com.e.shortform.domain.report.service.ReportService;
 import com.e.shortform.domain.search.service.SearchListService;
+import com.e.shortform.domain.user.entity.UserEntity;
 import com.e.shortform.domain.user.req.AuthUserReqDto;
 import com.e.shortform.domain.user.service.UserService;
 import com.e.shortform.domain.video.service.VideoLikeService;
@@ -50,7 +51,7 @@ public class RestCommunityLikeController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> communityLike(
             @RequestParam String communityUuid,
-            @AuthenticationPrincipal AuthUserReqDto user) {
+            @AuthenticationPrincipal UserEntity user) {
         Map<String, Object> map = communityLikeService.postLike(communityUuid, user.getMention());
         return ResponseEntity.ok(map);
     }

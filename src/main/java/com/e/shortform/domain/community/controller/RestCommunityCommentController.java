@@ -51,14 +51,14 @@ public class RestCommunityCommentController {
         return ResponseEntity.ok(true);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/list")    // 관리자 화면에서 모니터링용으로 만든 엔드 포인트
     public ResponseEntity<?> getCommunityComments(@RequestParam Long communityId) {
         return ResponseEntity.ok(communityCommentService.findByCommunityIdWithReplyCounts(communityId));
     }
 
-    @GetMapping("/list/recent")
-    public ResponseEntity<?> getCommunityCommentsRecent(@RequestParam Long communityId) {
-        return ResponseEntity.ok(communityCommentService.findByCommunityIdOrderByDesc(communityId));
+    @GetMapping("/recent")
+    public ResponseEntity<?> getCommunityCommentsRecent(@RequestParam String communityUuid) {
+        return ResponseEntity.ok(communityCommentService.findByCommunityIdOrderByDesc(communityUuid));
     }
 
 }

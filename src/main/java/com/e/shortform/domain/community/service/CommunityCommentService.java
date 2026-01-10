@@ -27,7 +27,7 @@ public class CommunityCommentService {
         return communityCommentRepo.findByCommunity(community);
     }
 
-    public void insertComment (Long id, String comment, UserEntity user) {
+    public void insertComment(Long id, String comment, UserEntity user) {
         CommunityEntity b = communityRepo.findById(id).orElseThrow();
         CommunityCommentEntity a = CommunityCommentEntity.builder()
                 .commentText(comment)
@@ -42,8 +42,8 @@ public class CommunityCommentService {
         return communityCommentMapper.selectByCommunityId(communityId);
     }
 
-    public List<CommunityCommentWithUserDto> findByCommunityIdOrderByDesc(Long communityId) {
-        return communityCommentMapper.selectByCommunityIdOrderByDesc(communityId);
+    public List<CommunityCommentWithUserDto> findByCommunityIdOrderByDesc(String communityUuid) {
+        return communityCommentMapper.selectByCommunityIdOrderByDesc(communityUuid);
     }
 
 }

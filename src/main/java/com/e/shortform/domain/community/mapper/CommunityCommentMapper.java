@@ -12,6 +12,6 @@ public interface CommunityCommentMapper {
     List<CommunityCommentWithUserDto> selectByCommunityId(Long communityId);
 
     // 최신순 정렬
-    List<CommunityCommentWithUserDto> selectByCommunityIdOrderByDesc(Long communityId);
+    List<CommunityCommentWithUserDto> selectByCommunityIdOrderByDesc(String communityUuid);
 
 }
